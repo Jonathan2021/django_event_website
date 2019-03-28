@@ -134,3 +134,14 @@ class Price(models.Model):
         verbose_name = _("Price")
         verbose_name_plural = _("Prices")
         unique_together = ('ticket_type', 'event_id')
+
+
+class Purchase(models.Model):
+    event_id = models.ForeignKey(Event, on_delete=models.SET_NULL)
+    user_id = models.ForeignKey(User, on_delete=models.SET_NULL)
+    ticket_id = models.ForeignKey(Ticket, on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = _("Purchase")
+        verbose_plural_name = _("Purchases")
+        unique_together = ('event_id', 'user_id', 'ticket_id')

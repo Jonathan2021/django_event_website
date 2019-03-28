@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Email(models.Model):
-    email = models.EmailField(_("Email address"))
+    email = models.EmailField(_("Email address"), unique=True)
 
     class Meta:
         verbose_name = _("Email")
@@ -27,7 +27,7 @@ def validate_birth(value):
 
 
 class User(models.Model):
-    email_id = models.ForeignKey(Email, on_delete=models.RESTRICT)
+    email_id = models.ForeignKey(Email, on_delete=models.RESTRICT, unique=True)
     firstname = models.CharField(_("First name"), max_length=64)
     lastname = models.CharField(_("Last name"), max_length=64)
     gender = models.BooleanField(_("Gender"))
@@ -42,8 +42,63 @@ class User(models.Model):
 
 
 class Association(models.Model):
-    name = models.CharField(_("Name"), max_length=64)
+    name = models.CharField(_("Name"), max_length=64, unique=True)
 
     class Meta:
         verbose_name = _("Association")
         verbose_name_plural = _("Associations")
+
+
+class Member(models.Model):
+    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _("Member")
+        verbose_name_plural = _("Members")
+        unique_together = ('assos_id', 'user_id')
+
+
+class Manager(models.Model):
+    member_id = models.ForeignKey(Member, unique=True)
+    president_flag = models.BooleanField(_("President"), default=False)
+
+    class Meta:
+        verbose_name = _("Member of the Bureau")
+        verbose_name_plural = _("Members of the Bureau")
+
+
+def assos_delete_behavior(event):
+    if(event.event_state == event.FINISHED or
+       event.event_state == event.REFUSED):
+        return models.CASCADE
+    return models.RESTRICT
+
+
+class Event(models.Model):
+    PENDING = 'P'
+    APPROVED = 'A'
+    REFUSED = 'R'
+    ONGOING = 'O'
+    FINISHED = 'F'
+    EVENT_STATE_CHOICES = (
+        (PENDING, _("Pending")),
+        (APPROVED, _("Approved")),
+        (REFUSED, _("REFUSED")),
+        (ONGOING, _("Ongoing")),
+        (FINISHED, _("Finished")),
+    )
+    event_state = models.CharField(_("State of the event"), max_length=1,
+                                   choices=EVENT_STATE_CHOICES,
+                                   default=PENDING)
+    manager_id = models.ForeignKey(Manager, on_delete=models.SET_NULL,
+                                   null=True)
+    assos_id = models.ForeignKey(Association,
+                                 on_delete=assos_delete_behavior())
+    # address_id = models.ForeignKey(Address,
+    # on_delete=models.RESTRICT, default=epita's address,)
+    premium_flag = models.BooleanField(_("Premium"), default=False)
+
+    class Meta:
+        verbose_name = (_("Event"))
+        verbose_name_plural = (_("Events"))

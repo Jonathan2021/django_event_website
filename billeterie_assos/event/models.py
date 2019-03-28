@@ -9,6 +9,10 @@ from django.utils.translation import ugettext_lazy as _
 class Email(models.Model):
     email = models.EmailField(_("Email address"))
 
+    class Meta:
+        verbose_name = _("Email")
+        verbose_name_plural = _("Emails")
+
 
 """
 class Address(models.Model):
@@ -31,3 +35,15 @@ class User(models.Model):
     # status = models.IntegerField()
     # adress_id = models.ForeignKey(Address,
     # on_delete = models.SET_NULL, null=True)
+
+    class Meta:
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
+
+
+class Association(models.Model):
+    name = models.CharField(_("Name"), max_length=64)
+
+    class Meta:
+        verbose_name = _("Association")
+        verbose_name_plural = _("Associations")

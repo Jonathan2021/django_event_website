@@ -27,7 +27,7 @@ def validate_birth(value):
 
 
 class User(models.Model):
-    email_id = models.ForeignKey(Email, on_delete=models.RESTRICT, unique=True)
+    email_id = models.ForeignKey(Email, on_delete=models.PROTECT, unique=True)
     firstname = models.CharField(_("First name"), max_length=64)
     lastname = models.CharField(_("Last name"), max_length=64)
     gender = models.BooleanField(_("Gender"))
@@ -72,7 +72,7 @@ def assos_delete_behavior(event):
     if(event.event_state == event.FINISHED or
        event.event_state == event.REFUSED):
         return models.CASCADE
-    return models.RESTRICT
+    return models.PROTECT
 
 
 class Event(models.Model):
@@ -84,7 +84,7 @@ class Event(models.Model):
     EVENT_STATE_CHOICES = (
         (PENDING, _("Pending")),
         (APPROVED, _("Approved")),
-        (REFUSED, _("REFUSED")),
+        (REFUSED, _("Refused")),
         (ONGOING, _("Ongoing")),
         (FINISHED, _("Finished")),
     )
@@ -96,9 +96,28 @@ class Event(models.Model):
     assos_id = models.ForeignKey(Association,
                                  on_delete=assos_delete_behavior())
     # address_id = models.ForeignKey(Address,
-    # on_delete=models.RESTRICT, default=epita's address,)
+    # on_delete=models.PROTECT, default=epita's address,)
     premium_flag = models.BooleanField(_("Premium"), default=False)
 
     class Meta:
         verbose_name = (_("Event"))
         verbose_name_plural = (_("Events"))
+
+
+class Ticket(models.Model):
+    INTERN = 'I'
+    EXTERN = 'E'
+    STAFF = 'S'
+    TICKET_TYPE_CHOICES = (
+        (INTERN, _("Internal")),
+        (EXTERN, _("External")),
+        (STAFF, _("Staff")),
+    )
+
+    ticket_type = models.CharField(_("Type of ticket"), max_length=1,
+                                   choices=TICKET_TYPE_CHOICES)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _("Ticket")
+        verbose_name_plural = _("Tickets")

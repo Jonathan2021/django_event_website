@@ -10,6 +10,7 @@ django = "*"
 redgreenunittest = "*"
 djangorestframework = "*"
 flake8 = "*"
+django-rest-swagger = "*"
 
 [requires]
 python_version = "3.7"

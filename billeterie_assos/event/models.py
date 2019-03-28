@@ -104,16 +104,17 @@ class Event(models.Model):
         verbose_name_plural = (_("Events"))
 
 
-class Ticket(models.Model):
-    INTERN = 'I'
-    EXTERN = 'E'
-    STAFF = 'S'
-    TICKET_TYPE_CHOICES = (
-        (INTERN, _("Internal")),
-        (EXTERN, _("External")),
-        (STAFF, _("Staff")),
-    )
+INTERN = 'I'
+EXTERN = 'E'
+STAFF = 'S'
+TICKET_TYPE_CHOICES = (
+    (INTERN, _("Internal")),
+    (EXTERN, _("External")),
+    (STAFF, _("Staff")),
+)
 
+
+class Ticket(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=TICKET_TYPE_CHOICES)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -121,3 +122,15 @@ class Ticket(models.Model):
     class Meta:
         verbose_name = _("Ticket")
         verbose_name_plural = _("Tickets")
+
+
+class Price(models.Model):
+    ticket_type = models.CharField(_("Type of ticket"), max_length=1,
+                                   choices=TICKET_TYPE_CHOICES)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    price = models.PositiveIntegerField(_("Price"))
+
+    class Meta:
+        verbose_name = _("Price")
+        verbose_name_plural = _("Prices")
+        unique_together = ('ticket_type', 'event_id')

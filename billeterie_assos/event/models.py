@@ -1,4 +1,5 @@
 from django.db import models
+from address.models import AddressField
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -14,10 +15,8 @@ class Email(models.Model):
         verbose_name_plural = _("Emails")
 
 
-"""
 class Address(models.Model):
-    zip_code = models.CharField(max_length=5, validators=[validate_zipcode]
-"""
+    address = AddressField()
 
 
 def validate_birth(value):
@@ -33,7 +32,8 @@ class User(models.Model):
     gender = models.BooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
     # status = models.IntegerField()
-    # adress_id = models.ForeignKey(Address,
+    adress_id = models.ForeignKey(Address, null=True, blank='',
+                                  on_delete=models.SET_NULL)
     # on_delete = models.SET_NULL, null=True)
 
     class Meta:
@@ -95,8 +95,9 @@ class Event(models.Model):
                                    null=True)
     assos_id = models.ForeignKey(Association,
                                  on_delete=assos_delete_behavior())
-    # address_id = models.ForeignKey(Address,
-    # on_delete=models.PROTECT, default=epita's address,)
+    address_id = models.ForeignKey(Address,
+                                   on_delete=models.PROTECT)
+    # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)
 
     class Meta:

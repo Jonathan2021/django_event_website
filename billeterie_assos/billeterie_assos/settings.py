@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_swagger',
+    'address',
 ]
 
 LOCAL_APPS = [
@@ -126,3 +127,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
+
+GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'

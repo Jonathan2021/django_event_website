@@ -1,5 +1,6 @@
 from django.db import models
 from address.models import AddressField
+from compositefk.fields import CompositeOneToOneField
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -15,10 +16,6 @@ class Email(models.Model):
         verbose_name_plural = _("Emails")
 
 
-class Address(models.Model):
-    address = AddressField()
-
-
 def validate_birth(value):
     if value > datetime.date.today():
         raise ValidationError(_('%(value) is bigger than today'),
@@ -26,14 +23,13 @@ def validate_birth(value):
 
 
 class User(models.Model):
-    email_id = models.ForeignKey(Email, on_delete=models.PROTECT, unique=True)
+    email_id = models.OneToOneField(Email, on_delete=models.PROTECT)
     firstname = models.CharField(_("First name"), max_length=64)
     lastname = models.CharField(_("Last name"), max_length=64)
     gender = models.BooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
     # status = models.IntegerField()
-    adress_id = models.ForeignKey(Address, null=True, blank='',
-                                  on_delete=models.SET_NULL)
+    adress_id = AddressField(null=True, blank='', on_delete=models.SET_NULL)
     # on_delete = models.SET_NULL, null=True)
 
     class Meta:
@@ -60,19 +56,25 @@ class Member(models.Model):
 
 
 class Manager(models.Model):
-    member_id = models.ForeignKey(Member, unique=True)
-    president_flag = models.BooleanField(_("President"), default=False)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
+    member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
+                                    to_fields={"assos_id", "user_id"})
 
     class Meta:
         verbose_name = _("Member of the Bureau")
         verbose_name_plural = _("Members of the Bureau")
 
 
-def assos_delete_behavior(event):
-    if(event.event_state == event.FINISHED or
-       event.event_state == event.REFUSED):
-        return models.CASCADE
-    return models.PROTECT
+class President(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    assos_id = models.OneToOneField(Association, on_delete=models.CASCADE)
+    manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
+                                     to_fields={"assos_id", "user_id"})
+
+    class Meta:
+        verbose_name = _("President")
+        verbose_name_plural = _("Presidents")
 
 
 class Event(models.Model):
@@ -94,9 +96,11 @@ class Event(models.Model):
     manager_id = models.ForeignKey(Manager, on_delete=models.SET_NULL,
                                    null=True)
     assos_id = models.ForeignKey(Association,
-                                 on_delete=assos_delete_behavior())
-    address_id = models.ForeignKey(Address,
-                                   on_delete=models.PROTECT)
+                                 on_delete=(models.CASCADE
+                                            if (event_state == FINISHED or
+                                                event_state == REFUSED)
+                                            else models.PROTECT))
+    address_id = AddressField(on_delete=models.PROTECT)
     # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)
 
@@ -138,11 +142,11 @@ class Price(models.Model):
 
 
 class Purchase(models.Model):
-    event_id = models.ForeignKey(Event, on_delete=models.SET_NULL)
-    user_id = models.ForeignKey(User, on_delete=models.SET_NULL)
-    ticket_id = models.ForeignKey(Ticket, on_delete=models.SET_NULL)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    ticket_id = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Purchase")
-        verbose_plural_name = _("Purchases")
+        verbose_name_plural = _("Purchases")
         unique_together = ('event_id', 'user_id', 'ticket_id')

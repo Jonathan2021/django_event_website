@@ -40,10 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_swagger',
     'address',
-]
-
-LOCAL_APPS = [
-        'event',
+    'event',
 ]
 
 MIDDLEWARE = [

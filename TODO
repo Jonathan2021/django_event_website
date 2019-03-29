@@ -1,3 +1,4 @@
 Check when buying a ticket that user > 18 yo
 write test user born in future
 test the variable on_delete behavior event
+Instead of having my user class, maybe I should use the django.contrib.auth.models user

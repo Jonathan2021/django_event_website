@@ -1,4 +1,6 @@
 Check when buying a ticket that user > 18 yo
 write test user born in future
 test the variable on_delete behavior event
-Instead of having my user class, maybe I should use the django.contrib.auth.models user
+Create a Custom User Model Extending Abstract user (make email the authentification)
+https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
+Use Group model and extend associations from here

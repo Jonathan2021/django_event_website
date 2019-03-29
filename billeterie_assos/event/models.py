@@ -19,7 +19,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.BooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
-    adress_id = AddressField(null=True, blank='', on_delete=models.SET_NULL)
+    adress_id = AddressField(null=True, blank='', related_name="emails",
+                             on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = _("Profile")
@@ -42,10 +43,15 @@ class Association(models.Model):
         verbose_name = _("Association")
         verbose_name_plural = _("Associations")
 
+    def __str__(self):
+        return '%s' % (self.name)
+
 
 class Member(models.Model):
-    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
-    profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    assos_id = models.ForeignKey(Association, related_name='members',
+                                 on_delete=models.CASCADE)
+    profile_id = models.ForeignKey(Profile, related_name='memberships',
+                                   on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Member")
@@ -137,6 +143,9 @@ class Price(models.Model):
         verbose_name = _("Price")
         verbose_name_plural = _("Prices")
         unique_together = ('ticket_type', 'event_id')
+
+    def __str__(self):
+        return '%s: %d' % (TICKET_TYPE_CHOICES[self.ticket_type], self.price)
 
 
 class Purchase(models.Model):

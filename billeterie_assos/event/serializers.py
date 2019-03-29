@@ -1,8 +1,9 @@
 from res_framework import serializers
-from .models import Association, EmailAddress, Member, Manager, President
+from .models import Association, EmailAddress, Member, Manager, President,\
+        Profile
 
 
-class AssociationSerializer(serializers.HyperlinkeedModelSerializer):
+class AssociationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Association
         fields = ('name')
@@ -41,3 +42,17 @@ class PresidentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = President
         fields = ('profile', 'association')
+
+
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+    emails = serializers.HyperlinkedRelatedField(many=True,
+                                                 view_name='email-detail',
+                                                 read_only=True)
+    memberships = serializers.\
+        HyperlinkedRelatedField(many=True, view_name='member-detail',
+                                read_only=True)
+    address = serializers.ReadOnlyField(source='address_id.__str__()')
+
+    class Meta:
+        model = Profile
+        fields = ('user', 'gender', 'birth_date', 'address')

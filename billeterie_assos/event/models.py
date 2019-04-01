@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
@@ -28,7 +29,8 @@ class Profile(models.Model):
 
 
 class EmailAddress(models.Model):
-    email = models.EmailField(_("Email address"), unique=True)
+    email = models.EmailField(_("Email address"), unique=True,
+                              validators=[validate_email])
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     class Meta:
@@ -94,6 +96,7 @@ class Event(models.Model):
         (ONGOING, _("Ongoing")),
         (FINISHED, _("Finished")),
     )
+    title = models.CharField(_("Title of the event"), max_length=64)
     event_state = models.CharField(_("State of the event"), max_length=1,
                                    choices=EVENT_STATE_CHOICES,
                                    default=PENDING)
@@ -105,8 +108,14 @@ class Event(models.Model):
                                                 event_state == REFUSED)
                                             else models.PROTECT))
     address_id = AddressField(on_delete=models.PROTECT)
+    start = models.DateTimeField(_("Start date and time"))
+    end = models.DateTimeField(_("End date and time"))
     # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)
+
+    def clean(self):
+        if self.start <= self.end:
+            raise ValidationError(_('Your event should end after it starts.'))
 
     class Meta:
         verbose_name = (_("Event"))

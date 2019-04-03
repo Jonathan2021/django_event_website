@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import validate_email
+# from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
@@ -20,7 +20,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.BooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
-    adress_id = AddressField(null=True, blank='', related_name="emails",
+    adress_id = AddressField(null=True, blank=True, related_name="emails",
                              on_delete=models.SET_NULL)
 
     class Meta:
@@ -29,8 +29,7 @@ class Profile(models.Model):
 
 
 class EmailAddress(models.Model):
-    email = models.EmailField(_("Email address"), unique=True,
-                              validators=[validate_email])
+    email = models.EmailField(_("Email address"), unique=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     class Meta:

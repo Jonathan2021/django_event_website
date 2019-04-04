@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
+from django.utils import timezone
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -11,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 def validate_birth(value):
-    if value > datetime.date.today():
+    if value >= datetime.date.today():
         raise ValidationError(_('%(value) is bigger than today'),
                               params={'value': value},)
 
@@ -20,8 +21,11 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.BooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
-    adress_id = AddressField(null=True, blank=True, related_name="emails",
+    address_id = AddressField(null=True, blank=True, related_name="emails",
                              on_delete=models.SET_NULL)
+    
+    def __str__(self):
+        return '%s (%s)' % (self.user.get_full_name(), self.user.email)
 
     class Meta:
         verbose_name = _("Profile")
@@ -31,6 +35,9 @@ class Profile(models.Model):
 class EmailAddress(models.Model):
     email = models.EmailField(_("Email address"), unique=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '%s' % (self.email)
 
     class Meta:
         verbose_name = _("Email")

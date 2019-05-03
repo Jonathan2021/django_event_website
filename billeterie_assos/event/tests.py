@@ -1,11 +1,12 @@
 from django.test import TestCase
+from pprint import pprint
 from django.core.exceptions import ValidationError
 import datetime
 from django.utils import timezone
 from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Profile, Association, Member, Manager, President
+from .models import Profile, Association, Member, Manager, President, Event
 from address.models import Address
 
 # Create your tests here.
@@ -215,7 +216,7 @@ class PresidentModelTests(TestCase):
     def test_null_assos(self):
         self.create_all()
         president = President(assos_id=None, profile_id=self.manager.profile_id)
-        with self.assertRaises(IntegrityError): #If i full_clean doesnt raise ValationError but RelatedObjectDoesntExist instead
+        with self.assertRaises(IntegrityError): #If I full_clean doesnt raise ValidationError but RelatedObjectDoesntExist instead
             president.save()
 
     def test_null_manager(self):
@@ -255,32 +256,89 @@ class PresidentModelTests(TestCase):
             president.full_clean()
 """    
     def test_unknown_profile(self):
-    def test_null_profile(self):
     def test_unknow_assos(self):
-    def test_null_assos(self):
-    def test_not_unique_combination_profile_assos(self):
-    def test_not_unique_assos(self):
-    def test_valid_input(self):
-    def test_no_ref_member_profile_assos_combination(self):
+"""
 
-        
+def create_date_time(days=0, hours=0):
+    return timezone.now() + datetime.timedelta(days=days, hours=hours)
+
+def make_event(title="event_title", state='P', manager=None,
+                 assos=None, address=None, start=None, end=None, premium=False):
+    manager = create_manager() if manager is None else manager
+    assos = manager.assos_id if assos is None else assos
+    address = create_address() if address is None else address
+    start = create_date_time(days=1) if start is None else start
+    end = start + datetime.timedelta(hours=5) if end is None else end
+    return Event(title=title, event_state=state,
+                                manager_id=manager, assos_id=assos,
+                                address_id=address, start=start, end=end,
+                                premium_flag=premium)
+
+def create_event(title="event_title", state='P', manager=None,
+                 assos=None, address=None, start=None, end=None, premium=False):
+    return make_event(title, state, manager, assos, address, start,
+                      end, premium).save();
+
 class EventModelTests(TestCase):
     def test_too_long_title(self):
+        with self.assertRaises(ValidationError):
+            make_event(title="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+                    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").full_clean()
+
     def test_invalid_event_state(self):
-    def test_unknown_manager_id(self):
+        with self.assertRaises(ValidationError):
+            make_event(state='X').full_clean()
+
     def test_null_title(self):
+        with self.assertRaises(ValidationError):
+            make_event(title=None).full_clean()
+
     def test_null_event_state(self):
+        with self.assertRaises(ValidationError):
+            make_event(state=None).full_clean()
+
+    def test_null_assos_id(self):
+        event = make_event()
+        event.assos_id = None
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+
+    def test_start_after_end(self):
+        event = make_event()
+        event.start = event.end + datetime.timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+    
+    def test_null_start(self):
+        event = make_event()
+        event.start = None
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+
+    def test_null_end(self):
+        event = make_event()
+        event.end = None
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+
+    def test_null_premium_flag(self):
+        with self.assertRaises(ValidationError):
+            make_event(premium=None).full_clean()
+
+    def test_start_and_end_at_same_time(self):
+        event = make_event()
+        event.start = event.end
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+    
+    def test_valid_input(self):
+        event = make_event()
+        event.full_clean()
+        event.save()
+""" 
+    def test_unknown_manager_id(self):
     def test_unknown_assos_id(self):
     def test_unknown_address(self):
-    def test_null_manager_id(self):
-    def test_null_assos_id(self):
-    def test_start_after_end(self):
-    def test_start_and_end_at_same_time(self):
-    def test_null_start(self):
-    def test_null_end(self):
-    def test_null_premium_flag(self):
-    def test_valid_input(self):
-    def test_finished_before_end(self):
 
 
 class TicketModelTests(TestCase):

@@ -1,9 +1,10 @@
 from django.db import models
+from django.db.models.functions import Now
 # from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
-# from django.utils import timezone
+from django.utils import timezone
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -91,6 +92,7 @@ class President(models.Model):
 
 
 class Event(models.Model):
+
     PENDING = 'P'
     APPROVED = 'A'
     REFUSED = 'R'
@@ -99,6 +101,7 @@ class Event(models.Model):
         (APPROVED, _("Approved")),
         (REFUSED, _("Refused")),
     )
+
     title = models.CharField(_("Title of the event"), max_length=64)
     event_state = models.CharField(_("State of the event"), max_length=1,
                                    choices=EVENT_STATE_CHOICES,
@@ -107,17 +110,14 @@ class Event(models.Model):
                                    null=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
-    assos_id = models.ForeignKey(Association,
-                                 on_delete=(models.CASCADE
-                                            if (event_state == REFUSED or
-                                                end < datetime.datetime.now())
-                                            else models.PROTECT))
+    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
     address_id = AddressField(on_delete=models.PROTECT)
     # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)
 
     def clean(self):
-        if self.start >= self.end:
+        super(Event, self).clean()
+        if self.start is not None and self.end is not None and self.start >= self.end:
             raise ValidationError(_('Your event should end after it starts.'))
 
     class Meta:

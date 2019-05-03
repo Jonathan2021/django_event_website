@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Profile, Association, Member, Manager
+from .models import Profile, Association, Member, Manager, President
 from address.models import Address
 
 # Create your tests here.
@@ -196,9 +196,64 @@ class ManagerModelTests(TestCase):
 """
     def test_unknown_profile(self):
     def test_unknow_assos(self):
+"""
 
+def create_manager(member=None):
+    member = create_member() if member is None else member
+    return Manager.objects.create(member=member)
 
 class PresidentModelTests(TestCase):
+    def create_all(self):
+        self.manager = create_manager()
+
+    def test_null_profile(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id, profile_id=None)
+        with self.assertRaises(IntegrityError): #see comment below
+            president.save()
+
+    def test_null_assos(self):
+        self.create_all()
+        president = President(assos_id=None, profile_id=self.manager.profile_id)
+        with self.assertRaises(IntegrityError): #If i full_clean doesnt raise ValationError but RelatedObjectDoesntExist instead
+            president.save()
+
+    def test_null_manager(self):
+        president = President(manager=None)
+        with self.assertRaises(IntegrityError): #see comment above
+            president.save()
+
+    def test_valid_input(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                          profile_id=self.manager.profile_id)
+        self.assertTrue(isinstance(president, President))
+        president.full_clean()
+        president.save()
+
+    def test_not_unique_compositeonetoonefield(self):
+        self.create_all()
+        President.objects.create(manager=self.manager)
+        president = President(manager=self.manager)
+        with self.assertRaises(ValidationError):
+            president.full_clean()
+
+    def test_no_ref_manager_profile_assos_combination(self):
+        president = President(profile_id=create_profile("president"),
+                          assos_id=create_association("president_assos"))
+        with self.assertRaises(Manager.DoesNotExist):
+            president.full_clean()
+
+    def test_not_unique_assos(self):
+        self.create_all()
+        other_manager = create_manager(create_member(
+                                       assos=self.manager.assos_id,
+                                       profile=create_profile("new_profile")))
+        President.objects.create(manager=self.manager)
+        president = President(manager=other_manager)
+        with self.assertRaises(ValidationError):
+            president.full_clean()
+"""    
     def test_unknown_profile(self):
     def test_null_profile(self):
     def test_unknow_assos(self):

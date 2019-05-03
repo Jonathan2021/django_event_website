@@ -72,7 +72,6 @@ class Manager(models.Model):
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
                                     to_fields={"assos_id", "profile_id"})
-
     class Meta:
         verbose_name = _("Member of the Bureau")
         verbose_name_plural = _("Members of the Bureau")
@@ -80,7 +79,8 @@ class Manager(models.Model):
 
 class President(models.Model):
     profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    assos_id = models.OneToOneField(Association, on_delete=models.CASCADE)
+    assos_id = models.OneToOneField(Association, on_delete=models.CASCADE,
+                                    unique=True)
     manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
                                      to_fields={"assos_id", "profile_id"})
 

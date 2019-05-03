@@ -6,8 +6,9 @@ from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Profile, Association, Member, Manager, President, Event,\
-    EmailAddress, Ticket
+    EmailAddress, Ticket, Price, get_ticket_name, Purchase
 from address.models import Address
+from django.utils.translation import ugettext_lazy as _
 
 # Create your tests here.
 def create_user(name='test', mail='test@test.com',\
@@ -399,29 +400,92 @@ class TicketModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.ticket.full_clean()
 
+def create_ticket(t_type='I', event_id=None):
+    event_id = create_event() if event_id is None else event_id
+    return Ticket.objects.create(ticket_type=t_type, event_id=event_id)
+
 """
     def test_unknown_event(self):
     def test_past_event(self):
     def test_refused_event(self):
     def test_pending_envent(self):
     def test_approved_event(self):
-
+"""
 
 class PriceModelTests(TestCase):
-    def test_invalid_ticket_type(self):
-    def test_null_ticket_type(self):
-    def test_unknown_event(self):
-    def test_negative_price(self):
-    def test_null_price(self):
-    def test_null_event(self):
-    def test_str(self):
-    def test_not_unique_combination_type_event(self):
-    def test_valid_input(self):
+    def create_all(self):
+        self.price = Price(ticket_type='I', event_id=create_event(), price=3)
 
+    def test_invalid_ticket_type(self):
+        self.create_all()
+        self.price.ticket_type = 'W'
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
+    def test_null_ticket_type(self):
+        self.create_all()
+        self.price.ticket_type = None
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
+    def test_negative_price(self):
+        self.create_all()
+        self.price.price = -42
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
+    def test_null_price(self):
+        self.create_all()
+        self.price.price = None
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
+    def test_null_event(self):
+        self.create_all()
+        self.price.event_id = None
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
+    def test_str(self):
+        self.create_all()
+        self.assertIs(_("%s: %d") %
+                      (get_ticket_name(self.price.ticket_type),
+                       self.price.price)
+                      == self.price.__str__(), True)
+
+    def test_not_unique_combination_type_event(self):
+        self.create_all()
+        self.price.full_clean()
+        self.price.save()
+        with self.assertRaises(ValidationError):
+            Price(ticket_type=self.price.ticket_type,
+                  event_id=self.price.event_id,
+                  price=42).full_clean()
+
+    def test_valid_input(self):
+        self.create_all()
+        self.price.full_clean()
+        self.price.save()
+
+"""
+    def test_unknown_event(self):
+"""
 
 class  PurchaseModelTests(TestCase):
-    def test_unknown_event(self):
+    def create_all(self):
+        event = create_event()
+        self.purchase = Purchase(event_id=event,
+                                 profile_id=create_profile("ldjqnldhzql"),
+                                 ticket_id=create_ticket(event_id=event))
+    
     def test_null_event(self):
+        self.create_all()
+        self.purchase.event_id = None
+        with self.assertRaises(ValidationError):
+            self.purchase.full_clean()
+                                 
+"""
+    def test_unknown_event(self):
     def test_unknown_profile(self):
     def test_null_profile(self):
     def test_unknown_ticket(self):

@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Profile, Association, Member
+from .models import Profile, Association, Member, Manager
 from address.models import Address
 
 # Create your tests here.
@@ -44,6 +44,7 @@ class ProfileModelTests(TestCase):
         self.create_profile()
         self.assertTrue(isinstance(self.profile, Profile))
         self.profile.full_clean()
+        self.profile.save()
 
     def test_future_birth_date(self):
         self.create_all()
@@ -78,8 +79,8 @@ class ProfileModelTests(TestCase):
                 (self.user.get_full_name(), self.user.email)))
 
 
-def create_profile():
-    return Profile.objects.create(user=create_user(), gender=True,
+def create_profile(name="default_name"):
+    return Profile.objects.create(user=create_user(name), gender=True,
             birth_date=create_date(-1), address_id=create_address())
 
 
@@ -111,8 +112,8 @@ class AssociationModelTests(TestCase):
     def test_valid_input(self):
         Association(name="Epinard").full_clean()
 
-def create_association():
-    return Association.objects.create(name="assos_test")
+def create_association(name="assos_default"):
+    return Association.objects.create(name=name)
 
 
 class MemberModelTests(TestCase):
@@ -144,15 +145,57 @@ class MemberModelTests(TestCase):
         with self.assertRaises(IntegrityError):
             Member.objects.create(assos_id=self.assos, profile_id=self.profile)
 
-""" 
+def create_member(assos=None, profile=None):
+    assos = create_association() if assos is None else assos
+    profile = create_profile() if profile is None else profile
+    return Member.objects.create(assos_id=assos, profile_id=profile)
+
+
 class ManagerModelTests(TestCase):
-    def test_unknown_profile(self):
+    def create_all(self):
+        self.member = create_member(create_association("manager_assos"),
+                                    create_profile("manager"))
+
     def test_null_profile(self):
-    def test_unknow_assos(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id, profile_id=None)
+        with self.assertRaises(IntegrityError): #see comment below
+            manager.save()
+
     def test_null_assos(self):
-    def test_not_unique_combination_profile_assos(self):
+        self.create_all()
+        manager = Manager(assos_id=None, profile_id=self.member.profile_id)
+        with self.assertRaises(IntegrityError): #If i full_clean doesnt raise ValationError but RelatedObjectDoesntExist instead
+            manager.save()
+
+    def test_null_member(self):
+        manager = Manager(member=None)
+        with self.assertRaises(IntegrityError): #see comment above
+            manager.save()
+
     def test_valid_input(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        self.assertTrue(isinstance(manager, Manager))
+        manager.full_clean()
+        manager.save()
+
+    def test_not_unique_compositeonetoonefield(self):
+        self.create_all()
+        Manager.objects.create(member=self.member)
+        manager = Manager(member=self.member)
+        with self.assertRaises(ValidationError):
+            manager.full_clean()
+
     def test_no_ref_member_profile_assos_combination(self):
+        manager = Manager(profile_id=create_profile("manager"),
+                          assos_id=create_association("manager_assos"))
+        with self.assertRaises(Member.DoesNotExist):
+            manager.full_clean()
+"""
+    def test_unknown_profile(self):
+    def test_unknow_assos(self):
 
 
 class PresidentModelTests(TestCase):

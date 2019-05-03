@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
-from django.utils import timezone
+# from django.utils import timezone
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -22,8 +22,8 @@ class Profile(models.Model):
     gender = models.BooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
     address_id = AddressField(null=True, blank=True, related_name="emails",
-                             on_delete=models.SET_NULL)
-    
+                              on_delete=models.SET_NULL)
+
     def __str__(self):
         return '%s (%s)' % (self.user.get_full_name(), self.user.email)
 
@@ -72,6 +72,7 @@ class Manager(models.Model):
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
                                     to_fields={"assos_id", "profile_id"})
+
     class Meta:
         verbose_name = _("Member of the Bureau")
         verbose_name_plural = _("Members of the Bureau")
@@ -93,14 +94,10 @@ class Event(models.Model):
     PENDING = 'P'
     APPROVED = 'A'
     REFUSED = 'R'
-    ONGOING = 'O'
-    FINISHED = 'F'
     EVENT_STATE_CHOICES = (
         (PENDING, _("Pending")),
         (APPROVED, _("Approved")),
         (REFUSED, _("Refused")),
-        (ONGOING, _("Ongoing")),
-        (FINISHED, _("Finished")),
     )
     title = models.CharField(_("Title of the event"), max_length=64)
     event_state = models.CharField(_("State of the event"), max_length=1,
@@ -108,19 +105,19 @@ class Event(models.Model):
                                    default=PENDING)
     manager_id = models.ForeignKey(Manager, on_delete=models.SET_NULL,
                                    null=True)
-    assos_id = models.ForeignKey(Association,
-                                 on_delete=(models.CASCADE
-                                            if (event_state == FINISHED or
-                                                event_state == REFUSED)
-                                            else models.PROTECT))
-    address_id = AddressField(on_delete=models.PROTECT)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
+    assos_id = models.ForeignKey(Association,
+                                 on_delete=(models.CASCADE
+                                            if (event_state == REFUSED or
+                                                end < datetime.datetime.now())
+                                            else models.PROTECT))
+    address_id = AddressField(on_delete=models.PROTECT)
     # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)
 
     def clean(self):
-        if self.start <= self.end:
+        if self.start >= self.end:
             raise ValidationError(_('Your event should end after it starts.'))
 
     class Meta:

@@ -1,12 +1,12 @@
 from django.test import TestCase
-from pprint import pprint
 from django.core.exceptions import ValidationError
 import datetime
 from django.utils import timezone
 from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Profile, Association, Member, Manager, President, Event
+from .models import Profile, Association, Member, Manager, President, Event,\
+    EmailAddress
 from address.models import Address
 
 # Create your tests here.
@@ -85,8 +85,41 @@ def create_profile(name="default_name"):
             birth_date=create_date(-1), address_id=create_address())
 
 
-# class EmailAddressModelTests(TestCase):
+class EmailAddressModelTests(TestCase):
+    def create_all(self):
+        self.emails = EmailAddress(email="default.email@django.relou",
+                                   profile=create_profile("emailtest"))
 
+    def test_invalid_email(self):
+        self.create_all()
+        self.emails.email = "notanemail"
+        with self.assertRaises(ValidationError):
+            self.emails.full_clean()
+
+    def test_null_email(self):
+        self.create_all()
+        self.emails.email = None
+        with self.assertRaises(ValidationError):
+            self.emails.full_clean()
+
+    def test_not_unique_email(self):
+        self.create_all()
+        self.emails.full_clean()
+        self.emails.save()
+        with self.assertRaises(ValidationError):
+            EmailAddress(email=self.emails.email,
+                     profile=create_profile("lajoconde")).full_clean()
+
+    def test_null_profile(self):
+        self.create_all()
+        self.emails.profile = None
+        with self.assertRaises(ValidationError):
+            self.emails.full_clean()
+
+"""
+test_unknown_profile
+test_cascade
+"""
 
 class AssociationModelTests(TestCase):
     def test_too_long_name(self):
@@ -166,7 +199,7 @@ class ManagerModelTests(TestCase):
     def test_null_assos(self):
         self.create_all()
         manager = Manager(assos_id=None, profile_id=self.member.profile_id)
-        with self.assertRaises(IntegrityError): #If i full_clean doesnt raise ValationError but RelatedObjectDoesntExist instead
+        with self.assertRaises(IntegrityError): #If i full_clean doesnt raise ValidationError but RelatedObjectDoesntExist instead
             manager.save()
 
     def test_null_member(self):

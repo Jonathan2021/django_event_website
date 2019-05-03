@@ -133,6 +133,11 @@ TICKET_TYPE_CHOICES = (
     (STAFF, _("Staff")),
 )
 
+def get_ticket_name(ticket_type):
+    for t_tuple in TICKET_TYPE_CHOICES:
+        if t_tuple[0] == ticket_type:
+            return t_tuple[1]
+    return None
 
 class Ticket(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
@@ -144,11 +149,19 @@ class Ticket(models.Model):
         verbose_name_plural = _("Tickets")
 
 
+def validate_price_for_sqlite(value):
+    if value < 0:
+        raise (ValidationError
+               (_("Your ticket price should be a positive number: got %s") %
+                (value)))
+
+
 class Price(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=TICKET_TYPE_CHOICES)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
-    price = models.PositiveIntegerField(_("Price"))
+    price = models.PositiveIntegerField(_("Price"),
+                                        validators=[validate_price_for_sqlite])
 
     class Meta:
         verbose_name = _("Price")
@@ -156,7 +169,7 @@ class Price(models.Model):
         unique_together = ('ticket_type', 'event_id')
 
     def __str__(self):
-        return '%s: %d' % (TICKET_TYPE_CHOICES[self.ticket_type], self.price)
+        return _('%s: %d') % (get_ticket_name(self.ticket_type), self.price)
 
 
 class Purchase(models.Model):

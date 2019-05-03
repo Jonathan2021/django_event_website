@@ -1,10 +1,8 @@
 from django.db import models
-from django.db.models.functions import Now
 # from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
-from django.utils import timezone
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -117,7 +115,8 @@ class Event(models.Model):
 
     def clean(self):
         super(Event, self).clean()
-        if self.start is not None and self.end is not None and self.start >= self.end:
+        if self.start is not None and self.end is not None and\
+                self.start >= self.end:
             raise ValidationError(_('Your event should end after it starts.'))
 
     class Meta:

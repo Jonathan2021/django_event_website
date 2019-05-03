@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Profile, Association, Member, Manager, President, Event,\
-    EmailAddress
+    EmailAddress, Ticket
 from address.models import Address
 
 # Create your tests here.
@@ -309,8 +309,10 @@ def make_event(title="event_title", state='P', manager=None,
 
 def create_event(title="event_title", state='P', manager=None,
                  assos=None, address=None, start=None, end=None, premium=False):
-    return make_event(title, state, manager, assos, address, start,
-                      end, premium).save();
+    event = make_event(title, state, manager, assos, address, start,
+                      end, premium)
+    event.save()
+    return event
 
 class EventModelTests(TestCase):
     def test_too_long_title(self):
@@ -372,18 +374,37 @@ class EventModelTests(TestCase):
     def test_unknown_manager_id(self):
     def test_unknown_assos_id(self):
     def test_unknown_address(self):
+"""
 
 
 class TicketModelTests(TestCase):
-    def test_invalid_ticket_type(slef):
+    def create_all(self):
+        self.ticket = Ticket(ticket_type='I', event_id=create_event())
+
+    def test_invalid_ticket_type(self):
+        self.create_all()
+        self.ticket.ticket_type = 'W'
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
+    def test_null_ticket_type(self):
+        self.create_all()
+        self.ticket.ticket_type = None
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
+    def test_null_event(self):
+        self.create_all()
+        self.ticket.event_id = None
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
+"""
     def test_unknown_event(self):
     def test_past_event(self):
     def test_refused_event(self):
     def test_pending_envent(self):
-    def test_ongoing_event(self):
     def test_approved_event(self):
-    def test_null_ticket_type(self):
-    def test_null_event(self):
 
 
 class PriceModelTests(TestCase):

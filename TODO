@@ -8,3 +8,11 @@ Use Group model and extend associations from here
 Write views
 
 Add unknow references id to test and test on_delete methods
+
+add related names
+
+add assert True isinstance
+
+test blank
+
+non timezoned date test

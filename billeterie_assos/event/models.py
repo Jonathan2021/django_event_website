@@ -72,6 +72,19 @@ class Manager(models.Model):
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
                                     to_fields={"assos_id", "profile_id"})
 
+    def clean(self):
+        super(Manager, self).clean()
+        member_id = getattr(self.member, 'id')
+        if (member_id is None):
+            raise ValidationError(_("Can't create Manager where id of member\
+ referenced is None"))
+        else:
+            try:
+                Member.objects.get(pk=member_id)
+            except Member.DoesNotExist:
+                raise ValidationError({'member': _("Matching member does not \
+exist, it was probably deleted")})
+
     class Meta:
         verbose_name = _("Member of the Bureau")
         verbose_name_plural = _("Members of the Bureau")
@@ -83,6 +96,19 @@ class President(models.Model):
                                     unique=True)
     manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
                                      to_fields={"assos_id", "profile_id"})
+
+    def clean(self):
+        super(President, self).clean()
+        manager_id = getattr(self.manager, 'id')
+        if (manager_id is None):
+            raise ValidationError(_("Can't create President where id of \
+manager referenced is None"))
+        else:
+            try:
+                Manager.objects.get(pk=manager_id)
+            except Manager.DoesNotExist:
+                raise ValidationError({'manager': _("Matching Manager does not \
+exist, it was probably deleted")})
 
     class Meta:
         verbose_name = _("President")

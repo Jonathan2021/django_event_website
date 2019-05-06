@@ -27,72 +27,70 @@ def create_address():
     return address
 
 
-def create_date(days):
-    return timezone.now() + datetime.timedelta(days=days)
+def create_date_time(days=0, hours=0):
+    return timezone.now() + datetime.timedelta(days=days, hours=hours)
 
 
 class ProfileModelTests(TestCase):
 
-    def create_profile(self, gender=True, birthdate=create_date(-1)):
-        self.profile = Profile(user=self.user, gender=gender,
+    def create_all(self, gender=True, birthdate=create_date_time(days=-1)):
+        self.profile = Profile(user=create_user(), gender=gender,
                                birth_date=birthdate,
-                               address_id=self.address)
-
-    def create_all(self):
-        self.user = create_user()
-        self.address = create_address()
+                               address_id=create_address())
 
     def test_null_user(self):
-        self.address = create_address()
-        self.user = None
-        self.create_profile()
+        self.create_all()
+        self.profile.user = None
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
 
     def test_with_correct_input(self):
         self.create_all()
-        self.create_profile()
         self.assertTrue(isinstance(self.profile, Profile))
         self.profile.full_clean()
         self.profile.save()
 
     def test_future_birth_date(self):
         self.create_all()
-        self.create_profile(birthdate=create_date(1))
+        self.profile.birth_date = create_date_time(days=1)
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
 
     def test_null_gender(self):
         self.create_all()
-        self.create_profile(gender=None)
+        self.profile.gender = None
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
 
     def test_null_birth_date(self):
         self.create_all()
-        self.create_profile(birthdate=None)
+        self.profile.birth_date = None
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
 
     def test_non_unique_user(self):
         self.create_all()
-        self.create_profile()
+        self.profile.full_clean()
         self.profile.save()
-        self.create_profile()
         with self.assertRaises(ValidationError):
-            self.profile.full_clean()
+            Profile(user=self.profile.user, gender=True,
+                    birth_date=self.profile.birth_date,
+                    address_id=self.profile.address_id).full_clean()
 
     def test_profile_str(self):
         self.create_all()
-        self.create_profile()
         self.assertTrue(self.profile.__str__() == ('%s (%s)' %
-                        (self.user.get_full_name(), self.user.email)))
+                        (self.profile.user.get_full_name(),
+                         self.profile.user.email)))
 
 
 def create_profile(name="default_name"):
-    return Profile.objects.create(user=create_user(name), gender=True,
-                                  birth_date=create_date(-1),
-                                  address_id=create_address())
+    profile = Profile(user=create_user(name), gender=True,
+                      birth_date=create_date_time(days=-1),
+                      address_id=create_address())
+    profile.full_clean()
+    profile.save()
+    return profile
 
 
 class EmailAddressModelTests(TestCase):
@@ -161,43 +159,51 @@ class AssociationModelTests(TestCase):
 
 
 def create_association(name="assos_default"):
-    return Association.objects.create(name=name)
+    assos = Association(name=name)
+    assos.full_clean()
+    assos.save()
+    return assos
 
 
 class MemberModelTests(TestCase):
     def create_all(self):
-        self.assos = create_association()
-        self.profile = create_profile()
+        self.member = Member(assos_id=create_association(),
+                             profile_id=create_profile())
 
     def test_null_profile(self):
-        self.assos = create_association()
-        member = Member(assos_id=self.assos, profile_id=None)
+        self.create_all()
+        self.member.profile_id = None
         with self.assertRaises(ValidationError):
-            member.full_clean()
+            self.member.full_clean()
 
     def test_null_assos(self):
-        self.profile = create_profile()
-        member = Member(assos_id=None, profile_id=self.profile)
+        self.create_all()
+        self.member.assos_id = None
         with self.assertRaises(ValidationError):
-            member.full_clean()
+            self.member.full_clean()
 
     def test_valid_input(self):
         self.create_all()
-        member = Member(assos_id=self.assos, profile_id=self.profile)
-        self.assertTrue(isinstance(member, Member))
-        member.full_clean()
+        self.assertTrue(isinstance(self.member, Member))
+        self.member.full_clean()
+        self.member.save()
 
     def test_not_unique_combination_profile_assos(self):
         self.create_all()
-        Member.objects.create(assos_id=self.assos, profile_id=self.profile)
+        self.member.full_clean()
+        self.member.save()
         with self.assertRaises(ValidationError):
-            Member(assos_id=self.assos, profile_id=self.profile).full_clean()
+            Member(assos_id=self.member.assos_id,
+                   profile_id=self.member.profile_id).full_clean()
 
 
 def create_member(assos=None, profile=None):
     assos = create_association() if assos is None else assos
     profile = create_profile() if profile is None else profile
-    return Member.objects.create(assos_id=assos, profile_id=profile)
+    member = Member(assos_id=assos, profile_id=profile)
+    member.full_clean()
+    member.save()
+    return member
 
 
 class ManagerModelTests(TestCase):
@@ -254,7 +260,10 @@ class ManagerModelTests(TestCase):
 
 def create_manager(member=None):
     member = create_member() if member is None else member
-    return Manager.objects.create(member=member)
+    manager = Manager(member=member)
+    manager.full_clean()
+    manager.save()
+    return manager
 
 
 class PresidentModelTests(TestCase):
@@ -317,10 +326,6 @@ class PresidentModelTests(TestCase):
     def test_unknown_profile(self):
     def test_unknow_assos(self):
 """
-
-
-def create_date_time(days=0, hours=0):
-    return timezone.now() + datetime.timedelta(days=days, hours=hours)
 
 
 def make_event(title="event_title", state='P', manager=None,

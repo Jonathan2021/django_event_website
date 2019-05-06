@@ -77,11 +77,23 @@ class ProfileModelTests(TestCase):
                     birth_date=self.profile.birth_date,
                     address_id=self.profile.address_id).full_clean()
 
-    def test_profile_str(self):
+    def test_str(self):
         self.create_all()
         self.assertTrue(self.profile.__str__() == ('%s (%s)' %
                         (self.profile.user.get_full_name(),
                          self.profile.user.email)))
+
+    def test_unexistent_user(self):
+        self.create_all()
+        self.profile.user.delete()
+        with self.assertRaises(ValidationError):
+            self.profile.full_clean()
+
+    def test_unexistent_address(self):
+        self.create_all()
+        self.profile.address_id.delete()
+        with self.assertRaises(ValidationError):
+            self.profile.full_clean()
 
 
 def create_profile(name="default_name"):
@@ -124,9 +136,14 @@ class EmailAddressModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.emails.full_clean()
 
+    def test_unexistent_profile(self):
+        self.create_all()
+        self.emails.profile.delete()
+        with self.assertRaises(ValidationError):
+            self.emails.full_clean()
+
 
 """
-test_unknown_profile
 test_cascade
 """
 
@@ -196,6 +213,18 @@ class MemberModelTests(TestCase):
             Member(assos_id=self.member.assos_id,
                    profile_id=self.member.profile_id).full_clean()
 
+    def test_unexistent_assos(self):
+        self.create_all()
+        self.member.assos_id.delete()
+        with self.assertRaises(ValidationError):
+            self.member.full_clean()
+
+    def test_unexistent_profile(self):
+        self.create_all()
+        self.member.profile_id.delete()
+        with self.assertRaises(ValidationError):
+            self.member.full_clean()
+
 
 def create_member(assos=None, profile=None):
     assos = create_association() if assos is None else assos
@@ -251,11 +280,30 @@ class ManagerModelTests(TestCase):
         with self.assertRaises(Member.DoesNotExist):
             manager.full_clean()
 
+    def test_deleted_assos(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        self.member.assos_id.delete()
+        with self.assertRaises(Member.DoesNotExist):
+            manager.full_clean()
 
-"""
-    def test_unknown_profile(self):
-    def test_unknow_assos(self):
-"""
+    def test_deleted_profile(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        self.member.profile_id.delete()
+        with self.assertRaises(Member.DoesNotExist):
+            manager.full_clean()
+
+    def test_deleted_member(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        manager.full_clean()
+        self.member.delete()
+        with self.assertRaises(ValidationError):
+            manager.full_clean()
 
 
 def create_manager(member=None):
@@ -321,11 +369,30 @@ class PresidentModelTests(TestCase):
         with self.assertRaises(ValidationError):
             president.full_clean()
 
+    def test_deleted_assos(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                              profile_id=self.manager.profile_id)
+        self.manager.assos_id.delete()
+        with self.assertRaises(Manager.DoesNotExist):
+            president.full_clean()
 
-"""
-    def test_unknown_profile(self):
-    def test_unknow_assos(self):
-"""
+    def test_deleted_profile(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                              profile_id=self.manager.profile_id)
+        self.manager.profile_id.delete()
+        with self.assertRaises(Manager.DoesNotExist):
+            president.full_clean()
+
+    def test_deleted_manager(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                              profile_id=self.manager.profile_id)
+        president.full_clean()
+        self.manager.delete()
+        with self.assertRaises(ValidationError):
+            president.full_clean()
 
 
 def make_event(title="event_title", state='P', manager=None,
@@ -355,6 +422,10 @@ class EventModelTests(TestCase):
         with self.assertRaises(ValidationError):
             make_event(title="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
                     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").full_clean()
+
+    def test_blank_title(self):
+        with self.assertRaises(ValidationError):
+            make_event(title="").full_clean()
 
     def test_invalid_event_state(self):
         with self.assertRaises(ValidationError):
@@ -407,12 +478,23 @@ class EventModelTests(TestCase):
         event.full_clean()
         event.save()
 
+    def test_nonexistent_manager(self):
+        event = make_event()
+        event.manager_id.delete()
+        with self.assertRaises(ValidationError):
+            event.full_clean()
 
-"""
-    def test_unknown_manager_id(self):
-    def test_unknown_assos_id(self):
-    def test_unknown_address(self):
-"""
+    def test_nonexistent_assos(self):
+        event = make_event()
+        event.assos_id.delete()
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+
+    def test_nonexistent_address(self):
+        event = make_event()
+        event.address_id.delete()
+        with self.assertRaises(ValidationError):
+            event.full_clean()
 
 
 class TicketModelTests(TestCase):
@@ -422,6 +504,12 @@ class TicketModelTests(TestCase):
     def test_invalid_ticket_type(self):
         self.create_all()
         self.ticket.ticket_type = 'W'
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
+    def test_blank_ticket_type(self):
+        self.create_all()
+        self.ticket.ticket_type = ''
         with self.assertRaises(ValidationError):
             self.ticket.full_clean()
 
@@ -437,6 +525,12 @@ class TicketModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.ticket.full_clean()
 
+    def test_nonexistent_event(self):
+        self.create_all()
+        self.ticket.event_id.delete()
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
 
 def create_ticket(t_type='I', event_id=None):
     event_id = create_event() if event_id is None else event_id
@@ -444,7 +538,6 @@ def create_ticket(t_type='I', event_id=None):
 
 
 """
-    def test_unknown_event(self):
     def test_past_event(self):
     def test_refused_event(self):
     def test_pending_envent(self):
@@ -459,6 +552,12 @@ class PriceModelTests(TestCase):
     def test_invalid_ticket_type(self):
         self.create_all()
         self.price.ticket_type = 'W'
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
+    def test_blank_ticket_type(self):
+        self.create_all()
+        self.price.ticket_type = ''
         with self.assertRaises(ValidationError):
             self.price.full_clean()
 
@@ -507,10 +606,11 @@ class PriceModelTests(TestCase):
         self.price.full_clean()
         self.price.save()
 
-
-"""
-    def test_unknown_event(self):
-"""
+    def test_nonexistent_event(self):
+        self.create_all()
+        self.price.event_id.delete()
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
 
 
 class PurchaseModelTests(TestCase):
@@ -562,9 +662,20 @@ class PurchaseModelTests(TestCase):
         self.purchase.full_clean()
         self.purchase.save()
 
+    def test_unexistent_event(self):
+        self.create_all()
+        self.purchase.event_id.delete()
+        with self.assertRaises(ValidationError):
+            self.purchase.full_clean()
 
-"""
-    def test_unknown_event(self):
-    def test_unknown_profile(self):
-    def test_unknown_ticket(self):
-"""
+    def test_unexistent_profile(self):
+        self.create_all()
+        self.purchase.profile_id.delete()
+        with self.assertRaises(ValidationError):
+            self.purchase.full_clean()
+
+    def test_non_existent_ticket(self):
+        self.create_all()
+        self.purchase.ticket_id.delete()
+        with self.assertRaises(ValidationError):
+            self.purchase.full_clean()

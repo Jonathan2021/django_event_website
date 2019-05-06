@@ -133,11 +133,13 @@ TICKET_TYPE_CHOICES = (
     (STAFF, _("Staff")),
 )
 
+
 def get_ticket_name(ticket_type):
     for t_tuple in TICKET_TYPE_CHOICES:
         if t_tuple[0] == ticket_type:
             return t_tuple[1]
     return None
+
 
 class Ticket(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,

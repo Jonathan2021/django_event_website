@@ -11,13 +11,20 @@ from address.models import Address
 from django.utils.translation import ugettext_lazy as _
 
 # Create your tests here.
-def create_user(name='test', mail='test@test.com',\
-        passw='S_8472QLqdqd7+'):
-    return User.objects.create(username=name, email=mail, password=passw)
+
+
+def create_user(name='test', mail='test@test.com', passw='S_8472QLqdqd7+'):
+    user = User(username=name, email=mail, password=passw)
+    user.full_clean()
+    user.save()
+    return user
 
 
 def create_address():
-    return Address.objects.create(raw='11 rue du Vert Buisson')
+    address = Address(raw='11 rue du Vert Buisson')
+    address.full_clean()
+    address.save()
+    return address
 
 
 def create_date(days):
@@ -27,9 +34,10 @@ def create_date(days):
 class ProfileModelTests(TestCase):
 
     def create_profile(self, gender=True, birthdate=create_date(-1)):
-        self.profile = Profile(user=self.user, gender=gender,  birth_date=birthdate,
-                address_id=self.address)
-  
+        self.profile = Profile(user=self.user, gender=gender,
+                               birth_date=birthdate,
+                               address_id=self.address)
+
     def create_all(self):
         self.user = create_user()
         self.address = create_address()
@@ -40,7 +48,7 @@ class ProfileModelTests(TestCase):
         self.create_profile()
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
-    
+
     def test_with_correct_input(self):
         self.create_all()
         self.create_profile()
@@ -53,7 +61,7 @@ class ProfileModelTests(TestCase):
         self.create_profile(birthdate=create_date(1))
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
- 
+
     def test_null_gender(self):
         self.create_all()
         self.create_profile(gender=None)
@@ -65,25 +73,26 @@ class ProfileModelTests(TestCase):
         self.create_profile(birthdate=None)
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
-    
-    def test_non__unique_user(self):
+
+    def test_non_unique_user(self):
         self.create_all()
         self.create_profile()
         self.profile.save()
         self.create_profile()
-        with self.assertRaises(IntegrityError):
-            self.profile.save()
+        with self.assertRaises(ValidationError):
+            self.profile.full_clean()
 
     def test_profile_str(self):
         self.create_all()
         self.create_profile()
-        self.assertTrue(self.profile.__str__() == ('%s (%s)' %\
-                (self.user.get_full_name(), self.user.email)))
+        self.assertTrue(self.profile.__str__() == ('%s (%s)' %
+                        (self.user.get_full_name(), self.user.email)))
 
 
 def create_profile(name="default_name"):
     return Profile.objects.create(user=create_user(name), gender=True,
-            birth_date=create_date(-1), address_id=create_address())
+                                  birth_date=create_date(-1),
+                                  address_id=create_address())
 
 
 class EmailAddressModelTests(TestCase):
@@ -109,7 +118,7 @@ class EmailAddressModelTests(TestCase):
         self.emails.save()
         with self.assertRaises(ValidationError):
             EmailAddress(email=self.emails.email,
-                     profile=create_profile("lajoconde")).full_clean()
+                         profile=create_profile("lajoconde")).full_clean()
 
     def test_null_profile(self):
         self.create_all()
@@ -117,10 +126,12 @@ class EmailAddressModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.emails.full_clean()
 
+
 """
 test_unknown_profile
 test_cascade
 """
+
 
 class AssociationModelTests(TestCase):
     def test_too_long_name(self):
@@ -130,11 +141,12 @@ class AssociationModelTests(TestCase):
                 1111111111111111111111111111111111111111111111111111111111111")
         with self.assertRaises(ValidationError):
             assos.full_clean()
-    
+
     def test_blank_name(self):
         assos = Association(name="")
         with self.assertRaises(ValidationError):
             assos.full_clean()
+
     def test_null_name(self):
         assos = Association(name=None)
         with self.assertRaises(ValidationError):
@@ -146,6 +158,7 @@ class AssociationModelTests(TestCase):
 
     def test_valid_input(self):
         Association(name="Epinard").full_clean()
+
 
 def create_association(name="assos_default"):
     return Association.objects.create(name=name)
@@ -177,8 +190,9 @@ class MemberModelTests(TestCase):
     def test_not_unique_combination_profile_assos(self):
         self.create_all()
         Member.objects.create(assos_id=self.assos, profile_id=self.profile)
-        with self.assertRaises(IntegrityError):
-            Member.objects.create(assos_id=self.assos, profile_id=self.profile)
+        with self.assertRaises(ValidationError):
+            Member(assos_id=self.assos, profile_id=self.profile).full_clean()
+
 
 def create_member(assos=None, profile=None):
     assos = create_association() if assos is None else assos
@@ -194,18 +208,20 @@ class ManagerModelTests(TestCase):
     def test_null_profile(self):
         self.create_all()
         manager = Manager(assos_id=self.member.assos_id, profile_id=None)
-        with self.assertRaises(IntegrityError): #see comment below
+        with self.assertRaises(IntegrityError):  # see comment below
             manager.save()
 
     def test_null_assos(self):
         self.create_all()
         manager = Manager(assos_id=None, profile_id=self.member.profile_id)
-        with self.assertRaises(IntegrityError): #If i full_clean doesnt raise ValidationError but RelatedObjectDoesntExist instead
+        # If i full_clean doesnt raise ValidationError but
+        # RelatedObjectDoesntExist instead
+        with self.assertRaises(IntegrityError):
             manager.save()
 
     def test_null_member(self):
         manager = Manager(member=None)
-        with self.assertRaises(IntegrityError): #see comment above
+        with self.assertRaises(IntegrityError):  # see comment above
             manager.save()
 
     def test_valid_input(self):
@@ -228,14 +244,18 @@ class ManagerModelTests(TestCase):
                           assos_id=create_association("manager_assos"))
         with self.assertRaises(Member.DoesNotExist):
             manager.full_clean()
+
+
 """
     def test_unknown_profile(self):
     def test_unknow_assos(self):
 """
 
+
 def create_manager(member=None):
     member = create_member() if member is None else member
     return Manager.objects.create(member=member)
+
 
 class PresidentModelTests(TestCase):
     def create_all(self):
@@ -244,24 +264,27 @@ class PresidentModelTests(TestCase):
     def test_null_profile(self):
         self.create_all()
         president = President(assos_id=self.manager.assos_id, profile_id=None)
-        with self.assertRaises(IntegrityError): #see comment below
+        with self.assertRaises(IntegrityError):  # see comment below
             president.save()
 
     def test_null_assos(self):
         self.create_all()
-        president = President(assos_id=None, profile_id=self.manager.profile_id)
-        with self.assertRaises(IntegrityError): #If I full_clean doesnt raise ValidationError but RelatedObjectDoesntExist instead
+        president = President(assos_id=None,
+                              profile_id=self.manager.profile_id)
+        # If I full_clean doesnt raise ValidationError but
+        # RelatedObjectDoesntExist instead
+        with self.assertRaises(IntegrityError):
             president.save()
 
     def test_null_manager(self):
         president = President(manager=None)
-        with self.assertRaises(IntegrityError): #see comment above
+        with self.assertRaises(IntegrityError):  # see comment above
             president.save()
 
     def test_valid_input(self):
         self.create_all()
         president = President(assos_id=self.manager.assos_id,
-                          profile_id=self.manager.profile_id)
+                              profile_id=self.manager.profile_id)
         self.assertTrue(isinstance(president, President))
         president.full_clean()
         president.save()
@@ -275,7 +298,7 @@ class PresidentModelTests(TestCase):
 
     def test_no_ref_manager_profile_assos_combination(self):
         president = President(profile_id=create_profile("president"),
-                          assos_id=create_association("president_assos"))
+                              assos_id=create_association("president_assos"))
         with self.assertRaises(Manager.DoesNotExist):
             president.full_clean()
 
@@ -288,32 +311,39 @@ class PresidentModelTests(TestCase):
         president = President(manager=other_manager)
         with self.assertRaises(ValidationError):
             president.full_clean()
-"""    
+
+
+"""
     def test_unknown_profile(self):
     def test_unknow_assos(self):
 """
 
+
 def create_date_time(days=0, hours=0):
     return timezone.now() + datetime.timedelta(days=days, hours=hours)
 
+
 def make_event(title="event_title", state='P', manager=None,
-                 assos=None, address=None, start=None, end=None, premium=False):
+               assos=None, address=None, start=None, end=None, premium=False):
     manager = create_manager() if manager is None else manager
     assos = manager.assos_id if assos is None else assos
     address = create_address() if address is None else address
     start = create_date_time(days=1) if start is None else start
     end = start + datetime.timedelta(hours=5) if end is None else end
     return Event(title=title, event_state=state,
-                                manager_id=manager, assos_id=assos,
-                                address_id=address, start=start, end=end,
-                                premium_flag=premium)
+                 manager_id=manager, assos_id=assos,
+                 address_id=address, start=start, end=end,
+                 premium_flag=premium)
+
 
 def create_event(title="event_title", state='P', manager=None,
-                 assos=None, address=None, start=None, end=None, premium=False):
+                 assos=None, address=None, start=None, end=None,
+                 premium=False):
     event = make_event(title, state, manager, assos, address, start,
-                      end, premium)
+                       end, premium)
     event.save()
     return event
+
 
 class EventModelTests(TestCase):
     def test_too_long_title(self):
@@ -344,7 +374,7 @@ class EventModelTests(TestCase):
         event.start = event.end + datetime.timedelta(days=1)
         with self.assertRaises(ValidationError):
             event.full_clean()
-    
+
     def test_null_start(self):
         event = make_event()
         event.start = None
@@ -366,12 +396,14 @@ class EventModelTests(TestCase):
         event.start = event.end
         with self.assertRaises(ValidationError):
             event.full_clean()
-    
+
     def test_valid_input(self):
         event = make_event()
         event.full_clean()
         event.save()
-""" 
+
+
+"""
     def test_unknown_manager_id(self):
     def test_unknown_assos_id(self):
     def test_unknown_address(self):
@@ -400,9 +432,11 @@ class TicketModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.ticket.full_clean()
 
+
 def create_ticket(t_type='I', event_id=None):
     event_id = create_event() if event_id is None else event_id
     return Ticket.objects.create(ticket_type=t_type, event_id=event_id)
+
 
 """
     def test_unknown_event(self):
@@ -411,6 +445,7 @@ def create_ticket(t_type='I', event_id=None):
     def test_pending_envent(self):
     def test_approved_event(self):
 """
+
 
 class PriceModelTests(TestCase):
     def create_all(self):
@@ -467,17 +502,19 @@ class PriceModelTests(TestCase):
         self.price.full_clean()
         self.price.save()
 
+
 """
     def test_unknown_event(self):
 """
 
-class  PurchaseModelTests(TestCase):
+
+class PurchaseModelTests(TestCase):
     def create_all(self):
         event = create_event()
         self.purchase = Purchase(event_id=event,
                                  profile_id=create_profile("ldjqnldhzql"),
                                  ticket_id=create_ticket(event_id=event))
-    
+
     def test_null_event(self):
         self.create_all()
         self.purchase.event_id = None
@@ -500,12 +537,11 @@ class  PurchaseModelTests(TestCase):
         self.create_all()
         self.purchase.full_clean()
         self.purchase.save()
-        new_purchase = Purchase(event_id=create_event(title="dummy",
-            manager=self.purchase.event_id.manager_id),
-            profile_id=self.purchase.profile_id,
-            ticket_id = self.purchase.ticket_id)
         with self.assertRaises(ValidationError):
-            new_purchase.full_clean()
+            Purchase(event_id=create_event(title="dummy",
+                     manager=self.purchase.event_id.manager_id),
+                     profile_id=self.purchase.profile_id,
+                     ticket_id=self.purchase.ticket_id).full_clean()
 
     def test_non_unique_combination_ticket_event_profile(self):
         self.create_all()
@@ -513,15 +549,15 @@ class  PurchaseModelTests(TestCase):
         self.purchase.save()
         with self.assertRaises(ValidationError):
             Purchase(event_id=self.purchase.event_id,
-                    profile_id=self.purchase.profile_id,
-                    ticket_id=self.purchase.ticket_id).full_clean()
+                     profile_id=self.purchase.profile_id,
+                     ticket_id=self.purchase.ticket_id).full_clean()
 
     def test_valid_input(self):
         self.create_all()
         self.purchase.full_clean()
         self.purchase.save()
 
-                                 
+
 """
     def test_unknown_event(self):
     def test_unknown_profile(self):

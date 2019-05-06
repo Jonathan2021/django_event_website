@@ -177,14 +177,27 @@ class Purchase(models.Model):
     profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
     ticket_id = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
-    """
+    def has_ticket(self):
+        try:
+            self.ticket_id is not None
+        except Ticket.DoesNotExist:
+            return False
+        return True
+
+    def has_event(self):
+        try:
+            self.event_id is not None
+        except Event.DoesNotExist:
+            return False
+        return True
+
     def clean(self):
         super(Purchase, self).clean()
-        if (self.event_id is not None and self.ticket_id is not None and
+        if (self.has_event() and self.has_ticket() and
                 self.ticket_id.event_id != self.event_id):
             raise ValidationError(_("event_id should be the same as \
                     ticket_id.event_id"))
-    """
+
     class Meta:
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")

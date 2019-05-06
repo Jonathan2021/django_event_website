@@ -483,14 +483,47 @@ class  PurchaseModelTests(TestCase):
         self.purchase.event_id = None
         with self.assertRaises(ValidationError):
             self.purchase.full_clean()
+
+    def test_null_profile(self):
+        self.create_all()
+        self.purchase.profile_id = None
+        with self.assertRaises(ValidationError):
+            self.purchase.full_clean()
+
+    def test_null_ticket(self):
+        self.create_all()
+        self.purchase.ticket_id = None
+        with self.assertRaises(ValidationError):
+            self.purchase.full_clean()
+
+    def test_non_corresponding_ticket_and_event(self):
+        self.create_all()
+        self.purchase.full_clean()
+        self.purchase.save()
+        new_purchase = Purchase(event_id=create_event(title="dummy",
+            manager=self.purchase.event_id.manager_id),
+            profile_id=self.purchase.profile_id,
+            ticket_id = self.purchase.ticket_id)
+        with self.assertRaises(ValidationError):
+            new_purchase.full_clean()
+
+    def test_non_unique_combination_ticket_event_profile(self):
+        self.create_all()
+        self.purchase.full_clean()
+        self.purchase.save()
+        with self.assertRaises(ValidationError):
+            Purchase(event_id=self.purchase.event_id,
+                    profile_id=self.purchase.profile_id,
+                    ticket_id=self.purchase.ticket_id).full_clean()
+
+    def test_valid_input(self):
+        self.create_all()
+        self.purchase.full_clean()
+        self.purchase.save()
+
                                  
 """
     def test_unknown_event(self):
     def test_unknown_profile(self):
-    def test_null_profile(self):
     def test_unknown_ticket(self):
-    def test_null_ticket(self):
-    def test_non_corresponding_ticket_and_event(self):
-    def test_non_unique_combination_ticket_event_profile(self):
-    def test_valid_input(self):
 """

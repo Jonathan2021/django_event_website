@@ -8,22 +8,26 @@ from django.contrib.auth.models import User
 from .models import Profile, Association, Member, Manager, President, Event,\
     EmailAddress, Ticket, Price, get_ticket_name, Purchase
 from address.models import Address
+from django.db.models.deletion import ProtectedError
 from django.utils.translation import ugettext_lazy as _
 
 # Create your tests here.
 
 
+def clean_and_save(element):
+    element.full_clean()
+    element.save()
+
+
 def create_user(name='test', mail='test@test.com', passw='S_8472QLqdqd7+'):
     user = User(username=name, email=mail, password=passw)
-    user.full_clean()
-    user.save()
+    clean_and_save(user)
     return user
 
 
 def create_address():
     address = Address(raw='11 rue du Vert Buisson')
-    address.full_clean()
-    address.save()
+    clean_and_save(address)
     return address
 
 
@@ -47,8 +51,11 @@ class ProfileModelTests(TestCase):
     def test_with_correct_input(self):
         self.create_all()
         self.assertTrue(isinstance(self.profile, Profile))
-        self.profile.full_clean()
-        self.profile.save()
+        clean_and_save(self.profile)
+        self.profile.address_id = None
+        clean_and_save(self.profile)
+        self.profile.address_id = Address.objects.create(raw="")
+        clean_and_save(self.profile)
 
     def test_future_birth_date(self):
         self.create_all()
@@ -70,8 +77,7 @@ class ProfileModelTests(TestCase):
 
     def test_non_unique_user(self):
         self.create_all()
-        self.profile.full_clean()
-        self.profile.save()
+        clean_and_save(self.profile)
         with self.assertRaises(ValidationError):
             Profile(user=self.profile.user, gender=True,
                     birth_date=self.profile.birth_date,
@@ -95,13 +101,26 @@ class ProfileModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.profile.full_clean()
 
+    def test_user_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.profile)
+        self.profile.user.delete()
+        with self.assertRaises(Profile.DoesNotExist):
+            Profile.objects.get(pk=self.profile.id)
+
+    def test_address_on_delete_null(self):
+        self.create_all()
+        clean_and_save(self.profile)
+        self.profile.address_id.delete()
+        self.assertTrue(Profile.objects.get(pk=self.profile.id).address_id
+                        is None)
+
 
 def create_profile(name="default_name"):
     profile = Profile(user=create_user(name), gender=True,
                       birth_date=create_date_time(days=-1),
                       address_id=create_address())
-    profile.full_clean()
-    profile.save()
+    clean_and_save(profile)
     return profile
 
 
@@ -124,8 +143,7 @@ class EmailAddressModelTests(TestCase):
 
     def test_not_unique_email(self):
         self.create_all()
-        self.emails.full_clean()
-        self.emails.save()
+        clean_and_save(self.emails)
         with self.assertRaises(ValidationError):
             EmailAddress(email=self.emails.email,
                          profile=create_profile("lajoconde")).full_clean()
@@ -141,6 +159,13 @@ class EmailAddressModelTests(TestCase):
         self.emails.profile.delete()
         with self.assertRaises(ValidationError):
             self.emails.full_clean()
+
+    def test_profile_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.emails)
+        self.emails.profile.delete()
+        with self.assertRaises(EmailAddress.DoesNotExist):
+            EmailAddress.objects.get(pk=self.emails.id)
 
 
 """
@@ -177,8 +202,7 @@ class AssociationModelTests(TestCase):
 
 def create_association(name="assos_default"):
     assos = Association(name=name)
-    assos.full_clean()
-    assos.save()
+    clean_and_save(assos)
     return assos
 
 
@@ -202,13 +226,11 @@ class MemberModelTests(TestCase):
     def test_valid_input(self):
         self.create_all()
         self.assertTrue(isinstance(self.member, Member))
-        self.member.full_clean()
-        self.member.save()
+        clean_and_save(self.member)
 
     def test_not_unique_combination_profile_assos(self):
         self.create_all()
-        self.member.full_clean()
-        self.member.save()
+        clean_and_save(self.member)
         with self.assertRaises(ValidationError):
             Member(assos_id=self.member.assos_id,
                    profile_id=self.member.profile_id).full_clean()
@@ -225,13 +247,26 @@ class MemberModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.member.full_clean()
 
+    def test_assos_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.member)
+        self.member.assos_id.delete()
+        with self.assertRaises(Member.DoesNotExist):
+            Member.objects.get(pk=self.member.id)
+
+    def test_profile_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.member)
+        self.member.profile_id.delete()
+        with self.assertRaises(Member.DoesNotExist):
+            Member.objects.get(pk=self.member.id)
+
 
 def create_member(assos=None, profile=None):
     assos = create_association() if assos is None else assos
     profile = create_profile() if profile is None else profile
     member = Member(assos_id=assos, profile_id=profile)
-    member.full_clean()
-    member.save()
+    clean_and_save(member)
     return member
 
 
@@ -264,8 +299,7 @@ class ManagerModelTests(TestCase):
         manager = Manager(assos_id=self.member.assos_id,
                           profile_id=self.member.profile_id)
         self.assertTrue(isinstance(manager, Manager))
-        manager.full_clean()
-        manager.save()
+        clean_and_save(manager)
 
     def test_not_unique_compositeonetoonefield(self):
         self.create_all()
@@ -305,12 +339,38 @@ class ManagerModelTests(TestCase):
         with self.assertRaises(ValidationError):
             manager.full_clean()
 
+    def test_assos_on_delete_cascade(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        clean_and_save(manager)
+        manager.assos_id.delete()
+        with self.assertRaises(Manager.DoesNotExist):
+            Manager.objects.get(pk=manager.id)
+
+    def test_profile_on_delete_cascade(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        clean_and_save(manager)
+        manager.profile_id.delete()
+        with self.assertRaises(Manager.DoesNotExist):
+            Manager.objects.get(pk=manager.id)
+
+    def test_member_on_delete_cascade(self):
+        self.create_all()
+        manager = Manager(assos_id=self.member.assos_id,
+                          profile_id=self.member.profile_id)
+        clean_and_save(manager)
+        manager.member.delete()
+        with self.assertRaises(Manager.DoesNotExist):
+            Manager.objects.get(pk=manager.id)
+
 
 def create_manager(member=None):
     member = create_member() if member is None else member
     manager = Manager(member=member)
-    manager.full_clean()
-    manager.save()
+    clean_and_save(manager)
     return manager
 
 
@@ -343,8 +403,7 @@ class PresidentModelTests(TestCase):
         president = President(assos_id=self.manager.assos_id,
                               profile_id=self.manager.profile_id)
         self.assertTrue(isinstance(president, President))
-        president.full_clean()
-        president.save()
+        clean_and_save(president)
 
     def test_not_unique_compositeonetoonefield(self):
         self.create_all()
@@ -394,6 +453,33 @@ class PresidentModelTests(TestCase):
         with self.assertRaises(ValidationError):
             president.full_clean()
 
+    def test_assos_on_delete_cascade(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                              profile_id=self.manager.profile_id)
+        clean_and_save(president)
+        president.assos_id.delete()
+        with self.assertRaises(President.DoesNotExist):
+            President.objects.get(pk=president.id)
+
+    def test_profile_on_delete_cascade(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                              profile_id=self.manager.profile_id)
+        clean_and_save(president)
+        president.profile_id.delete()
+        with self.assertRaises(President.DoesNotExist):
+            President.objects.get(pk=president.id)
+
+    def test_manager_on_delete_cascade(self):
+        self.create_all()
+        president = President(assos_id=self.manager.assos_id,
+                              profile_id=self.manager.profile_id)
+        clean_and_save(president)
+        president.manager.delete()
+        with self.assertRaises(President.DoesNotExist):
+            President.objects.get(pk=president.id)
+
 
 def make_event(title="event_title", state='P', manager=None,
                assos=None, address=None, start=None, end=None, premium=False):
@@ -413,7 +499,7 @@ def create_event(title="event_title", state='P', manager=None,
                  premium=False):
     event = make_event(title, state, manager, assos, address, start,
                        end, premium)
-    event.save()
+    clean_and_save(event)
     return event
 
 
@@ -475,8 +561,7 @@ class EventModelTests(TestCase):
 
     def test_valid_input(self):
         event = make_event()
-        event.full_clean()
-        event.save()
+        clean_and_save(event)
 
     def test_nonexistent_manager(self):
         event = make_event()
@@ -495,6 +580,22 @@ class EventModelTests(TestCase):
         event.address_id.delete()
         with self.assertRaises(ValidationError):
             event.full_clean()
+
+    def test_manager_on_delete_setnull(self):
+        event = create_event()
+        event.manager_id.delete()
+        self.assertTrue(Event.objects.get(pk=event.id).manager_id is None)
+
+    def test_assos_on_delete_cascade(self):
+        event = create_event()
+        event.assos_id.delete()
+        with self.assertRaises(Event.DoesNotExist):
+            Event.objects.get(pk=event.id)
+
+    def test_address_on_delete_protect(self):
+        event = create_event()
+        with self.assertRaises(ProtectedError):
+            event.address_id.delete()
 
 
 class TicketModelTests(TestCase):
@@ -531,10 +632,19 @@ class TicketModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.ticket.full_clean()
 
+    def test_event_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.ticket)
+        self.ticket.event_id.delete()
+        with self.assertRaises(Ticket.DoesNotExist):
+            Ticket.objects.get(pk=self.ticket.id)
+
 
 def create_ticket(t_type='I', event_id=None):
     event_id = create_event() if event_id is None else event_id
-    return Ticket.objects.create(ticket_type=t_type, event_id=event_id)
+    ticket = Ticket(ticket_type=t_type, event_id=event_id)
+    clean_and_save(ticket)
+    return ticket
 
 
 """
@@ -594,8 +704,7 @@ class PriceModelTests(TestCase):
 
     def test_not_unique_combination_type_event(self):
         self.create_all()
-        self.price.full_clean()
-        self.price.save()
+        clean_and_save(self.price)
         with self.assertRaises(ValidationError):
             Price(ticket_type=self.price.ticket_type,
                   event_id=self.price.event_id,
@@ -603,14 +712,20 @@ class PriceModelTests(TestCase):
 
     def test_valid_input(self):
         self.create_all()
-        self.price.full_clean()
-        self.price.save()
+        clean_and_save(self.price)
 
     def test_nonexistent_event(self):
         self.create_all()
         self.price.event_id.delete()
         with self.assertRaises(ValidationError):
             self.price.full_clean()
+
+    def test_event_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.price)
+        self.price.event_id.delete()
+        with self.assertRaises(Price.DoesNotExist):
+            Price.objects.get(pk=self.price.id)
 
 
 class PurchaseModelTests(TestCase):
@@ -640,8 +755,7 @@ class PurchaseModelTests(TestCase):
 
     def test_non_corresponding_ticket_and_event(self):
         self.create_all()
-        self.purchase.full_clean()
-        self.purchase.save()
+        clean_and_save(self.purchase)
         with self.assertRaises(ValidationError):
             Purchase(event_id=create_event(title="dummy",
                      manager=self.purchase.event_id.manager_id),
@@ -650,8 +764,7 @@ class PurchaseModelTests(TestCase):
 
     def test_non_unique_combination_ticket_event_profile(self):
         self.create_all()
-        self.purchase.full_clean()
-        self.purchase.save()
+        clean_and_save(self.purchase)
         with self.assertRaises(ValidationError):
             Purchase(event_id=self.purchase.event_id,
                      profile_id=self.purchase.profile_id,
@@ -659,8 +772,7 @@ class PurchaseModelTests(TestCase):
 
     def test_valid_input(self):
         self.create_all()
-        self.purchase.full_clean()
-        self.purchase.save()
+        clean_and_save(self.purchase)
 
     def test_unexistent_event(self):
         self.create_all()
@@ -679,3 +791,24 @@ class PurchaseModelTests(TestCase):
         self.purchase.ticket_id.delete()
         with self.assertRaises(ValidationError):
             self.purchase.full_clean()
+
+    def test_event_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.purchase)
+        self.purchase.event_id.delete()
+        with self.assertRaises(Purchase.DoesNotExist):
+            Purchase.objects.get(pk=self.purchase.id)
+
+    def test_profile_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.purchase)
+        self.purchase.profile_id.delete()
+        with self.assertRaises(Purchase.DoesNotExist):
+            Purchase.objects.get(pk=self.purchase.id)
+
+    def test_ticket_on_delete_cascade(self):
+        self.create_all()
+        clean_and_save(self.purchase)
+        self.purchase.ticket_id.delete()
+        with self.assertRaises(Purchase.DoesNotExist):
+            Purchase.objects.get(pk=self.purchase.id)

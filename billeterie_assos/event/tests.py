@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Profile, Association, Member, Manager, President, Event,\
-    EmailAddress, Ticket, Price, get_ticket_name, Purchase
+    EmailAddress, Ticket, Price, Purchase
 from address.models import Address
 from django.db.models.deletion import ProtectedError
 from django.utils.translation import ugettext_lazy as _
@@ -481,7 +481,7 @@ class PresidentModelTests(TestCase):
             President.objects.get(pk=president.id)
 
 
-def make_event(title="event_title", state='P', manager=None,
+def make_event(title="event_title", state=Event.APPROVED, manager=None,
                assos=None, address=None, start=None, end=None, premium=False):
     manager = create_manager() if manager is None else manager
     assos = manager.assos_id if assos is None else assos
@@ -494,7 +494,7 @@ def make_event(title="event_title", state='P', manager=None,
                  premium_flag=premium)
 
 
-def create_event(title="event_title", state='P', manager=None,
+def create_event(title="event_title", state=Event.APPROVED, manager=None,
                  assos=None, address=None, start=None, end=None,
                  premium=False):
     event = make_event(title, state, manager, assos, address, start,
@@ -626,6 +626,24 @@ class TicketModelTests(TestCase):
         with self.assertRaises(ValidationError):
             self.ticket.full_clean()
 
+    def test_refused_event(self):
+        self.create_all()
+        self.ticket.event_id.event_state = Event.REFUSED
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
+    def test_pending_event(self):
+        self.create_all()
+        self.ticket.event_id.event_state = Event.PENDING
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
+    def test_canceled_event(self):
+        self.create_all()
+        self.ticket.event_id.event_state = Event.CANCELED
+        with self.assertRaises(ValidationError):
+            self.ticket.full_clean()
+
     def test_nonexistent_event(self):
         self.create_all()
         self.ticket.event_id.delete()
@@ -649,15 +667,14 @@ def create_ticket(t_type='I', event_id=None):
 
 """
     def test_past_event(self):
-    def test_refused_event(self):
-    def test_pending_envent(self):
     def test_approved_event(self):
 """
 
 
 class PriceModelTests(TestCase):
     def create_all(self):
-        self.price = Price(ticket_type='I', event_id=create_event(), price=3)
+        self.price = Price(ticket_type=Ticket.INTERN,
+                           event_id=create_event(), price=3)
 
     def test_invalid_ticket_type(self):
         self.create_all()
@@ -698,7 +715,7 @@ class PriceModelTests(TestCase):
     def test_str(self):
         self.create_all()
         self.assertIs(_("%s: %d") %
-                      (get_ticket_name(self.price.ticket_type),
+                      (Ticket.get_ticket_name(self.price.ticket_type),
                        self.price.price)
                       == self.price.__str__(), True)
 

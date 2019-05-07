@@ -120,10 +120,12 @@ class Event(models.Model):
     PENDING = 'P'
     APPROVED = 'A'
     REFUSED = 'R'
+    CANCELED = 'C'
     EVENT_STATE_CHOICES = (
         (PENDING, _("Pending")),
         (APPROVED, _("Approved")),
         (REFUSED, _("Refused")),
+        (CANCELED, _("Canceled")),
     )
 
     title = models.CharField(_("Title of the event"), max_length=64)
@@ -150,27 +152,39 @@ class Event(models.Model):
         verbose_name_plural = (_("Events"))
 
 
-INTERN = 'I'
-EXTERN = 'E'
-STAFF = 'S'
-TICKET_TYPE_CHOICES = (
-    (INTERN, _("Internal")),
-    (EXTERN, _("External")),
-    (STAFF, _("Staff")),
-)
-
-
-def get_ticket_name(ticket_type):
-    for t_tuple in TICKET_TYPE_CHOICES:
-        if t_tuple[0] == ticket_type:
-            return t_tuple[1]
-    return None
-
-
 class Ticket(models.Model):
+    INTERN = 'I'
+    EXTERN = 'E'
+    STAFF = 'S'
+    TICKET_TYPE_CHOICES = (
+        (INTERN, _("Internal")),
+        (EXTERN, _("External")),
+        (STAFF, _("Staff")),
+    )
+
+    def get_ticket_name(ticket_type):
+        for t_tuple in Ticket.TICKET_TYPE_CHOICES:
+            if t_tuple[0] == ticket_type:
+                return t_tuple[1]
+        return None
+
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=TICKET_TYPE_CHOICES)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    def has_event(self):
+        try:
+            getattr(self, 'event_id')
+        except Event.DoesNotExist:
+            return False
+        return True
+
+    def clean(self):
+        super(Ticket, self).clean()
+        if (self.has_event() and
+                self.event_id.event_state != Event.APPROVED):
+            raise ValidationError({'event_id': _("This event doesn't have the \
+approved state")})
 
     class Meta:
         verbose_name = _("Ticket")
@@ -186,7 +200,7 @@ def validate_price_for_sqlite(value):
 
 class Price(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
-                                   choices=TICKET_TYPE_CHOICES)
+                                   choices=Ticket.TICKET_TYPE_CHOICES)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
     price = models.PositiveIntegerField(_("Price"),
                                         validators=[validate_price_for_sqlite])
@@ -197,7 +211,8 @@ class Price(models.Model):
         unique_together = ('ticket_type', 'event_id')
 
     def __str__(self):
-        return _('%s: %d') % (get_ticket_name(self.ticket_type), self.price)
+        return _('%s: %d') % (Ticket.get_ticket_name(self.ticket_type),
+                              self.price)
 
 
 class Purchase(models.Model):

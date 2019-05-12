@@ -40,4 +40,18 @@ body{
 .actu{
     background-color: aliceblue;
     padding: 5%;
+    margin-bottom: 75px;
+}
+
+.page-footer-top{
+    background-color: #6351ce;
+}
+.page-footer{
+    color: azure;
+    background-color: #100b2c;
+    border: 5px;
+    border-color: chartreuse;
+}
+.footer-copyright{
+    background-color:#2a303f;
 }

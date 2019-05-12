@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'address',
     'event',
+    'epita_connect',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -122,6 +124,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_EPITA_KEY = "client_id"
+SOCIAL_AUTH_EPITA_SECRET = "secret"
+SOCIAL_AUTH_EPITA_SCOPE = ['epita']
+SOCIAL_AUTH_EPITA_EXTRA_DATA = ['promo']
+SOCIAL_AUTH_EPITA_BETA = True
+
+LOGIN_URL = '/login/epita/'
+LOGIN_REDIRECT_URL = '/logged/'
+
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 

@@ -12,6 +12,7 @@ djangorestframework = "*"
 flake8 = "*"
 django-rest-swagger = "*"
 django-composite-foreignkey = "*"
+social-auth-backend-epita = "==0.0.4"
 
 [requires]
 python_version = "3.7"

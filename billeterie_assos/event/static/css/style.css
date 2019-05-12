@@ -1,0 +1,57 @@
+body{
+    background-image: url(../img/wallpaper.jpg);
+}
+
+.banner{
+    background-color: rgb(40, 90, 130);
+    margin:auto;
+}
+
+.left-banner{
+    -webkit-box-flex: 1;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: whitesmoke;
+    display: inline-block;
+    width: 50%;
+}
+.right-banner{
+    -webkit-box-flex: 1;
+    text-align: right;
+    display: inline-block;
+    margin-left: 40%;
+}
+.login{
+    font-size: 1.5rem;
+}
+.title{
+    font-size: 3rem;
+}
+
+.car-img{
+    padding-top: 50px;
+    height: 400px;
+    padding-bottom: 50px;
+    image-rendering: auto;
+}
+
+.actu-wraper{
+    
+}
+.actu{
+    background-color: aliceblue;
+    padding: 5%;
+    margin-bottom: 75px;
+}
+
+.page-footer-top{
+    background-color: #6351ce;
+}
+.page-footer{
+    color: azure;
+    background-color: #100b2c;
+    border: 5px;
+    border-color: chartreuse;
+}
+.footer-copyright{
+    background-color:#2a303f;
+}

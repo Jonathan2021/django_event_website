@@ -6,13 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "*"
-redgreenunittest = "*"
-djangorestframework = "*"
-flake8 = "*"
-django-rest-swagger = "*"
-django-composite-foreignkey = "*"
-social-auth-backend-epita = "==0.0.4"
+social-auth-backend-epita = "*"
+social-auth-app-django = "*"
 
 [requires]
 python_version = "3.7"

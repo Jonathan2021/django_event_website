@@ -16,12 +16,11 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
-@login_required
-def logged(request):
-    context = {
-        'user': request.user,
-        'extra_data': request.user.social_auth.get(provider="epita").extra_data,
-    }
-    return render(request, 'templates/login.html', context=context)
+class test(generic.ListView):
+    template_name = 'home.html'
+    context_object_name = 'premium_event_list'
+
+    def get_queryset(self):
+        return Event.objects.filter(premium_flag=True).order_by('start')
 
 # Create your views here.

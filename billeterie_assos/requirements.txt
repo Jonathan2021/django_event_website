@@ -1,2 +1,0 @@
-social-auth-backend-epita==0.0.4
-

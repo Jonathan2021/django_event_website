@@ -3,21 +3,20 @@
 # from django.urls import reverse
 from django.views import generic
 # from django.utils import timezone
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
-from .models import Event
+from event.models import Event
 
 
-class IndexView(generic.ListView):
-    template_name = 'index.html'
+class logged(generic.ListView):
+    template_name = 'home.html'
     context_object_name = 'premium_event_list'
 
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
-class test(generic.ListView):
-    template_name = 'cri/home.html'
+
+class login(generic.ListView):
+    template_name = 'login.html'
     context_object_name = 'premium_event_list'
 
     def get_queryset(self):

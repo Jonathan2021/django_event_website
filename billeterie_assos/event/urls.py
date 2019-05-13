@@ -12,7 +12,7 @@ app_name = 'event'
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     url(r'^admin/', admin.site.urls),
-    url(r'^', include(social_django_urls)),
+    url(r'^cri/', include('cri.urls', namespace="cri")),
     url(r'login/', views.test.as_view(), name="login"),
     url(r'logout/', logout, {'next_page': '/'}, name="logout"),
 ]

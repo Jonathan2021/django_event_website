@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'address',
     'event',
+    'cri',
     'epita_connect',
     'social_django',
 ]

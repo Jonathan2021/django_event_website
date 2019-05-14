@@ -58,7 +58,7 @@ ROOT_URLCONF = 'billeterie_assos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,3 +126,10 @@ STATIC_URL = '/static/'
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 
 GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'
+
+LOGIN_REDIRECT_URL = '/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    '/var/www/static/',
+]

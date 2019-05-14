@@ -6,9 +6,8 @@ from django.views import generic
 
 from event.models import Event
 
-
-class logged(generic.ListView):
-    template_name = 'home.html'
+class log(generic.ListView):
+    template_name = 'log.html'
     context_object_name = 'premium_event_list'
 
     def get_queryset(self):

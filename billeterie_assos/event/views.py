@@ -16,11 +16,4 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
-class test(generic.ListView):
-    template_name = 'cri/home.html'
-    context_object_name = 'premium_event_list'
-
-    def get_queryset(self):
-        return Event.objects.filter(premium_flag=True).order_by('start')
-
-# Create your views here.
+#Create your views here.

@@ -54,7 +54,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 ROOT_URLCONF = 'billeterie_assos.urls'
 
@@ -69,7 +78,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
+                ],
         },
     },
 ]
@@ -126,6 +137,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+AUTHENTICATION_BACKENDS = (
+    'epita_connect.backend.EpitaOpenIdConnect',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_EPITA_KEY = "client_id"
 SOCIAL_AUTH_EPITA_SECRET = "secret"
@@ -133,8 +149,8 @@ SOCIAL_AUTH_EPITA_SCOPE = ['epita']
 SOCIAL_AUTH_EPITA_EXTRA_DATA = ['promo']
 SOCIAL_AUTH_EPITA_BETA = True
 
-LOGIN_URL = '/login/epita/'
-LOGIN_REDIRECT_URL = '/logged/'
+LOGIN_URL = '/log/'
+LOGIN_REDIRECT_URL = '/login/'
 
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"

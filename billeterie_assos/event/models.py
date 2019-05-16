@@ -18,8 +18,9 @@ def validate_birth(value):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gender = models.BooleanField(_("Gender"))
-    birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
+    gender = models.BooleanField(_("Gender"), null=True, blank=True)
+    birth_date = models.DateField(_("Birth Date"), validators=[validate_birth],
+                                  null=True, blank=True)
     address_id = AddressField(null=True, blank=True, related_name="emails",
                               on_delete=models.SET_NULL)
 

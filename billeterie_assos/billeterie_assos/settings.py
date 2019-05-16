@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'address',
     'event',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [

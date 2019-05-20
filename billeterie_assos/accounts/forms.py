@@ -8,7 +8,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ("username",)
+        fields = ("username", "email")
 
     def save(self, commit=True):
         if not commit:

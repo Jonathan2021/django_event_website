@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 # Create your models here.
 
+User._meta.get_field('email').blank = False
+
 
 def validate_birth(value):
     if value >= datetime.date.today():

@@ -2,6 +2,8 @@
 # from django.http import Http404
 # from django.urls import reverse
 from django.views import generic
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 # from django.utils import timezone
 
 from event.models import Event

@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'epita_connect',
+    'social_django',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,8 +44,6 @@ INSTALLED_APPS = [
     'address',
     'event',
     'cri_epita',
-    'epita_connect',
-    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -142,15 +142,15 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_URL_NAMESPACE = 'social'
-SOCIAL_AUTH_EPITA_KEY = "client_id"
-SOCIAL_AUTH_EPITA_SECRET = "secret"
+SOCIAL_AUTH_URL_NAMESPACE = 'event:social'
+SOCIAL_AUTH_EPITA_KEY = "031021"
+SOCIAL_AUTH_EPITA_SECRET = "97593354782061112fdeab765fd8faf9694903adfd8fa2d345a46be1"
 SOCIAL_AUTH_EPITA_SCOPE = ['epita']
 SOCIAL_AUTH_EPITA_EXTRA_DATA = ['promo']
 SOCIAL_AUTH_EPITA_BETA = True
 
-LOGIN_URL = '/log/'
-LOGIN_REDIRECT_URL = '/login/'
+LOGIN_URL = '/login/epita'
+LOGIN_REDIRECT_URL = 'log'
 
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"

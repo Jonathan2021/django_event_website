@@ -9,7 +9,6 @@ verify_ssl = true
 social-auth-backend-epita = "*"
 social-auth-app-django = "*"
 django = "*"
-epita-connect = "*"
 
 [requires]
 python_version = "3.7"

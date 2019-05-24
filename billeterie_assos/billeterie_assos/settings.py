@@ -128,8 +128,8 @@ TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 
 GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'event:index'
+LOGOUT_REDIRECT_URL = 'event:index'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),

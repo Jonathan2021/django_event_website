@@ -1,9 +1,0 @@
-{% if premium_event_list %}
-    <ul>
-    {% for event in premium_event_list %}
-    <li><a href="{% url 'polls:event_detail' event.id %}">{{ event.title }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No Premium event</p>
-{% endif %}

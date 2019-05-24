@@ -9,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 # Create your models here.
 
+User._meta.get_field('email').blank = False
+
 
 def validate_birth(value):
     if value >= datetime.date.today():
@@ -18,8 +20,9 @@ def validate_birth(value):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gender = models.BooleanField(_("Gender"))
-    birth_date = models.DateField(_("Birth Date"), validators=[validate_birth])
+    gender = models.BooleanField(_("Gender"), null=True, blank=True)
+    birth_date = models.DateField(_("Birth Date"), validators=[validate_birth],
+                                  null=True, blank=True)
     address_id = AddressField(null=True, blank=True, related_name="emails",
                               on_delete=models.SET_NULL)
 
@@ -57,20 +60,20 @@ class Association(models.Model):
 class Member(models.Model):
     assos_id = models.ForeignKey(Association, related_name='members',
                                  on_delete=models.CASCADE)
-    profile_id = models.ForeignKey(Profile, related_name='memberships',
-                                   on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='memberships',
+                             on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _("Member")
         verbose_name_plural = _("Members")
-        unique_together = ('assos_id', 'profile_id')
+        unique_together = ('assos_id', 'user')
 
 
 class Manager(models.Model):
-    profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
-                                    to_fields={"assos_id", "profile_id"})
+                                    to_fields={"assos_id", "user"})
 
     def clean(self):
         super(Manager, self).clean()
@@ -91,11 +94,11 @@ exist, it was probably deleted")})
 
 
 class President(models.Model):
-    profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     assos_id = models.OneToOneField(Association, on_delete=models.CASCADE,
                                     unique=True)
     manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
-                                     to_fields={"assos_id", "profile_id"})
+                                     to_fields={"assos_id", "user"})
 
     def clean(self):
         super(President, self).clean()
@@ -217,7 +220,7 @@ class Price(models.Model):
 
 class Purchase(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
-    profile_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     ticket_id = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
     def has_ticket(self):
@@ -244,4 +247,4 @@ class Purchase(models.Model):
     class Meta:
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")
-        unique_together = ('event_id', 'profile_id', 'ticket_id')
+        unique_together = ('event_id', 'user', 'ticket_id')

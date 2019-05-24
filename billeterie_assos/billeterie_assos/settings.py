@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'address',
     'event',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'billeterie_assos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -126,3 +127,14 @@ STATIC_URL = '/static/'
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 
 GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'
+
+LOGIN_REDIRECT_URL = 'event:index'
+LOGOUT_REDIRECT_URL = 'event:index'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    '/var/www/static/',
+]
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")

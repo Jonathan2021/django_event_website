@@ -70,7 +70,7 @@ class Member(models.Model):
 
 
 class Manager(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
                                     to_fields={"assos_id", "user"})
@@ -94,7 +94,7 @@ exist, it was probably deleted")})
 
 
 class President(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     assos_id = models.OneToOneField(Association, on_delete=models.CASCADE,
                                     unique=True)
     manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
@@ -220,7 +220,7 @@ class Price(models.Model):
 
 class Purchase(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     ticket_id = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 
     def has_ticket(self):

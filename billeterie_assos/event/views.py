@@ -23,6 +23,6 @@ class MyAssosView(generic.ListView):
 
     def get_queryset(self):
         user = self.request.user
-        assos_ids = Member.objects.filter(profile_id=user).values_list('assos_id', flat=True)
+        assos_ids = Member.objects.filter(user=user).values_list('assos_id', flat=True)
         my_assos = Association.objects.filter(id__in=assos_ids)
         return my_assos

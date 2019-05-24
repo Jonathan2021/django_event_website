@@ -8,5 +8,5 @@ app_name = 'event'
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
-    path('event/', login_required(views.MyAssosView.as_view()), name='my_assos'),
+    path('my_assos/', login_required(views.MyAssosView.as_view()), name='my_assos'),
 ]

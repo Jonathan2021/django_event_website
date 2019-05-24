@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{%block content %}    
+        {% if assos %}
+        <ul>
+        {% for asso in assos %}
+        <li><a href="{% url 'event:asso_detail' asso.id %}">{{ asso.name }}</a></li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p> no assos </p>
+        {% endif %}
+{% endblock content %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{%block content %}    
+    <h1>{{association.name}}</h1>
+    <h3>President</h3>
+    <p>{{president.username}}</p>
+    <h4>Membres du bureau</h4>
+    <ul>
+    {% for manager in managers %}
+    <li>{{manager.username}}</li>
+    {% endfor %}
+    </ul>
+    <h5>Membres</h5>
+    <ul>
+    {% for member in members %}
+    <li>{{member.username}}</li>
+    {% endfor %}
+    </ul>
+{% endblock content %}

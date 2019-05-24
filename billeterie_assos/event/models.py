@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import connection
 # from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from address.models import AddressField
@@ -45,9 +46,21 @@ class EmailAddress(models.Model):
         verbose_name = _("Email")
         verbose_name_plural = _("Emails")
 
+"""
+class AssosManager(models.Manager):
+    def from_user(self, user):
+        with connection.cursor() as cursor:
+            cursor.execute("
+                SELECT m.assos_id_id AS assos
+                FROM event_member m
+                WHERE m.profile_id_id = %s
+                ORDER BY assos.name", [user.id])
+        return cursor.fetchall()
+"""
 
 class Association(models.Model):
     name = models.CharField(_("Name"), max_length=64, unique=True)
+#    objects = AssosManager()
 
     class Meta:
         verbose_name = _("Association")
@@ -60,7 +73,7 @@ class Association(models.Model):
 class Member(models.Model):
     assos_id = models.ForeignKey(Association, related_name='members',
                                  on_delete=models.CASCADE)
-    profile_id = models.ForeignKey(Profile, related_name='memberships',
+    profile_id = models.ForeignKey(User, related_name='memberships',
                                    on_delete=models.CASCADE)
 
     class Meta:

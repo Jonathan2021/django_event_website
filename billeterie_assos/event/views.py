@@ -59,3 +59,8 @@ class AssosView(generic.ListView):
 
     def get_queryset(self):
         return Association.objects.all().order_by("name")
+
+class ProfileView(generic.ListView):
+    template_name = 'profile.html'
+    def get_queryset(self):
+        return Event.objects.filter(premium_flag=True).order_by('start')

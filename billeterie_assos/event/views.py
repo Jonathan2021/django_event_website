@@ -19,6 +19,11 @@ class IndexView(generic.ListView):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
 
+class EventDetailView(generic.DetailView):
+    model = Event
+    template_name = 'event_detail.html'
+
+
 class AssosDetailView(generic.DetailView):
     model = Association
     template_name = 'assos_detail.html'

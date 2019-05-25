@@ -124,6 +124,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
+
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 
 GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'

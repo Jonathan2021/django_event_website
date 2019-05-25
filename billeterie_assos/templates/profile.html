@@ -3,6 +3,15 @@
 {% block title%}My Profile{% endblock %}
 
 {% block content %}
-<h1>NAME</h1>
-<img src="http://www.dinosauria.org/blog/wp-content/uploads/2016/06/Figure_5.jpg" style="height:200px; width:200px;"/>
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle account-img" style="height:100px; width:100px;" src = "{{ user.profile.image.url }}">
+            <div class="media-body" style="background-color:white;">
+                <h2 class="account-heading">{{ user.username }}</h2>
+                <p class="text-secondary">{{ user.profile.birthdate }}</p>
+                <p class="text-secondary">{{ user.email }}</p>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

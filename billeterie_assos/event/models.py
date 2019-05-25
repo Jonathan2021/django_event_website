@@ -71,7 +71,8 @@ class Member(models.Model):
 
 class Manager(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE, related_name='managers')
+    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
+                                 related_name='managers')
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
                                     to_fields={"assos_id", "user"})
 
@@ -139,7 +140,8 @@ class Event(models.Model):
                                    null=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
-    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
+    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
+                                 related_name='events')
     address_id = AddressField(on_delete=models.PROTECT)
     # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)

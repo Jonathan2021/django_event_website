@@ -2,9 +2,10 @@
 # from django.http import Http404
 # from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
 # from django.utils import timezone
 
-from .models import Event, Association, Member, President, Manager
+from .models import Event, Association, Member, President
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -34,6 +35,10 @@ class AssosDetailView(generic.DetailView):
         context['managers'] = User.objects.filter(id__in=managers).exclude(id__in=president)
         members = assos.members.all().values_list('user', flat=True)
         context['members'] = User.objects.filter(id__in=members).exclude(id__in=managers).exclude(id__in=president)
+        events = assos.events.all()
+        now = timezone.now()
+        context['future_events'] = events.filter(start__gt=now)
+        context['ongoing_events'] = events.filter(start__lte=now, end__gt=now)
         return context
 
 

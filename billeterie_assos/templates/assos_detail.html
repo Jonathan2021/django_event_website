@@ -17,4 +17,17 @@
     <li>{{member.username}}</li>
     {% endfor %}
     </ul>
+    <br/>
+    <h2>Ongoing events</h2>
+    <ul>
+    {% for event in ongoing_events %}
+    <li>{{event.title}}</li>
+    {% endfor %}
+    </ul>
+    <h2>Future events</h2>
+    <ul>
+    {% for event in future_events %}
+    <li>{{event.title}}</li>
+    {% endfor %}
+    </ul>
 {% endblock content %}

@@ -8,10 +8,13 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="{% url 'event:index' %}">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{% url 'event:index' %}">Home <span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
+      <li class="nav-item active">
+          <a class="nav-link" href="{% url 'event:assos' %}">Associations</a>
+      </li>
+      <li class="nav-item active">
+          <a class="nav-link" href="{% url 'event:events' %}">Events</a>
       </li>
       {% if user.is_authenticated %}
       <li class="nav-item dropdown">
@@ -19,7 +22,7 @@
           My space
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{% url 'event:profile' %}">My profile</a>
+          <a class="dropdown-item" href="#">My profile</a>
           <a class="dropdown-item" href="{% url 'event:my_assos' %}">My associations</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="#">My upcoming events</a>
@@ -39,6 +42,6 @@
         <a href="{% url 'logout' %}"><button class="btn btn-outline-success my-2 my-sm-0">Logout</button></a>
     {% else %}
         <a href="{% url 'login' %}"><button class="btn btn-outline-success my-2 my-sm-0">Login</button></a>
-    {% endif %}
+    {% endif %} 
   </div>
 </nav>

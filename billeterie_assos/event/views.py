@@ -19,6 +19,14 @@ class IndexView(generic.ListView):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
 
+class EventListView(generic.ListView):
+    template_name = 'event_list.html'
+    context_object_name = 'events'
+
+    def get_queryset(self):
+        return Event.objects.filter(end__gt=timezone.now()).order_by('start')
+
+
 class EventDetailView(generic.DetailView):
     model = Event
     template_name = 'event_detail.html'

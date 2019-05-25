@@ -11,5 +11,7 @@ urlpatterns = [
     path('my_assos/', login_required(views.MyAssosView.as_view()), name='my_assos'),
     path('assos/<int:pk>', views.AssosDetailView.as_view(), name='asso_detail'),
     path('assos/', views.AssosView.as_view(), name='assos'),
+    path('event/', views.EventListView.as_view(), name='events'),
+    path('event/<int:pk>', views.EventDetailView.as_view(), name='event_detail'),
     path('profile/', views.ProfileView.as_view(), name='profile')
 ]

@@ -71,7 +71,7 @@ class Member(models.Model):
 
 class Manager(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE)
+    assos_id = models.ForeignKey(Association, on_delete=models.CASCADE, related_name='managers')
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,
                                     to_fields={"assos_id", "user"})
 
@@ -96,7 +96,7 @@ exist, it was probably deleted")})
 class President(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     assos_id = models.OneToOneField(Association, on_delete=models.CASCADE,
-                                    unique=True)
+                                    unique=True, related_name='president')
     manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
                                      to_fields={"assos_id", "user"})
 

@@ -27,10 +27,10 @@ class AssosDetailView(generic.DetailView):
         assos = self.get_object()
         president = President.objects.filter(assos_id=assos).values_list('user', flat=True)
         context['president'] = None if not president else User.objects.get(pk=president[0])
-        managers = Manager.objects.filter(assos_id=assos).exclude(user__in=president).values_list('user', flat=True)
-        context['managers'] = User.objects.filter(id__in=managers)
-        members = Member.objects.filter(assos_id=assos).exclude(user__in=managers).values_list('user', flat=True)
-        context['members'] = User.objects.filter(id__in=members)
+        managers = assos.managers.all().values_list('user', flat=True)
+        context['managers'] = User.objects.filter(id__in=managers).exclude(id__in=president)
+        members = assos.members.all().values_list('user', flat=True)
+        context['members'] = User.objects.filter(id__in=members).exclude(id__in=managers).exclude(id__in=president)
         return context
 
 

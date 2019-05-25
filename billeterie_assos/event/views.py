@@ -48,7 +48,7 @@ class MyAssosView(generic.ListView):
 
     def get_queryset(self):
         user = self.request.user
-        assos_ids = Member.objects.filter(user=user).values_list('assos_id', flat=True)
+        assos_ids = user.memberships.all().values_list('assos_id', flat=True)
         my_assos = Association.objects.filter(id__in=assos_ids).order_by("name")
         return my_assos
 
@@ -60,7 +60,9 @@ class AssosView(generic.ListView):
     def get_queryset(self):
         return Association.objects.all().order_by("name")
 
+
 class ProfileView(generic.ListView):
     template_name = 'profile.html'
+
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')

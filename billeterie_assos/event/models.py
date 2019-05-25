@@ -96,7 +96,7 @@ exist, it was probably deleted")})
 class President(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     assos_id = models.OneToOneField(Association, on_delete=models.CASCADE,
-                                    unique=True, related_name='president')
+                                    related_name='president')
     manager = CompositeOneToOneField(Manager, on_delete=models.CASCADE,
                                      to_fields={"assos_id", "user"})
 

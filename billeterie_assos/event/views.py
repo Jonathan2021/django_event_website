@@ -25,7 +25,10 @@ class AssosDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         assos = self.get_object()
-        president = President.objects.filter(assos_id=assos).values_list('user', flat=True)
+        try:
+            president = assos.president.user
+        except President.DoesNotExist:
+            president = User.objects.none()
         context['president'] = None if not president else User.objects.get(pk=president[0])
         managers = assos.managers.all().values_list('user', flat=True)
         context['managers'] = User.objects.filter(id__in=managers).exclude(id__in=president)

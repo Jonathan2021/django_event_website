@@ -11,4 +11,4 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     url(r'^admin/', admin.site.urls),
     url(r'', include('cri_epita.urls', namespace="cri")),
-    ]
+]

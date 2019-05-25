@@ -9,18 +9,11 @@ from django.contrib.auth.decorators import login_required
 from event.models import Event
 
 class log(generic.ListView):
-    template_name = 'log.html'
-    context_object_name = 'premium_event_list'
-
-    def get_queryset(self):
-        return Event.objects.filter(premium_flag=True).order_by('start')
-
+    def get(self, request):
+        return render(request, "log.html");
 
 class login(generic.ListView):
-    template_name = 'login.html'
-    context_object_name = 'premium_event_list'
-
-    def get_queryset(self):
-        return Event.objects.filter(premium_flag=True).order_by('start')
+    def get(self, request):
+        return render(request, "login.html");
 
 # Create your views here.

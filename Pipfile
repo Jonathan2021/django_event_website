@@ -12,6 +12,7 @@ djangorestframework = "*"
 flake8 = "*"
 django-rest-swagger = "*"
 django-composite-foreignkey = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"

@@ -27,7 +27,7 @@
     <h2>Future events</h2>
     <ul>
     {% for event in future_events %}
-    <li>{{event.title}}</li>
+    <li><a href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>
     {% endfor %}
     </ul>
 {% endblock content %}

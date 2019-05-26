@@ -4,8 +4,8 @@
 {%block content %}    
     <h1>{{event.title}}</h1>
     <h4>State</h4>
-    <p>{{event.event_state}}</p>
-    <h4>Manager</H4>
+    <p>{{event.get_event_state_display}}</p>
+    <h4>Manager</h4>
     {% if event.manager_id %}
     <p>{{event.manager_id.user.username}}</p>
     {% else %}

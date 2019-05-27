@@ -251,3 +251,18 @@ class Purchase(models.Model):
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")
         unique_together = ('event_id', 'user', 'ticket_id')
+
+
+"""
+class RightsSupport(models.Model):
+
+    class Meta:
+
+        managed = False
+
+        permissions = (
+            ('customer_rights', 'Global customer rights'),
+            ('vendor_rights', 'Global vendor rights'),
+            ('any_rights', 'Global any rights'),
+        )
+"""

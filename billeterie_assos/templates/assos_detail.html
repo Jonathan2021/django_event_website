@@ -4,11 +4,11 @@
 {%block content %}    
     <h1>{{object.name}}</h1>
     <h3>President</h3>
-    <p>{{president.username}}</p>
+    <p>{{president.user.username}}</p>
     <h4>Membres du bureau</h4>
     <ul>
     {% for manager in managers %}
-    <li>{{manager.username}}</li>
+    <li>{{manager.user.username}}</li>
     {% endfor %}
     </ul>
     <h5>Membres</h5>
@@ -22,7 +22,7 @@
     {% endif %}
     <ul>
     {% for member in members %}
-    <li>{{member.username}}</li>
+    <li>{{member.user.username}}</li>
     {% endfor %}
     </ul>
     <br/>

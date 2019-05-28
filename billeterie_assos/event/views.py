@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.utils import timezone
 # from django.utils import timezone
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 from .models import Event, Association, Member, President
 from .forms import AddMemberForm
@@ -19,6 +21,7 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
+#Create your views here.
 
 class EventListView(generic.ListView):
     template_name = 'event_list.html'

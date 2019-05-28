@@ -6,6 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+social-auth-backend-epita = "*"
+social-auth-app-django = "*"
 django = "*"
 redgreenunittest = "*"
 djangorestframework = "*"

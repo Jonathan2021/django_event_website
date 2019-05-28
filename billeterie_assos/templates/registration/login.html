@@ -1,9 +1,19 @@
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
-<br/>
-<p>Don't have an account ? <a href="{% url 'signup' %}"> Sign up here </a></p>
-<p>Can't remember your password ? <a href={% url 'password_reset' %}> Reset password here </a></p>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="background-color:lavenderblush; margin-top:50px; margin-bottom: 50px;">
+  <h2>Login</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+  </form>
+  <br/>
+  <p>Don't have an account ? <a href="{% url 'signup' %}"> Sign up here </a></p>
+  <p>Can't remember your password ? <a href={% url 'password_reset' %}> Reset password here </a></p>
+  <br>
+  <p><strong>-- OR --</strong></p>
+  <a href="{% url 'social:begin' backend='epita'%}">CRI connect</a>
+  <br>
+</div>
+{% endblock %}

@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from .models import Member, Manager, President
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from .models import Profile
 
 
 from .models import Profile
@@ -16,6 +18,25 @@ class CustomUserChoiceField(forms.ModelChoiceField):
 class ProfileModelChoiceField(forms.ChoiceField):
     def label_from_instance(self, obj):
         return "%s (%s)" % (obj.user.get_full_name(), obj.user.username)
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['image']
 
 
 class MemberAdminForm(forms.BaseInlineFormSet):

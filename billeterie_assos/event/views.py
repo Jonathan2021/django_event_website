@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Event, Association, Member, President
 from django.contrib.auth.models import User
+from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 
 # Create your views here.
 
@@ -79,6 +80,16 @@ class AssosView(generic.ListView):
 
 class ProfileView(generic.ListView):
     template_name = 'profile.html'
+
+    def get_context_data(self, **kwargs):
+        u_form = UserUpdateForm();
+        p_form = ProfileUpdateForm();
+        context = super().get_context_data(**kwargs)
+        context = {
+            'u_form': u_form,
+            'p_form': p_form
+        }
+        return context
 
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')

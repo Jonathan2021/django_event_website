@@ -11,4 +11,7 @@
         {% else %}
         <p> no assos </p>
         {% endif %}
+        {% if perms.event.add_association %}
+        <a href='#'>Create an association<a>
+        {% endif %}
 {% endblock content %}

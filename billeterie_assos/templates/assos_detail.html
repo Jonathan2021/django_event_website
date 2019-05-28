@@ -2,7 +2,7 @@
 {% load static %}
 
 {%block content %}    
-    <h1>{{association.name}}</h1>
+    <h1>{{object.name}}</h1>
     <h3>President</h3>
     <p>{{president.username}}</p>
     <h4>Membres du bureau</h4>
@@ -12,6 +12,14 @@
     {% endfor %}
     </ul>
     <h5>Membres</h5>
+    <button style="color:brown" onclick="display('add_members')">Add Members</button>
+    {% if perms.association.manage_member %}
+    <form id="add_members" style="display: none;" action="{% url 'event:asso_detail' object.id %}" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit" value="Add members">
+    </form>
+    {% endif %}
     <ul>
     {% for member in members %}
     <li>{{member.username}}</li>
@@ -29,5 +37,18 @@
     {% for event in future_events %}
     <li><a href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>
     {% endfor %}
-    </ul>
+    </ul> 
+    {% if perms.event.delete_association %}
+    <form action="{% url 'event:assos_delete' association.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Delete" />
+    </form>
+    {% endif %}
+    <script>
+    function display(el)
+    {
+        x = document.getElementById(el);
+        x.style.display = "block";
+    }
+    </script>
 {% endblock content %}

@@ -4,8 +4,44 @@ from .models import Member, Manager, President
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-
 from .models import Profile
+
+class AddMemberForm(forms.Form):
+        def __init__(self, *args, **kwargs):
+            self.asso = kwargs.pop('asso')
+            super(AddMemberForm,self).__init__(*args,**kwargs)
+            unwanted = self.asso.members.all().values_list('user', flat=True)
+            self.fields['users'].queryset = User.objects.all().exclude(id__in=unwanted)
+
+        users = forms.ModelMultipleChoiceField(label=_("Members to add"),
+        queryset=User.objects.none(),
+        widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}))
+
+"""
+def add_personnels_to_group(request): # pk is group's pk
+    # Recursively add personnels to a group
+    template = "personnel/add_personnels_to_group.html"
+    # group = Group.objects.get(pk=pk) # replace this
+
+    if request.method == "POST":
+        form = AddPersonnelToGroupForm(request.POST)
+        if form.is_valid():
+            group = form.cleaned_data['group'] # replacement
+            personnels = [Personnel.objects.get(pk=pk) for pk in request.POST.getlist("personnels", "")]
+
+            for personnel in personnels:
+                user = personnel.user
+                if user.groups.filter(id=group.id).count():
+                    user.groups.remove(group)
+                else:
+                    user.groups.add(group)
+                    msg.append("{} added".format(personnel.display_name))
+
+            return redirect(wherever)
+    else:
+        form = AddPersonnelToGroupForm()
+        return render(request, template, {"form" : form, "group" : group})
+"""
 
 
 class CustomUserChoiceField(forms.ModelChoiceField):

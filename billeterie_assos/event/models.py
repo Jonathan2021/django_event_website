@@ -54,6 +54,14 @@ class Association(models.Model):
         verbose_name = _("Association")
         verbose_name_plural = _("Associations")
 
+        permissions = (
+            ('create_event', 'User can create an event'),
+            ('manage_member', 'User can add and remove a member'),
+            ('choose_staff', 'User can choose staff'),
+            ('manage_managers', 'User can add and remove managers'),
+            ('manage_president', 'User can modify the president'),
+        )
+
     def __str__(self):
         return '%s' % (self.name)
 
@@ -156,6 +164,11 @@ class Event(models.Model):
     class Meta:
         verbose_name = (_("Event"))
         verbose_name_plural = (_("Events"))
+
+        permissions = (
+            ('access_dashboard', 'User can access this event\'s dashboard'),
+            ('change_state', 'User can the event\'s state'),
+        )
 
 
 class Ticket(models.Model):

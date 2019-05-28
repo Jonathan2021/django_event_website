@@ -12,8 +12,9 @@ class log(generic.ListView):
     def get(self, request):
         return render(request, "log.html");
 
-class login(generic.ListView):
+class logged(generic.ListView):
     def get(self, request):
-        return render(request, "login.html");
+        return render(request, "logged.html");
+
 
 # Create your views here.

@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'cri_epita',
     'social_django',
     'epita_connect',
-
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -67,7 +67,7 @@ ROOT_URLCONF = 'billeterie_assos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -149,7 +149,21 @@ SOCIAL_AUTH_EPITA_BETA = False
 LOGIN_URL = '/login/epita/'
 LOGIN_REDIRECT_URL = '/logged/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 
 GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'
+
+LOGIN_REDIRECT_URL = 'event:index'
+LOGOUT_REDIRECT_URL = 'event:index'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    '/var/www/static/',
+]
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")

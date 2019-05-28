@@ -9,6 +9,12 @@ verify_ssl = true
 social-auth-backend-epita = "*"
 social-auth-app-django = "*"
 django = "*"
+redgreenunittest = "*"
+djangorestframework = "*"
+flake8 = "*"
+django-rest-swagger = "*"
+django-composite-foreignkey = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"

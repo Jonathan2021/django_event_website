@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{%block content %}    
+        {% if events %}
+        <ul>
+        {% for event in events %}
+        <li><a href="{% url 'event:event_detail' event.id %}">{{ event.tile }}</a></li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p> no events </p>
+        {% endif %}
+{% endblock content %}

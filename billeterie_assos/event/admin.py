@@ -30,7 +30,7 @@ class AssociationAdmin(admin.ModelAdmin):
             (_('Name of the association'), {'fields': ['name']})
     ]
 
-
+admin.site.register(Profile)
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Association, AssociationAdmin)

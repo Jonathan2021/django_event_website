@@ -15,6 +15,7 @@ flake8 = "*"
 django-rest-swagger = "*"
 django-composite-foreignkey = "*"
 pillow = "*"
+django-crispy-forms = "*"
 
 [requires]
 python_version = "3.7"

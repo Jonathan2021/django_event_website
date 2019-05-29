@@ -50,9 +50,9 @@
     {% endfor %}
     </ul> 
     {% if perms.event.delete_association %}
-    <form action="{% url 'event:assos_delete' association.pk %}" method="POST">
+    <form action="{% url 'event:assos_delete' object.pk %}" method="POST">
     {% csrf_token %}
-    <input type="submit" value="Delete" />
+    <input type="submit" onclick="ask_confirm(event);"value="Delete" />
     </form>
     {% endif %}
     <script>
@@ -60,6 +60,9 @@
     {
         x = document.getElementById(el);
         x.style.display = "block";
+    }
+    function ask_confirm(e) {
+        if (!confirm('Do you want to delete this association?'))e.preventDefault();
     }
     </script>
 {% endblock content %}

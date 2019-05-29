@@ -135,7 +135,7 @@ class ProfileView(generic.ListView):
 
 class AssosDelete(generic.DeleteView):
     model = Association
-    success_url = reverse_lazy('my_assos')
+    success_url = reverse_lazy('event:my_assos')
 
 
 class MemberDelete(generic.DeleteView):

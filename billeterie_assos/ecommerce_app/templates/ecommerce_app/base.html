@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}Simple ecommerce </title>
+    <style>
+        table{
+            border-collapse: collapse;
+            border: none;
+        }
+        td{
+            padding: 10px;
+        }
+        form{
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+<p>
+    <a href="{% url 'event:index' %}">All Products</a> 
+</p>
+
+{% block content %}
+
+{% endblock %}
+
+</body>
+</html>

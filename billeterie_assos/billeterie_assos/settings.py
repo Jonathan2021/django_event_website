@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'cri_epita',
     'social_django',
     'epita_connect',
+    'ecommerce_app',
     'accounts.apps.AccountsConfig',
     'guardian',
 ]

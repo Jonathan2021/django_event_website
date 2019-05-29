@@ -42,6 +42,7 @@
         <a href="{% url 'logout' %}"><button class="btn btn-outline-success my-2 my-sm-0">Logout</button></a>
     {% else %}
         <a href="{% url 'login' %}"><button class="btn btn-outline-success my-2 my-sm-0">Login</button></a>
-    {% endif %} 
+    {% endif %}
+        <a href="{% url 'event:checkout' %}"><button class="btn btn-outline-success my-2 my-sm-0">checkout</button></a>
   </div>
 </nav>

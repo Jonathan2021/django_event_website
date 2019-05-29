@@ -154,6 +154,15 @@ class MemberDelete(generic.DeleteView):
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.pop('asso_pk')})
 
+class ManagerDelete(generic.DeleteView):
+    model = Manager
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.pop('asso_pk')})
+
 class ManagerCreate(generic.View):
     def get(self, request, *args, **kwargs):
         member = get_object_or_404(Member, pk=kwargs.pop('pk'))

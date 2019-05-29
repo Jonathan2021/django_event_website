@@ -9,6 +9,9 @@
     <ul>
     {% for manager in managers %}
     <li>{{manager.user.username}}</li>
+    {% if perms.association.manage_manager %}
+    <a href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">retograde to member</a>
+    {% endif %}
     {% endfor %}
     </ul>
     <h5>Membres</h5>
@@ -26,7 +29,7 @@
     {% if perms.association.manage_member %}
     <a href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
     {% endif %}
-    {% if perms.association.manage_member %}
+    {% if perms.association.manage_manager %}
     <a href="{% url 'event:add_manager' member.pk %}">Promote to manager</a>
     {% endif %}
     {% endfor %}

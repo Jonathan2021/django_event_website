@@ -58,7 +58,7 @@ class Association(models.Model):
             ('create_event', 'User can create an event'),
             ('manage_member', 'User can add and remove a member'),
             ('choose_staff', 'User can choose staff'),
-            ('manage_managers', 'User can add and remove managers'),
+            ('manage_manager', 'User can add and remove managers'),
             ('manage_president', 'User can modify the president'),
         )
 

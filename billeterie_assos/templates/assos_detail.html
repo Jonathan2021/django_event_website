@@ -4,7 +4,9 @@
 {%block content %}    
     <h1>{{object.name}}</h1>
     <h3>President</h3>
+    {% if president %}
     <p>{{president.user.username}}</p>
+    {% endif %}
     <h4>Membres du bureau</h4>
     <ul>
     {% for manager in managers %}

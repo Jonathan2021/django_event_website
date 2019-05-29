@@ -2,6 +2,9 @@
 {% load static %}
 
 {%block content %}    
+        {% if perms.event.add_association %}
+        <a href="{% url 'event:asso_creation' %}">Create an association</a>
+        {% endif %}
         {% if assos %}
         <ul>
         {% for asso in assos %}
@@ -10,8 +13,5 @@
         </ul>
         {% else %}
         <p> no assos </p>
-        {% endif %}
-        {% if perms.event.add_association %}
-        <a href='#'>Create an association<a>
         {% endif %}
 {% endblock content %}

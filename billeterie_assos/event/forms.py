@@ -4,9 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Member, Manager, President
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from .models import Profile
+from .models import Profile, Association
 
-from .models import Profile
 
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
@@ -18,6 +17,31 @@ class AddMemberForm(forms.Form):
         users = forms.ModelMultipleChoiceField(label=_("Members to add"),
         queryset=User.objects.none(),
         widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}))
+
+class AssociationForm(forms.ModelForm):
+    president = forms.ModelChoiceField(label=_("President"),
+            queryset=User.objects.all()) #should make them only from epita        
+
+    class Meta:
+        model = Association
+        fields = ['name']
+
+    def save(self, commit=True):
+        asso = super(AssociationForm, self).save(commit=commit)
+        print(asso)
+        if (commit):
+            president = self.cleaned_data['president'] #should add perms here maybe
+            member = Member(user=president, assos_id=asso)
+            manager = Manager(member=member)
+            pres = President(manager=manager)
+            member.full_clean()
+            member.save()
+            manager.full_clean()
+            manager.save()
+            pres.full_clean()
+            pres.save()
+        return asso
+    
 
 """
 def add_personnels_to_group(request): # pk is group's pk

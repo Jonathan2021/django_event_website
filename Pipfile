@@ -17,6 +17,7 @@ django-composite-foreignkey = "*"
 pillow = "*"
 django-crispy-forms = "*"
 django-guardian = "*"
+python-jose = "*"
 
 [requires]
 python_version = "3.7"

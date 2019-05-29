@@ -1,4 +1,4 @@
-# from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from django.urls import reverse_lazy
 from django.views import generic
@@ -139,6 +139,18 @@ class ProfileView(generic.ListView):
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
+
 class AssosDelete(generic.DeleteView):
     model = Association
     success_url = reverse_lazy('my_assos')
+
+
+class MemberDelete(generic.DeleteView):
+    model = Member
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.pop('asso_pk')})
+

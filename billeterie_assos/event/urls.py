@@ -20,5 +20,5 @@ urlpatterns = [
     path('event/<int:pk>', views.EventDetailView.as_view(), name='event_detail'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('assos/delete/<int:pk>', permission_required('event.delete_association', login_url='login')(views.AssosDelete.as_view()), name='assos_delete'),
-
+    path('assos/<int:asso_pk>/delete/<int:pk>', permission_required('event.delete_member', login_url='login')(views.MemberDelete.as_view()), name='delete_member'),
 ]

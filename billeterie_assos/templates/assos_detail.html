@@ -23,6 +23,9 @@
     <ul>
     {% for member in members %}
     <li>{{member.user.username}}</li>
+    {% if perms.association.manage_member %}
+    <a href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
+    {% endif %}
     {% endfor %}
     </ul>
     <br/>

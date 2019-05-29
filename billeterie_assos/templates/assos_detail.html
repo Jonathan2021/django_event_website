@@ -26,6 +26,9 @@
     {% if perms.association.manage_member %}
     <a href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
     {% endif %}
+    {% if perms.association.manage_member %}
+    <a href="{% url 'event:add_manager' member.pk %}">Promote to manager</a>
+    {% endif %}
     {% endfor %}
     </ul>
     <br/>

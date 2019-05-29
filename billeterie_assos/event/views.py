@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views import generic
 from django.utils import timezone
@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from .models import Event, Association, Member, President
+from .models import Event, Association, Member, President, Manager
 from .forms import AddMemberForm
 from django.contrib.auth.models import User
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
@@ -154,3 +154,14 @@ class MemberDelete(generic.DeleteView):
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.pop('asso_pk')})
 
+class ManagerCreate(generic.View):
+    def get(self, request, *args, **kwargs):
+        member = get_object_or_404(Member, pk=kwargs.pop('pk'))
+        manager = Manager(member=member)
+        try:
+            manager.full_clean()
+            manager.save()
+        except:
+            pass
+        return HttpResponseRedirect(reverse_lazy('event:asso_detail', kwargs={'pk':member.assos_id.pk}))
+    

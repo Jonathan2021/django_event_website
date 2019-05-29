@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'social_django',
     'epita_connect',
     'accounts.apps.AccountsConfig',
+    'paypal.standard.ipn',
 ]
 
 MIDDLEWARE = [
@@ -167,3 +168,7 @@ STATICFILES_DIRS = [
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+
+#django-paypal settings
+PAYPAL_RECEIVER_EMAIL = 'romainchuit@gmail.com'
+PAYPAL_TEST = True

@@ -18,5 +18,6 @@ urlpatterns = [
     path('assos/', views.AssosView.as_view(), name='assos'),
     path('event/', views.EventListView.as_view(), name='events'),
     path('event/<int:pk>', views.EventDetailView.as_view(), name='event_detail'),
-    path('profile/', views.ProfileView.as_view(), name='profile')
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    url(r'^paypal/', include('paypal.standard.ipn.urls'))
 ]

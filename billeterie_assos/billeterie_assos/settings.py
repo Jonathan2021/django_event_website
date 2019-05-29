@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'social_django',
     'epita_connect',
     'accounts.apps.AccountsConfig',
+    'guardian',
 ]
 
 MIDDLEWARE = [
@@ -115,6 +116,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -138,6 +144,7 @@ STATIC_URL = '/static/'
 AUTHENTICATION_BACKENDS = (
     'epita_connect.backend.EpitaOpenIdConnect',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'

@@ -16,6 +16,7 @@ django-rest-swagger = "*"
 django-composite-foreignkey = "*"
 pillow = "*"
 django-crispy-forms = "*"
+django-guardian = "*"
 
 [requires]
 python_version = "3.7"

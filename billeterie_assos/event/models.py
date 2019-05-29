@@ -77,6 +77,9 @@ class Member(models.Model):
         verbose_name_plural = _("Members")
         unique_together = ('assos_id', 'user')
 
+    def __str__(self):
+        return '%s from %s' % (self.user.username, self.assos_id.name)
+
 
 class Manager(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -102,6 +105,9 @@ exist, it was probably deleted")})
         verbose_name = _("Member of the Bureau")
         verbose_name_plural = _("Members of the Bureau")
 
+    def __str__(self):
+        return '%s from %s' % (self.user.username, self.assos_id.name)
+
 
 class President(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -126,6 +132,9 @@ exist, it was probably deleted")})
     class Meta:
         verbose_name = _("President")
         verbose_name_plural = _("Presidents")
+
+    def __str__(self):
+        return '%s from %s' % (self.user.username, self.assos_id.name)
 
 
 class Event(models.Model):

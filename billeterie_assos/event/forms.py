@@ -1,12 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Member, Manager, President
+from .models import Member, Manager, President, Profile, Association, Event
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from .models import Profile, Association
-
-
+from django.forms.widgets import DateTimeInput
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
             self.asso = kwargs.pop('asso')
@@ -17,6 +15,19 @@ class AddMemberForm(forms.Form):
         users = forms.ModelMultipleChoiceField(label=_("Members to add"),
         queryset=User.objects.none(),
         widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}))
+
+
+class CreateEventForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(CreateEventForm, self).__init__(*args, **kwargs)
+        self.fields['start'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
+        self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
+
+    class Meta:
+        model = Event
+        fields = ['title', 'event_state', 'manager_id', 'start', 'end', 'assos_id', 'address_id', 'premium_flag']
+
 
 class AssociationForm(forms.ModelForm):
     president = forms.ModelChoiceField(label=_("President"),

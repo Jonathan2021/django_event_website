@@ -37,13 +37,15 @@
     {% endfor %}
     </ul>
     <br/>
-    <h2>Ongoing events</h2>
+    <h1>Events</h1>
+    <a href="{% url 'event:event_creation' %}">Create an event</a>
+    <h3>Ongoing events</h3>
     <ul>
     {% for event in ongoing_events %}
     <li>{{event.title}}</li>
     {% endfor %}
     </ul>
-    <h2>Future events</h2>
+    <h3>Future events</h3>
     <ul>
     {% for event in future_events %}
     <li><a href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>

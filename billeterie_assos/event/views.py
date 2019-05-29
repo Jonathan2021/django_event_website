@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from .models import Event, Association, Member, President, Manager
-from .forms import AddMemberForm, AssociationForm
+from .forms import AddMemberForm, AssociationForm, CreateEventForm
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -35,6 +35,12 @@ class EventDetailView(generic.DetailView):
     model = Event
     template_name = 'event_detail.html'
 
+class EventCreateView(generic.CreateView):
+    form_class = CreateEventForm
+    template_name = 'event_new.html'
+    model = Event
+    success_url = reverse_lazy('event:assos')
+    
 
 class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Association
@@ -178,3 +184,5 @@ class AssosCreateView(generic.CreateView):
     def form_valid(self, form):
         self.asso = form.save(commit=True)
         return HttpResponseRedirect(self.get_success_url())
+
+

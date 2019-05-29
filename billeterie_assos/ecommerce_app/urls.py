@@ -2,6 +2,7 @@ from django.conf.urls import url
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     path('ship/', views.index, name='index'),
     path('product/<int:product_id>/<slug:product_slug>/',

@@ -7,8 +7,18 @@
     <p>{{event.get_event_state_display}}</p>
     <h4>Manager</h4>
     {% if event.manager_id %}
-    <p>{{event.manager_id.user.username}}</p>
+    <p>{{event.manager_id}}</p>
     {% else %}
     <p>No manager</p>
     {% endif %}
+    <h4>start</h4>
+    <p>{{event.start}}</p>
+    <h4>end</h4>
+    <p>{{event.end}}</p>
+    <h4>assos</h4>
+    <a href="{% url 'event:asso_detail' event.assos_id.pk %}">{{event.assos_id.name}}</a>
+    <h4>address</h4>
+    <p>{{event.address_id.raw}}</p>
+    <h4>premium</h4>
+    <p>{{event.premium_flag}}</p>
 {% endblock content %}

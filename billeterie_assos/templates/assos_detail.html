@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 
-{%block content %}    
+{%block content %}
     <h1>{{object.name}}</h1>
     <h3>President</h3>
+    {% if president %}
     <p>{{president.user.username}}</p>
+    {% endif %}
     <h4>Membres du bureau</h4>
     <ul>
     {% for manager in managers %}
     <li>{{manager.user.username}}</li>
     {% if perms.association.manage_manager %}
-    <a href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">retograde to member</a>
+    <a class="confirm" href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">retograde to member</a>
     {% endif %}
     {% endfor %}
     </ul>
@@ -27,30 +29,32 @@
     {% for member in members %}
     <li>{{member.user.username}}</li>
     {% if perms.association.manage_member %}
-    <a href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
+    <a class="confirm" href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
     {% endif %}
     {% if perms.association.manage_manager %}
-    <a href="{% url 'event:add_manager' member.pk %}">Promote to manager</a>
+    <a class="confirm" href="{% url 'event:add_manager' member.pk %}">Promote to manager</a>
     {% endif %}
     {% endfor %}
     </ul>
     <br/>
-    <h2>Ongoing events</h2>
+    <h1>Events</h1>
+    <a href="{% url 'event:event_creation' %}">Create an event</a>
+    <h3>Ongoing events</h3>
     <ul>
     {% for event in ongoing_events %}
     <li>{{event.title}}</li>
     {% endfor %}
     </ul>
-    <h2>Future events</h2>
+    <h3>Future events</h3>
     <ul>
     {% for event in future_events %}
     <li><a href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>
     {% endfor %}
     </ul> 
     {% if perms.event.delete_association %}
-    <form action="{% url 'event:assos_delete' association.pk %}" method="POST">
+    <form action="{% url 'event:assos_delete' object.pk %}" method="POST">
     {% csrf_token %}
-    <input type="submit" value="Delete" />
+    <input type="submit" class="confirm" value="Delete" />
     </form>
     {% endif %}
     <script>

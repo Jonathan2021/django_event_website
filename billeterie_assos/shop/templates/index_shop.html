@@ -1,18 +1,23 @@
-{% extends 'base_shop.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 
     <div class="container">
         <div class="row">
             <h2>Available Products</h2>
-
+            <tbody>
+            <ul>
             {% for product in all_products %}
-                <div class="col-lg-4">
-                    <h3><a href="{% url 'product_detail' product.pk product.slug %}">{{ product.name }}</a></h3>
-                    <p>Price ${{ product.price }}</p>
-                </div>
+            <li>
+                <tr>
+                    <h3><a href="{% url 'product_detail' product.pk product.slug  %}">
+                            {{ product.name }}</a></h3> 
+                    Price: €{{ product.price }}
+                </tr>
+            </li>
             {% endfor %}
-
+            </ul>
+            </tbody>
         </div>
     </div>
 

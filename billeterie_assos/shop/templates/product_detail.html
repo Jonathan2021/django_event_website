@@ -1,4 +1,4 @@
-{% extends 'base_shop.html' %}
+{% extends 'base.html' %}
 
 {% block title %}
     {{ product.name }} |
@@ -8,12 +8,9 @@
 {% block content %}
 
     <div class="container">
-        <div class="row">
-
             <p><a href="{% url 'index_shop' %}">All Products </a> &gt;
                 {{ product.name }}
             </p>
-
                 <h2>{{ product.name }}</h2>
                 <p>Price ${{ product.price }}</p>
 
@@ -22,9 +19,5 @@
                     {{ form }}
                     <input type="submit" value="Add to cart" class="btn btn-primary" >
                 </form>
-
-        </div>
-
     </div>
-
 {% endblock %}

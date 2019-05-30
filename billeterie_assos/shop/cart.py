@@ -20,7 +20,6 @@ def get_all_cart_items(request):
 
 def add_item_to_cart(request):
     # cart_id = _cart_id(request)
-
     product_id = request.form_data['product_id']
     quantity = request.form_data['quantity']
 

@@ -20,7 +20,8 @@
 
 <p>
     <a href="{% url 'index_shop' %}">All Products</a> |
-    <a href="{% url 'show_cart' %}">Cart: {{ cart_item_count }} item</a>
+    <a href="{% url 'show_cart' %}">Cart: {{ cart_item_count }} item</a> | 
+    <a href="{% url 'home' %}">Home</a> 
 </p>
 
 {% block content %}

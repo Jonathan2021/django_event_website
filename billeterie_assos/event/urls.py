@@ -24,5 +24,5 @@ urlpatterns = [
     path('assos/manager/add/<int:pk>', permission_required('event.add_manager', login_url='login')(views.ManagerCreate.as_view()), name='add_manager'),
     path('assos/<int:asso_pk>/delete/manager/<int:pk>', permission_required('event.delete_manager', login_url='login')(views.ManagerDelete.as_view()), name='delete_manager'),
 
-    path('shop/', com_views.index, name='shop'),
+    path('shop/', com_views.index_shop, name='shop'),
 ]

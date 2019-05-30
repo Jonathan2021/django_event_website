@@ -8,7 +8,7 @@ from . import cart
 # Create your views here.
 
 
-def index(request):
+def index_shop(request):
     all_products = Product.objects.all()
     return render(request, "index_shop.html", {
                                     'all_products': all_products,

@@ -10,7 +10,7 @@ from . import cart
 
 def index(request):
     all_products = Product.objects.all()
-    return render(request, "ecommerce_app/index.html", {
+    return render(request, "index_shop.html", {
                                     'all_products': all_products,
                                     })
 
@@ -26,7 +26,7 @@ def show_product(request, product_id, product_slug):
             return redirect('show_cart')
 
     form = CartForm(request, initial={'product_id': product.id})
-    return render(request, 'ecommerce_app/product_detail.html', {
+    return render(request, 'product_detail.html', {
                                             'product': product,
                                             'form': form,
                                             })
@@ -42,7 +42,7 @@ def show_cart(request):
 
     cart_items = cart.get_all_cart_items(request)
     cart_subtotal = cart.subtotal(request)
-    return render(request, 'ecommerce_app/cart.html', {
+    return render(request, 'cart.html', {
                                             'cart_items': cart_items,
                                             'cart_subtotal': cart_subtotal,
                                             })
@@ -82,5 +82,5 @@ def checkout(request):
 
     else:
         form = CheckoutForm()
-        return render(request, 'ecommerce_app/checkout.html', {'form': form})
+        return render(request, 'checkout.html', {'form': form})
 

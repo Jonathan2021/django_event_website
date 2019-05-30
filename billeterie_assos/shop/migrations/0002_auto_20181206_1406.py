@@ -25,7 +25,7 @@ PRODUCTS = [
 
 
 def add_products(apps, schema_editor):
-    Product = apps.get_model('ecommerce_app', 'Product')
+    Product = apps.get_model('shop', 'Product')
 
     for p in PRODUCTS:
         l = Product.objects.get_or_create(
@@ -39,7 +39,7 @@ def add_products(apps, schema_editor):
 
 
 def remove_products(apps, schema_editor):
-    Product = apps.get_model('ecommerce_app', 'Product')
+    Product = apps.get_model('shop', 'Product')
 
     for p in PRODUCTS:
         l = Product.objects.get(
@@ -52,7 +52,7 @@ def remove_products(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecommerce_app', '0001_initial'),
+        ('shop', '0001_initial'),
     ]
 
     operations = [

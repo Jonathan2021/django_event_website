@@ -57,16 +57,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='lineitem',
             name='order',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_app.Order'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.Order'),
         ),
         migrations.AddField(
             model_name='lineitem',
             name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce_app.Product'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.Product'),
         ),
         migrations.AddField(
             model_name='cartitem',
             name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ecommerce_app.Product'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='shop.Product'),
         ),
     ]

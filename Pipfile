@@ -13,6 +13,7 @@ flake8 = "*"
 django-rest-swagger = "*"
 django-composite-foreignkey = "*"
 pillow = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.7"

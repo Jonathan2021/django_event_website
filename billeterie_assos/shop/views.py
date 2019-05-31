@@ -55,9 +55,9 @@ def show_product(request, product_id, product_slug):
 def remove_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     try:
-        product.delete()   
+        product.delete()  
     except ProtectedError:
-        error_message = "This object can't be deleted!!\n\n\n\n\n"
+        error_message = "This object can't be deleted!!\n\n\n"
 
 def show_cart(request):
 

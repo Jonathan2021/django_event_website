@@ -19,16 +19,8 @@ def index_shop(request):
 
         if not exist:
             product = Product(name = event.title,price = 0,id = event.id,
-                            description = "on decrit pas nous",)
+                            description = "on decrit pas nous", slug = event.id)
             product.save()
-
-    for product in all_products:
-        exist = False
-        for event in views.EventListView.get_queryset(request):
-            if product.name == event.title:
-                exist = True
-        if not exist:
-            remove_product(request, product.id)
 
     return render(request, "index_shop.html", {
                                     'all_products': all_products,

@@ -8,7 +8,7 @@ from event import views
 from django.db.models import ProtectedError
 # Create your views here.
 
-
+    
 def index_shop(request):
     all_products = Product.objects.all()
     for event in views.EventListView.get_queryset(request):
@@ -18,9 +18,17 @@ def index_shop(request):
                 exist = True
 
         if not exist:
-            product = Product(name = event.title,price = 0,slug = event.id,
+            product = Product(name = event.title,price = 0,id = event.id,
                             description = "on decrit pas nous",)
             product.save()
+
+    for product in all_products:
+        exist = False
+        for event in views.EventListView.get_queryset(request):
+            if product.name == event.title:
+                exist = True
+        if not exist:
+            remove_product(request, product.id)
 
     return render(request, "index_shop.html", {
                                     'all_products': all_products,
@@ -43,6 +51,13 @@ def show_product(request, product_id, product_slug):
                                             'form': form,
                                             })
 
+ 
+def remove_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    try:
+        product.delete()   
+    except ProtectedError:
+        error_message = "This object can't be deleted!!\n\n\n\n\n"
 
 def show_cart(request):
 

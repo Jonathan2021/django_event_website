@@ -5,7 +5,9 @@ from .models import Product, Order, LineItem
 from .forms import CartForm, CheckoutForm
 from . import cart
 from event import views
+from event import models
 from django.db.models import ProtectedError
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
     
@@ -13,14 +15,26 @@ def index_shop(request):
     all_products = Product.objects.all()
     for event in views.EventListView.get_queryset(request):
         exist = False
+        my_price = 0
+        all_price = models.Price.objects.all()
+        for p in all_price:
+            if p.event_id == event.id:
+                p = models.Price.objects.get(even_id = event.id)
+                my_price = p.price
         for product in all_products:
             if product.name == event.title:
                 exist = True
-
         if not exist:
-            product = Product(name = event.title,price = 0,id = event.id,
-                            description = "on decrit pas nous", slug = event.id)
+            product = Product(name = event.title,price = my_price,id = event.id, description = "on decrit pas nous", slug = event.id)
             product.save()
+
+    for product in all_products:
+        exist = False
+        for event in views.EventListView.get_queryset(request):
+            if product.name == event.title:
+                exist = True
+        if not exist:
+            remove_product(request, product.id)
 
     return render(request, "index_shop.html", {
                                     'all_products': all_products,

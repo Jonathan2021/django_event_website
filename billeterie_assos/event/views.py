@@ -6,9 +6,8 @@ from django.utils import timezone
 # from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
 from .models import Event, Association, Member, President, Manager
-from .forms import AddMemberForm, AssociationForm, CreateEventForm
+from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.models import User
 
 # Create your views here.

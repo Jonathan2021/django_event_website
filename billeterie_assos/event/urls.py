@@ -4,7 +4,7 @@ from django.conf.urls import url
 from django.conf.urls import include
 from django.contrib import admin
 from social_django.urls import urlpatterns as social_django_urls
-
+from shop import views as com_views
 from . import views
 
 app_name = 'event'
@@ -23,6 +23,7 @@ urlpatterns = [
     path('assos/<int:asso_pk>/delete/member/<int:pk>', permission_required('event.delete_member', login_url='login')(views.MemberDelete.as_view()), name='delete_member'),
     path('assos/manager/add/<int:pk>', permission_required('event.add_manager', login_url='login')(views.ManagerCreate.as_view()), name='add_manager'),
     path('assos/<int:asso_pk>/delete/manager/<int:pk>', permission_required('event.delete_manager', login_url='login')(views.ManagerDelete.as_view()), name='delete_manager'),
+    path('shop/', com_views.index_shop, name='shop'),
     path('assos/create/',permission_required('event.add_association', login_url='login')(views.AssosCreateView.as_view()), name='asso_creation'),
     path('assos/event/create/',permission_required('event.add_event', login_url='login')(views.EventCreateView.as_view()), name='event_creation'),
 ]

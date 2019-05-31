@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'cri_epita',
     'social_django',
     'epita_connect',
+    'shop',
     'accounts.apps.AccountsConfig',
     'guardian',
 ]
@@ -79,6 +80,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'shop.context_processor.cart_item_count',
                 ],
         },
     },

@@ -6,8 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-social-auth-backend-epita = "*"
-social-auth-app-django = "*"
 django = "*"
 redgreenunittest = "*"
 djangorestframework = "*"
@@ -15,9 +13,7 @@ flake8 = "*"
 django-rest-swagger = "*"
 django-composite-foreignkey = "*"
 pillow = "*"
-django-crispy-forms = "*"
-django-guardian = "*"
-python-jose = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.7"

@@ -4,12 +4,23 @@ from django.contrib import messages
 from .models import Product, Order, LineItem
 from .forms import CartForm, CheckoutForm
 from . import cart
-
+from event import views
 # Create your views here.
 
 
 def index_shop(request):
     all_products = Product.objects.all()
+    for event in views.EventListView.get_queryset(request):
+        exist = False
+        for product in all_products:
+            if product.name == event.title:
+                exist = True
+
+        if not exist:
+            product = Product(name = event.title,price = 0,slug = event.id,
+                            description = "on decrit pas nous",)
+            product.save()
+    
     return render(request, "index_shop.html", {
                                     'all_products': all_products,
                                     })

@@ -2,26 +2,7 @@
 
 from django.db import migrations
 
-PRODUCTS = [
-    {
-        'name': 'Item 1',
-        'price': 10,
-        'slug': 'item-2',
-        'description': 'item 1 description'
-    },
-    {
-        'name': 'Item 2',
-        'price': 20,
-        'slug': 'item-2',
-        'description': 'item 2 description'
-    },
-    {
-        'name': 'Item 3',
-        'price': 40,
-        'slug': 'item-3',
-        'description': 'item 3 description'
-    }
-]
+PRODUCTS = [ ]
 
 
 def add_products(apps, schema_editor):

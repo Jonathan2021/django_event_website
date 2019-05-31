@@ -7,7 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
-            self.asso = kwargs.pop('asso')
+            self.asso = kwargs.pop('asso', None)
+            self.user = kwargs.pop('user', None)
             super(AddMemberForm,self).__init__(*args,**kwargs)
             unwanted = self.asso.members.all().values_list('user', flat=True)
             self.fields['users'].queryset = User.objects.all().exclude(id__in=unwanted)
@@ -15,14 +16,23 @@ class AddMemberForm(forms.Form):
         users = forms.ModelMultipleChoiceField(label=_("Members to add"),
         queryset=User.objects.none(),
         widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}))
+        #maybe save here instead of in form_valid
 
 
 class CreateEventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        self.asso = kwargs.pop('asso', None)
+        self.user = kwargs.pop('user')
         super(CreateEventForm, self).__init__(*args, **kwargs)
         self.fields['start'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
         self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
+        if (self.asso is not None):
+            self.fields['assos_id'].initial = self.asso
+            self.fields['assos_id'].disabled = True
+        if (not self.user.has_perm('event.change_state')):
+            self.fields['event_state'].initial = Event.PENDING
+            self.fields['event_state'].disabled = True
 
     class Meta:
         model = Event

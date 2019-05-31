@@ -40,6 +40,11 @@ class EventCreateView(generic.CreateView):
     template_name = 'event_new.html'
     model = Event
     success_url = reverse_lazy('event:assos')
+      
+    def get_form_kwargs(self):
+        kwargs = super(EventCreateView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user, 'asso' : self.kwargs.pop('asso', None)})
+        return kwargs
     
 
 class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
@@ -47,11 +52,11 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     template_name = 'assos_detail.html'
     form_class = AddMemberForm
 
-    def get_form(self): # should have maybe used get_form_kwargs
-        if self.request.method == 'POST':
-            return AddMemberForm(asso=self.get_object(), data=self.request.POST)
-        return AddMemberForm(asso=self.get_object())
-
+    def get_form_kwargs(self):
+        kwargs = super(AssosDetailView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user, 'asso' : self.get_object()})
+        return kwargs
+    
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.object.pk})
 

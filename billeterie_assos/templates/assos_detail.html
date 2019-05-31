@@ -38,7 +38,7 @@
     </ul>
     <br/>
     <h1>Events</h1>
-    <a href="{% url 'event:event_creation' %}">Create an event</a>
+    <a href="{% url 'event:event_creation' asso=object.pk%}">Create an event</a>
     <h3>Ongoing events</h3>
     <ul>
     {% for event in ongoing_events %}

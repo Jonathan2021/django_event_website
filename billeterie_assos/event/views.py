@@ -191,3 +191,6 @@ class AssosCreateView(generic.CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+class EventDelete(generic.DeleteView):
+    model = Event
+    success_url = reverse_lazy('event:events')

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Member, Manager, President, Profile, Association, Event
+from .models import Member, Manager, President, Profile, Association, Event, Ticket, Price
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput
@@ -27,16 +27,50 @@ class CreateEventForm(forms.ModelForm):
         super(CreateEventForm, self).__init__(*args, **kwargs)
         self.fields['start'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
         self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
+        asso_field = self.fields['assos_id']
+        self.fields['address_id'].label = _("Address")
+        asso_field.label = _("Association")
         if (self.asso is not None):
-            self.fields['assos_id'].initial = self.asso
-            self.fields['assos_id'].disabled = True
+            asso_field.initial = self.asso
+            asso_field.disabled = True
         if (not self.user.has_perm('event.change_state')):
-            self.fields['event_state'].initial = Event.PENDING
-            self.fields['event_state'].disabled = True
+            state_field = self.fields['event_state']
+            state_field.initial = Event.PENDING
+            state_field.disabled = True
+
+    intern_number = forms.IntegerField(label=_("Number of tickets for interns"), min_value=0, initial=0)
+    intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
+    extern_number = forms.IntegerField(label=_("Number of tickets for externs"), min_value=0, initial=0)
+    extern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
+    staff_number = forms.IntegerField(label=_("Number of tickets for staff"), min_value=0, initial=0)
+    staff_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
 
     class Meta:
         model = Event
         fields = ['title', 'event_state', 'manager_id', 'start', 'end', 'assos_id', 'address_id', 'premium_flag']
+
+    def save(self, commit=True):
+        event = super(CreateEventForm, self).save(commit=commit)
+        if (commit):
+            intern_number = self.cleaned_data['intern_number']
+            extern_number = self.cleaned_data['extern_number']
+            staff_number = self.cleaned_data['staff_number']
+            intern_price = self.cleaned_data['intern_price']
+            extern_price = self.cleaned_data['extern_price']
+            staff_price = self.cleaned_data['staff_price']
+            for i in range(intern_number):
+                Ticket.objects.create(ticket_type=Ticket.INTERN, event_id=event)
+            for i in range(extern_number):
+                Ticket.objects.create(ticket_type=Ticket.EXTERN, event_id=event)
+            for i in range(staff_number):
+                Ticket.objects.create(ticket_type=Ticket.STAFF, event_id=event)
+        if (intern_number):
+            Price.objects.create(ticket_type=Ticket.INTERN, event_id=event, price=intern_price)
+        if (extern_number):
+            Price.objects.create(ticket_type=Ticket.EXTERN, event_id=event, price=extern_price)
+        if (staff_number):
+            Price.objects.create(ticket_type=Ticket.EXTERN, event_id=event, price=staff_price)
+        return event
 
 
 class AssociationForm(forms.ModelForm):

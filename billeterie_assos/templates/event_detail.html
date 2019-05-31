@@ -21,4 +21,9 @@
     <p>{{event.address_id.raw}}</p>
     <h4>premium</h4>
     <p>{{event.premium_flag}}</p>
+    {% if perms.event.delete_event %}
+    <form action="{% url 'event:event_delete' event.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" class="confirm" value="Delete" />
+    {% endif %}
 {% endblock content %}

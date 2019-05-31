@@ -6,6 +6,9 @@
         <ul>
         {% for event in events %}
         <li><a href="{% url 'event:event_detail' event.id %}">{{ event.title }}</a></li>
+        {% if perms.association.delete_event %}
+        <a class="confirm" href="{% url 'event:event_delete' event.pk %}">Delete</a>
+    {% endif %}
         {% endfor %}
         </ul>
         {% else %}

@@ -194,3 +194,6 @@ class AssosCreateView(generic.CreateView):
 class EventDelete(generic.DeleteView):
     model = Event
     success_url = reverse_lazy('event:events')
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)

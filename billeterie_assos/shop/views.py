@@ -5,6 +5,7 @@ from .models import Product, Order, LineItem
 from .forms import CartForm, CheckoutForm
 from . import cart
 from event import views
+from django.db.models import ProtectedError
 # Create your views here.
 
 
@@ -20,7 +21,7 @@ def index_shop(request):
             product = Product(name = event.title,price = 0,slug = event.id,
                             description = "on decrit pas nous",)
             product.save()
-    
+
     return render(request, "index_shop.html", {
                                     'all_products': all_products,
                                     })

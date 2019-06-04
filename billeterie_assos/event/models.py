@@ -6,6 +6,7 @@ from compositefk.fields import CompositeOneToOneField
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from guardian.shortcuts import assign_perm
 
 # Create your models here.
 
@@ -80,6 +81,10 @@ class Member(models.Model):
     def __str__(self):
         return '%s from %s' % (self.user.username, self.assos_id.name)
 
+    def save(self, *args, **kwargs):
+        super(Member, self).save(*args, **kwargs)
+        assign_perm('create_event', self.user, self.assos_id)
+
 
 class Manager(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -108,6 +113,12 @@ exist, it was probably deleted")})
     def __str__(self):
         return '%s from %s' % (self.user.username, self.assos_id.name)
 
+    def save(self, *args, **kwargs):
+        super(Manager, self).save(*args, **kwargs)
+        assign_perm('create_event', self.user, self.assos_id)
+        assign_perm('manage_member', self.user, self.assos_id)
+        assign_perm('choose_staff', self.user, self.assos_id)
+
 
 class President(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -135,6 +146,15 @@ exist, it was probably deleted")})
 
     def __str__(self):
         return '%s from %s' % (self.user.username, self.assos_id.name)
+
+    def save(self, *args, **kwargs):
+        super(President, self).save(*args, **kwargs)
+        assign_perm('create_event', self.user, self.assos_id)
+        assign_perm('manage_member', self.user, self.assos_id)
+        assign_perm('choose_staff', self.user, self.assos_id)
+        assign_perm('manage_manager', self.user, self.assos_id)
+        assign_perm('delete_association', self.user, self.assos_id)
+        assign_perm('change_association', self.user, self.assos_id)
 
 
 class Event(models.Model):

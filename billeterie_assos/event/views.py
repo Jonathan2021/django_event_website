@@ -157,7 +157,8 @@ class AssosDelete(generic.DeleteView):
     def get(self, request, *args, **kwargs):
         return self.post(request, args, kwargs)
 
-
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_delete_member, name='dispatch')
 class MemberDelete(generic.DeleteView):
     model = Member
 

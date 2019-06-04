@@ -20,7 +20,7 @@
     </ul>
     <h5>Membres</h5>
     <button style="color:brown" onclick="display('add_members')">Add Members</button>
-    {% if perms.association.manage_member %}
+    {% if "manage_member" in assos_perms %}
     <form id="add_members" style="display: none;" action="{% url 'event:asso_detail' object.id %}" method="POST">
     {% csrf_token %}
     {{form}}
@@ -30,7 +30,7 @@
     <ul>
     {% for member in members %}
     <li>{{member.user.username}}</li>
-    {% if perms.association.manage_member %}
+    {% if "manage_member" in assos_perms %}
     <a class="confirm" href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
     {% endif %}
     {% if perms.association.manage_manager %}

@@ -20,7 +20,7 @@ urlpatterns = [
     path('event/<int:pk>', views.EventDetailView.as_view(), name='event_detail'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('assos/delete/<int:pk>', views.AssosDelete.as_view(), name='assos_delete'),
-    path('assos/<int:asso_pk>/delete/member/<int:pk>', permission_required('event.delete_member', login_url='login')(views.MemberDelete.as_view()), name='delete_member'),
+    path('assos/<int:asso_pk>/delete/member/<int:pk>', views.MemberDelete.as_view(), name='delete_member'),
     path('assos/manager/add/<int:pk>', permission_required('event.add_manager', login_url='login')(views.ManagerCreate.as_view()), name='add_manager'),
     path('assos/<int:asso_pk>/delete/manager/<int:pk>', permission_required('event.delete_manager', login_url='login')(views.ManagerDelete.as_view()), name='delete_manager'),
     path('shop/', com_views.index_shop, name='shop'),

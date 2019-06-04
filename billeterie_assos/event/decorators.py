@@ -2,6 +2,7 @@ from django.core.exceptions import PermissionDenied
 from . import models
 from functools import wraps
 
+
 def can_create_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
@@ -18,6 +19,17 @@ def can_delete_assos(function):
     def wrap(request, *args, **kwargs):
         asso = models.Association.objects.get(pk=kwargs['pk'])
         if request.user.has_perm('delete_association', asso):
+            return function(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+    return wrap
+
+
+def can_delete_member(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        asso = models.Association.objects.get(pk=kwargs['asso_pk'])
+        if request.user.has_perm('manage_member', asso):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied

@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from guardian.shortcuts import assign_perm
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views import generic
@@ -9,6 +10,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Event, Association, Member, President, Manager
 from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.models import User
+from .decorators import can_create_event
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 
@@ -34,6 +37,8 @@ class EventDetailView(generic.DetailView):
     model = Event
     template_name = 'event_detail.html'
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(can_create_event, name='dispatch')
 class EventCreateView(generic.CreateView):
     form_class = CreateEventForm
     template_name = 'event_new.html'
@@ -99,7 +104,8 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         asso = self.get_object()
         users = [User.objects.get(pk=pk) for pk in self.request.POST.getlist("users", "")]
         for user in users:
-            Member.objects.create(user=user, assos_id=asso)
+            member = Member.objects.create(user=user, assos_id=asso)
+            assign_perm('create_event', member.user, asso)
         return super(AssosDetailView, self).form_valid(form)
 
     def form_invalid(self, form):

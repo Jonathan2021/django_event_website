@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
+{% load guardian_tags %}
 
 {%block content %}
+    {% get_obj_perms user for object as "assos_perms" %}
     <h1>{{object.name}}</h1>
     <h3>President</h3>
     {% if president %}
@@ -38,7 +40,9 @@
     </ul>
     <br/>
     <h1>Events</h1>
+    {% if "create_event" in assos_perms %}
     <a href="{% url 'event:event_creation' asso=object.pk%}">Create an event</a>
+    {% endif %}
     <h3>Ongoing events</h3>
     <ul>
     {% for event in ongoing_events %}

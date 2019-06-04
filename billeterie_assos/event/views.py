@@ -189,6 +189,23 @@ class ManagerCreate(generic.View):
         return HttpResponseRedirect(reverse_lazy('event:asso_detail', kwargs={'pk':member.assos_id.pk}))
 
 
+class PresidentCreate(generic.View):
+    def get(self, request, *args, **kwargs):
+        manager = get_object_or_404(Manager, pk=kwargs.pop('pk'))
+        try :
+            President.objects.get(assos_id=manager.assos_id).delete()
+        except:
+            pass
+        president = President(manager=manager)
+        try:
+            president.full_clean()
+            president.save()
+        except:
+            pass
+        return HttpResponseRedirect(reverse_lazy('event:asso_detail', kwargs={'pk':manager.assos_id.pk}))
+
+
+
 class AssosCreateView(generic.CreateView):
     form_class = AssociationForm
     template_name = 'association_new.html'

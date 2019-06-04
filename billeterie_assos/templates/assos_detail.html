@@ -13,8 +13,11 @@
     <ul>
     {% for manager in managers %}
     <li>{{manager.user.username}}</li>
-    {% if perms.association.manage_manager %}
+    {% if "manage_manager" in assos_perms %}
     <a class="confirm" href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">retograde to member</a>
+    {% endif %}
+    {% if "manage_president" in assos_perms %}
+    <a class="confirm" href="{% url 'event:add_president' manager.pk %}">Switch with current President</a>
     {% endif %}
     {% endfor %}
     </ul>

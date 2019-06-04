@@ -61,6 +61,7 @@ class Association(models.Model):
             ('choose_staff', 'User can choose staff'),
             ('manage_manager', 'User can add and remove managers'),
             ('manage_president', 'User can modify the president'),
+            # should maybe use default add_president
         )
 
     def __str__(self):

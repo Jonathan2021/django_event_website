@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load guardian_tags %}
 
 {%block content %}    
         {% if perms.event.add_association %}
@@ -8,7 +9,11 @@
         {% if assos %}
         <ul>
         {% for asso in assos %}
+        {% get_obj_perms user for asso as "asso_perms" %}
         <li><a href="{% url 'event:asso_detail' asso.id %}">{{ asso.name }}</a></li>
+        {% if "delete_association" in asso_perms %}
+        <a href="{% url 'event:assos_delete' asso.pk %}">Delete</a>
+        {% endif %}
         {% endfor %}
         </ul>
         {% else %}

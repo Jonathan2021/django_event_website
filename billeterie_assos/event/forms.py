@@ -5,6 +5,8 @@ from .models import Member, Manager, President, Profile, Association, Event, Tic
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput
+from guardian.shortcuts import assign_perm
+
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
             self.asso = kwargs.pop('asso', None)
@@ -94,6 +96,7 @@ class AssociationForm(forms.ModelForm):
             manager.full_clean()
             manager.save()
             pres.full_clean()
+            assign_perm('event.delete_association', pres.user, asso)
             pres.save()
         return asso
     

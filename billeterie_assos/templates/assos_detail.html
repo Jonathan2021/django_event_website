@@ -55,7 +55,7 @@
     <li><a href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>
     {% endfor %}
     </ul> 
-    {% if perms.event.delete_association %}
+    {% if "delete_association" in assos_perms %}
     <form action="{% url 'event:assos_delete' object.pk %}" method="POST">
     {% csrf_token %}
     <input type="submit" class="confirm" value="Delete" />

@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Event, Association, Member, President, Manager
 from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.models import User
-from .decorators import can_create_event
+from . import decorators
 from django.utils.decorators import method_decorator
 
 # Create your views here.
@@ -38,7 +38,7 @@ class EventDetailView(generic.DetailView):
     template_name = 'event_detail.html'
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
-@method_decorator(can_create_event, name='dispatch')
+@method_decorator(decorators.can_create_event, name='dispatch')
 class EventCreateView(generic.CreateView):
     form_class = CreateEventForm
     template_name = 'event_new.html'
@@ -148,10 +148,14 @@ class ProfileView(generic.ListView):
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).order_by('start')
 
-
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_delete_assos, name='dispatch')
 class AssosDelete(generic.DeleteView):
     model = Association
-    success_url = reverse_lazy('event:my_assos')
+    success_url = reverse_lazy('event:assos')
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, args, kwargs)
 
 
 class MemberDelete(generic.DeleteView):

@@ -37,7 +37,7 @@
     <a class="confirm" href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
     {% endif %}
     {% if "manage_manager" in assos_perms %}
-    <a class="confirm" href="{% url 'event:add_manager' member.pk %}">Promote to manager</a>
+    <a class="confirm" href="{% url 'event:add_manager' pk=member.pk asso_pk=object.pk %}">Promote to manager</a>
     {% endif %}
     {% endfor %}
     </ul>

@@ -25,7 +25,18 @@ def can_delete_assos(function):
     return wrap
 
 
-def can_delete_member(function):
+def can_manage_member(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        asso = models.Association.objects.get(pk=kwargs['asso_pk'])
+        if request.user.has_perm('manage_member', asso):
+            return function(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+    return wrap
+
+
+def can_manage_manager(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         asso = models.Association.objects.get(pk=kwargs['asso_pk'])

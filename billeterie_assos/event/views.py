@@ -158,7 +158,7 @@ class AssosDelete(generic.DeleteView):
         return self.post(request, args, kwargs)
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
-@method_decorator(decorators.can_delete_member, name='dispatch')
+@method_decorator(decorators.can_manage_member, name='dispatch')
 class MemberDelete(generic.DeleteView):
     model = Member
 
@@ -168,6 +168,9 @@ class MemberDelete(generic.DeleteView):
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.pop('asso_pk')})
 
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_manage_manager, name='dispatch')
 class ManagerDelete(generic.DeleteView):
     model = Manager
 
@@ -177,6 +180,9 @@ class ManagerDelete(generic.DeleteView):
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.pop('asso_pk')})
 
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_manage_manager, name='dispatch')
 class ManagerCreate(generic.View):
     def get(self, request, *args, **kwargs):
         member = get_object_or_404(Member, pk=kwargs.pop('pk'))

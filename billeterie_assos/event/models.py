@@ -6,7 +6,7 @@ from compositefk.fields import CompositeOneToOneField
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, remove_perm
 
 # Create your models here.
 
@@ -85,6 +85,10 @@ class Member(models.Model):
         super(Member, self).save(*args, **kwargs)
         assign_perm('create_event', self.user, self.assos_id)
 
+    def delete(self):
+        remove_perm('create_event', self.user, self.assos_id)
+        super(Member, self).delete()
+
 
 class Manager(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -115,9 +119,13 @@ exist, it was probably deleted")})
 
     def save(self, *args, **kwargs):
         super(Manager, self).save(*args, **kwargs)
-        assign_perm('create_event', self.user, self.assos_id)
         assign_perm('manage_member', self.user, self.assos_id)
         assign_perm('choose_staff', self.user, self.assos_id)
+
+    def delete(self):
+        remove_perm('choose_staff', self.user, self.assos_id)
+        remove_perm('manage_member', self.user, self.assos_id)
+        super(Manager, self).delete()
 
 
 class President(models.Model):
@@ -149,12 +157,15 @@ exist, it was probably deleted")})
 
     def save(self, *args, **kwargs):
         super(President, self).save(*args, **kwargs)
-        assign_perm('create_event', self.user, self.assos_id)
-        assign_perm('manage_member', self.user, self.assos_id)
-        assign_perm('choose_staff', self.user, self.assos_id)
         assign_perm('manage_manager', self.user, self.assos_id)
         assign_perm('delete_association', self.user, self.assos_id)
         assign_perm('change_association', self.user, self.assos_id)
+
+    def delete(self):
+        remove_perm('manage_manager', self.user, self.assos_id)
+        remove_perm('delete_association', self.user, self.assos_id)
+        remove_perm('change_association', self.user, self.assos_id)
+        super(President, self).delete()
 
 
 class Event(models.Model):

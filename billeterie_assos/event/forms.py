@@ -96,7 +96,6 @@ class AssociationForm(forms.ModelForm):
             manager.full_clean()
             manager.save()
             pres.full_clean()
-            assign_perm('event.delete_association', pres.user, asso)
             pres.save()
         return asso
     

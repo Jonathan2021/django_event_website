@@ -3,20 +3,58 @@
 {% load guardian_tags %}
 
 {%block content %}    
-        {% if perms.event.add_association %}
-        <a href="{% url 'event:asso_creation' %}">Create an association</a>
-        {% endif %}
-        {% if assos %}
-        <ul>
-        {% for asso in assos %}
-        {% get_obj_perms user for asso as "asso_perms" %}
-        <li><a href="{% url 'event:asso_detail' asso.id %}">{{ asso.name }}</a></li>
-        {% if "delete_association" in asso_perms %}
-        <a href="{% url 'event:assos_delete' asso.pk %}">Delete</a>
-        {% endif %}
-        {% endfor %}
-        </ul>
-        {% else %}
-        <p> no assos </p>
-        {% endif %}
+    <div class="container" style="
+        background-color: 
+    lavenderblush;
+    margin-top:50px;
+    margin-bottom:50px;
+    padding: 10px;
+    opacity: 0.9;
+    border-radius: 5px;
+    ">
+        <h1 style="
+            font-family: 'Courier New', Courier, monospace;
+            font-weight:bold;
+        ">Associations List</h1>
+        <div class="row">
+            <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                {% if perms.event.add_association %}
+                <a class="btn btn-danger" style="margin-bottom: 15px;" href="{% url 'event:asso_creation' %}">Create an association</a>
+                {% endif %}
+                {% if assos %}
+                <ul style="
+                    font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+                ">
+                {% for asso in assos %}
+                    {% get_obj_perms user for asso as "asso_perms" %}
+                    <li style="list-style-type: none; 
+                            margin-bottom: 5px;
+                    ">
+                        <a style="
+                            color:black;
+                            opacity: 0.8;
+                        " href="{% url 'event:asso_detail' asso.id %}">{{ asso.name }}</a>
+                    {% if "delete_association" in asso_perms %}
+                    <a style="
+                            margin-left:10px;
+                        " href="{% url 'event:assos_delete' asso.pk %}">Delete
+                    </a>
+                    {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+                {% else %}
+                <p> no assos </p>
+                {% endif %}
+            </article>
+            <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                <img src="{% static "img/assos_list_img.jpg"%}" style="
+                    opacity: 0.9;
+                    height:100%; 
+                    width:100%;
+                    border-radius: 10px;
+                ">
+            </article>
+        </div>
+    </div>
 {% endblock content %}

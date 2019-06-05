@@ -71,7 +71,7 @@ class CreateEventForm(forms.ModelForm):
         if (extern_number):
             Price.objects.create(ticket_type=Ticket.EXTERN, event_id=event, price=extern_price)
         if (staff_number):
-            Price.objects.create(ticket_type=Ticket.EXTERN, event_id=event, price=staff_price)
+            Price.objects.create(ticket_type=Ticket.STAFF, event_id=event, price=staff_price)
         return event
 
 

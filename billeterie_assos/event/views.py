@@ -54,7 +54,7 @@ class EventCreateView(generic.CreateView):
 class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Association
     template_name = 'assos_detail.html'
-    form_class = AddMemberForm
+    form_class = AddMemberForm # maybe have several forms for other ranks
 
     def get_form_kwargs(self):
         kwargs = super(AssosDetailView, self).get_form_kwargs()
@@ -100,11 +100,11 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         else:
             return self.form_invalid(form)
 
-    def form_valid(self, form):
+    def form_valid(self, form): #should maybe save in the forms itself
         asso = self.get_object()
         users = [User.objects.get(pk=pk) for pk in self.request.POST.getlist("users", "")]
         for user in users:
-            member = Member.objects.create(user=user, assos_id=asso)
+            member = Member.objects.create(user=user, assos_id=asso) #maybe have some sort of createmember view
             assign_perm('create_event', member.user, asso)
         return super(AssosDetailView, self).form_valid(form)
 
@@ -113,6 +113,7 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         return super(AssosDetailView, self).form_invalid(form)
 
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class MyAssosView(generic.ListView):
     template_name = 'assos_list.html'
     context_object_name = 'assos'
@@ -139,14 +140,14 @@ class ProfileView(generic.ListView):
         u_form = UserUpdateForm();
         p_form = ProfileUpdateForm();
         context = super().get_context_data(**kwargs)
-        context = {
+        context = { # should append to already existing context
             'u_form': u_form,
             'p_form': p_form
         }
         return context
 
     def get_queryset(self):
-        return Event.objects.filter(premium_flag=True).order_by('start')
+        return Event.objects.filter(premium_flag=True).order_by('start') # why is it getting Events ? It s a profile view
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_delete_assos, name='dispatch')
@@ -184,19 +185,19 @@ class ManagerDelete(generic.DeleteView):
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_manage_manager, name='dispatch')
 class ManagerCreate(generic.View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs): # should maybe call post and put all this in post
         member = get_object_or_404(Member, pk=kwargs.pop('pk'))
         manager = Manager(member=member)
         try:
             manager.full_clean()
             manager.save()
         except:
-            pass
+            pass # should probably do something
         return HttpResponseRedirect(reverse_lazy('event:asso_detail', kwargs={'pk':member.assos_id.pk}))
 
 
 class PresidentCreate(generic.View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs): #should maybe call post and move everything in post
         manager = get_object_or_404(Manager, pk=kwargs.pop('pk'))
         try :
             President.objects.get(assos_id=manager.assos_id).delete()
@@ -223,7 +224,7 @@ class AssosCreateView(generic.CreateView):
         self.asso = form.save(commit=True)
         return HttpResponseRedirect(self.get_success_url())
 
-
+# add decorators here and remove them in urls.py
 class EventDelete(generic.DeleteView):
     model = Event
     success_url = reverse_lazy('event:events')

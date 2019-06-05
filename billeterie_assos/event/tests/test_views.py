@@ -3,8 +3,15 @@ from django.test import TestCase, RequestFactory
 from django_downloadview.test import setup_view
 from .test_models import create_event, create_date_time
 from event import models
+from event import views
+from copy import deepcopy
 
 class IndexViewTests(TestCase):
+    def test_get_queryset(self):
+        request = RequestFactory().get('/request/mabite')
+        v = setup_view(views.IndexView(), request)
+        v.get_queryset()
+
     def test_no_event(self):
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
@@ -36,7 +43,7 @@ class IndexViewTests(TestCase):
 
     def test_past_and_future(self):
         past = create_event(start=create_date_time(days=-1), premium=True)
-        future = past
+        future = deepcopy(past)
         future.start = create_date_time(days=1)
         future.end = create_date_time(days=1)
         future.pk = None
@@ -46,6 +53,18 @@ class IndexViewTests(TestCase):
         # self.assertContains(response, event.title)
         self.assertQuerysetEqual(response.context['premium_event_list'],
                                 [repr(future)])
+
+    def test_two_future_events(self):
+        ref = create_event(start=create_date_time(days=1), premium=True)
+        future = deepcopy(ref)
+        future.pk = None
+        future.save()
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, event.title)
+        self.assertQuerysetEqual(response.context['premium_event_list'],
+                                map(repr, [ref, future]), ordered=False)
+
 
 
 class EventListView(TestCase):

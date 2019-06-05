@@ -15,17 +15,21 @@ def index_shop(request):
     all_products = Product.objects.all()
     for event in views.EventListView.get_queryset(request):
         exist = False
+
         my_price = 0
         all_price = models.Price.objects.all()
         for p in all_price:
-            if p.event_id == event.id:
-                p = models.Price.objects.get(even_id = event.id)
+            if p.event_id_id == event.id:
                 my_price = p.price
+
         for product in all_products:
             if product.name == event.title:
+                product.price = my_price
+                product.save()
                 exist = True
         if not exist:
-            product = Product(name = event.title,price = my_price,id = event.id, description = "on decrit pas nous", slug = event.id)
+            product = Product(name = event.title,price = my_price,id = event.id, 
+                    description = "on decrit pas nous", slug = event.id)
             product.save()
 
     for product in all_products:
@@ -43,7 +47,6 @@ def index_shop(request):
 
 def show_product(request, product_id, product_slug):
     product = get_object_or_404(Product, id=product_id)
-
     if request.method == 'POST':
         form = CartForm(request, request.POST)
         if form.is_valid():

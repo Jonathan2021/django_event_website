@@ -15,12 +15,17 @@
         <div class="container">
             <div class="row">
                 <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
-                    <h2>Available Products</h2>
+                    <h2 style="font-family: 'Courier New', Courier, monospace;
+                                font-weight:bold;
+                    ">
+                        Available Products</h2>
                     <ul style="margin-left: 35%;">
                     {% for product in all_products %}
                         <li>
                             <tr>
-                                <h3>
+                                <h3 style="font-family: 'Courier New', Courier, monospace;
+                                        font-style: italic;
+                                ">
                                     {{ product.name }}</h3>
                                     <p style="padding-left: 20px;">Price: €{{ product.price }}
                                         <a href="{% url 'product_detail' product.pk product.slug  %}" class="btn btn-warning"

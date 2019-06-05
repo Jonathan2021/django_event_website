@@ -1,24 +1,51 @@
 from django.urls import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django_downloadview.test import setup_view
+from .test_models import create_event, create_date_time
+from event import models
 
 class IndexViewTests(TestCase):
     def test_no_event(self):
-        pass
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, "No Premium event")
+        self.assertQuerysetEqual(response.context['premium_event_list'], [])
 
     def test_no_premium(self):
-        pass
+        create_event(premium=False)
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, "No Premium event")
+        self.assertQuerysetEqual(response.context['premium_event_list'], [])
 
-    def test_past_event(self):
-        pass
+    def test_past_premium_event(self):
+        create_event(start=create_date_time(days=-1), premium=True)
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, "No Premium event")
+        self.assertQuerysetEqual(response.context['premium_event_list'], []) 
 
-    def test_future_event(self):
-        pass
+    def test_future_premium_event(self):
+        event = create_event(start=create_date_time(days=1), premium=True)
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, event.title)
+        self.assertQuerysetEqual(response.context['premium_event_list'],
+                                [repr(event)])
+        
 
     def test_past_and_future(self):
-        pass
-
-    def test_get(self):
-        pass
+        past = create_event(start=create_date_time(days=-1), premium=True)
+        future = past
+        future.start = create_date_time(days=1)
+        future.end = create_date_time(days=1)
+        future.pk = None
+        future.save()
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, event.title)
+        self.assertQuerysetEqual(response.context['premium_event_list'],
+                                [repr(future)])
 
 
 class EventListView(TestCase):

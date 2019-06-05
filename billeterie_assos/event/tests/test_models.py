@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.utils import IntegrityError
 # from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Profile, Association, Member, Manager, President, Event,\
+from event.models import Profile, Association, Member, Manager, President, Event,\
     EmailAddress, Ticket, Price, Purchase
 from address.models import Address
 from django.db.models.deletion import ProtectedError

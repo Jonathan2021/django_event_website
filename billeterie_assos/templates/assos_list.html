@@ -19,7 +19,7 @@
         <div class="row">
             <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
                 {% if perms.event.add_association %}
-                <a href="{% url 'event:asso_creation' %}">Create an association</a>
+                <a class="btn btn-danger" style="margin-bottom: 15px;" href="{% url 'event:asso_creation' %}">Create an association</a>
                 {% endif %}
                 {% if assos %}
                 <ul style="
@@ -34,10 +34,13 @@
                             color:black;
                             opacity: 0.8;
                         " href="{% url 'event:asso_detail' asso.id %}">{{ asso.name }}</a>
-                    </li>
                     {% if "delete_association" in asso_perms %}
-                    <a href="{% url 'event:assos_delete' asso.pk %}">Delete</a>
+                    <a style="
+                            margin-left:10px;
+                        " href="{% url 'event:assos_delete' asso.pk %}">Delete
+                    </a>
                     {% endif %}
+                    </li>
                 {% endfor %}
                 </ul>
                 {% else %}

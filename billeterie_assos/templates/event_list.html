@@ -3,8 +3,7 @@
 
 {%block content %}
     <div class="container" style="
-            background-color: 
-        lavenderblush;
+        background-color: lavenderblush;
         margin-top:50px;
         margin-bottom:50px;
         padding: 10px;
@@ -37,16 +36,16 @@
                                 font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
                                 font-size:large;
                             " href="{% url 'event:event_detail' event.id %}">{{ event.title }}
-                            </a> <br>
+                            </a>
+                            {% if perms.association.delete_event %}
+                            <a style="margin-left:10px;" class="confirm" href="{% url 'event:event_delete' event.pk %}">Delete</a>
+                            {% endif %}
                             <p style="
                                 font-weight: lighter;
                             ">
                                 Starting Date: {{ event.start }}
                             </p>
                         </li>
-                        {% if perms.association.delete_event %}
-                        <a class="confirm" href="{% url 'event:event_delete' event.pk %}">Delete</a>
-                    {% endif %}
                     {% endfor %}
                     </ul>
                     {% else %}

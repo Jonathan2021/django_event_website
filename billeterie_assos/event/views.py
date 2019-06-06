@@ -18,7 +18,7 @@ from django.utils.decorators import method_decorator
 
 class IndexView(generic.ListView):
     template_name = 'index.html'
-    context_object_name = 'premium_event_list'
+    context_object_name = 'events'
 
     def get_queryset(self):
         return Event.objects.filter(premium_flag=True).exclude(start__lte=timezone.now()).order_by('start')

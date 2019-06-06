@@ -187,7 +187,7 @@ class Event(models.Model):
                                    choices=EVENT_STATE_CHOICES,
                                    default=PENDING)
     manager_id = models.ForeignKey(Manager, on_delete=models.SET_NULL,
-                                   null=True)
+                                   null=True, blank=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,

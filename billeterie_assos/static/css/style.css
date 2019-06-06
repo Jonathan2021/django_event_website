@@ -34,11 +34,8 @@ body{
     image-rendering: auto;
 }
 
-.actu-wraper{
-    
-}
 .actu{
-    background-color: aliceblue;
+    background-color: lavenderblush;
     padding: 5%;
     margin-bottom: 75px;
 }
@@ -53,4 +50,26 @@ body{
 }
 .footer-copyright{
     background-color:#2a303f;
+}
+
+.event-block{
+
+    padding: 10px;
+    margin: 10px;
+    box-shadow: 5px 5px 5px grey;
+    background-color:#fff3f7;
+}
+
+.event-block:hover{
+    box-shadow: 1px 1px 1px black;
+    background-color: #fff9fb;
+}
+
+.event-link{
+    font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+    color: grey;
+}
+.event-link:hover{
+    text-decoration: none;
+    color: palevioletred;
 }

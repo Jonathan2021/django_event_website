@@ -26,8 +26,7 @@
                     </li>
                     {% endfor %}
                 </ul>
-                <p><b>Membres</b></p>
-                <button style="color:brown" onclick="display('add_members')">Add Members</button>
+                <p><b>Membres </b> :<button style="margin-left:20px;" class="btn btn-outline-success" onclick="display('add_members')">Add Members</button></p>
                 {% if "manage_member" in assos_perms %}
                 <form id="add_members" style="display: none;" action="{% url 'event:asso_detail' object.id %}" method="POST">
                 {% csrf_token %}
@@ -47,11 +46,11 @@
                         </li>
                     {% endfor %}
                 </ul>
-                <h4><b>Events</b> :</h4>
+                <h4><b style="text-decoration: underline;">Events</b> :</h4>
                 <div style="margin-left:50px;">
                     {% if "create_event" in assos_perms %}
                     <a style="margin:15px;" href="{% url 'event:event_creation' asso=object.pk%}">
-                    <button style="margin-top:20px;" class="btn btn-outline-success"> Create an event</button>
+                    <button style="margin-top:20px;" class="btn btn-outline-success">Create an event</button>
                     </a>
                     {% endif %}
                     <p style="margin-top:20px;"><b>Ongoing events</b> :</p>

@@ -62,14 +62,11 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         return kwargs
     
     def get_success_url(self):
-        return reverse_lazy('event:asso_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.get('pk')})
 
-    def get_object(self):
-        try:
-            my_assos = Association.objects.get(pk=self.kwargs.get('pk'))
-            return my_assos
-        except self.model.DoesNotExist:
-            raise Http404("No Association matches the given query.")
+    def get_object(self): # do I really need to override?
+        my_assos = get_object_or_404(Association, pk=self.kwargs.get('pk'))
+        return my_assos
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -107,10 +104,6 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
             member = Member.objects.create(user=user, assos_id=asso) #maybe have some sort of createmember view
             assign_perm('create_event', member.user, asso)
         return super(AssosDetailView, self).form_valid(form)
-
-    def form_invalid(self, form):
-    #put logic here
-        return super(AssosDetailView, self).form_invalid(form)
 
 
 @method_decorator(login_required(login_url='login'), name='dispatch')

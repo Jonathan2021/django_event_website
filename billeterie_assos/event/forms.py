@@ -17,7 +17,8 @@ class AddMemberForm(forms.Form):
 
         users = forms.ModelMultipleChoiceField(label=_("Members to add"),
         queryset=User.objects.none(),
-        widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}))
+        widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}),
+        required=False)
         #maybe save here instead of in form_valid
 
 

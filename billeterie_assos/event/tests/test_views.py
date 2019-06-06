@@ -1,13 +1,15 @@
 from django.urls import reverse
-from django.test import TestCase, RequestFactory, TransactionTestCase
+from django.test import TestCase, RequestFactory, TransactionTestCase, Client
 from django_downloadview.test import setup_view
 from .test_models import create_event, create_date_time, create_user, \
-    create_association, create_member
-from event import models
-from event import views
+    create_association, create_member, create_manager
+from event import models, views, forms
 from copy import deepcopy
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import User
 import urllib
+from django.http import QueryDict
+
+# Do some assertTemplateUsed
 
 class IndexViewTests(TestCase):
     def test_get_queryset(self):
@@ -165,6 +167,16 @@ class EventCreateViewTests(TransactionTestCase):
         self.asso = create_association()
         self.url = reverse('event:event_creation', kwargs={'asso' : self.asso.pk })
 
+    def test_get_form_kwargs(self):
+        request = RequestFactory().get('/bonjour/toi')
+        request.user = self.user
+        self.client.force_login(self.user)
+        create_member(profile=self.user, assos=self.asso)
+        v = setup_view(views.EventCreateView(), request, asso=self.asso.pk)
+        v.get_form_kwargs()
+
+
+
     def test_not_logged_in(self):
         response = self.client.get(self.url, follow=True)
         expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
@@ -185,13 +197,94 @@ class EventCreateViewTests(TransactionTestCase):
 
     def test_wrong_asso_pk(self):
         url = reverse('event:event_creation', kwargs={'asso' :  69})
-        create_member(profile=self.user, assos=self.asso) 
+        create_member(profile=self.user, assos=self.asso)
         self.client.force_login(self.user)
         response = self.client.get(url, follow=True)
         self.assertEquals(response.status_code, 404)
 
 
 class AssosDetailView(TestCase):
+    def setUp(self):
+        super(AssosDetailView, self).setUp()
+        self.user = create_user()
+        self.asso = create_association()
+        self.url = reverse('event:asso_detail', kwargs={'pk' : self.asso.pk})
+        request = RequestFactory().get('/dummy/lol')
+        request.user = self.user
+        self.v = setup_view(views.AssosDetailView(), request, pk=self.asso.pk)
+        self.v.object = self.asso
+
+    def test_get_object(self):
+        res = self.v.get_object()
+        self.assertEquals(res, self.asso)
+
+    def test_get_form_kwargs(self):
+        kwargs = self.v.get_form_kwargs()
+        self.assertTrue(kwargs.get('user', None) is not None)
+        self.assertTrue(kwargs.pop('asso', None) is not None)
+
+    def test_get_success_url(self):
+        url = self.v.get_success_url()
+        self.assertEquals(url, reverse('event:asso_detail', kwargs={'pk' : self.asso.pk}))
+
+    def test_get_context_data(self, **kwargs):
+        jo = create_user(name='jo')
+        fred = create_user(name='fred')
+        avrel = create_user(name='avrel')
+        member = create_member(profile=jo, assos=self.asso)
+        manager = create_manager(member=create_member(profile=fred,
+                                                      assos=self.asso))
+        president = models.President.objects.create(
+                manager=create_manager(
+                    member=create_member(
+                            profile=avrel, assos=self.asso)))
+        context = self.v.get_context_data()
+        future = create_event(assos=self.asso)
+        create_event(assos=self.asso, start=create_date_time(days=-20))
+        ongoing = create_event(assos=self.asso,
+                                   start=create_date_time(days=-1),
+                                   end=create_date_time(days=1))
+        self.assertEquals(context['president'], president)
+        self.assertQuerysetEqual(context['managers'], [repr(manager)])
+        self.assertQuerysetEqual(context['members'], [repr(member)])
+        self.assertQuerysetEqual(context['future_events'], [repr(future)])
+        self.assertQuerysetEqual(context['ongoing_events'], [repr(ongoing)])
+    
+    def test_post_invalid_form(self):
+        user1 = create_user(name='user1')
+        user2 = create_user(name='user2')
+        form_data = {'users' : [user1.pk, user2.pk]}
+        request = RequestFactory().get(self.url, form_data)
+        request.user = self.user
+        self.v.request = request
+        response = self.v.post(request) #is_bound attr of form is False since it s GET request -> form.is_valid returns false
+        # should probably make it fail another way
+        self.assertEquals(response.status_code, 200)
+
+    def test_post_valid_form(self):
+        user1 = create_user(name='user1')
+        user2 = create_user(name='user2')
+        form_data = {'users' : [user1.pk, user2.pk]}
+        request = RequestFactory().post(self.url, form_data)
+        request.user = self.user
+        self.v.request = request
+        response = self.v.post(request)
+        response.client = Client()
+        self.assertRedirects(response, self.url)
+        self.assertNotEquals(models.Member.objects.filter(user__in=[user1, user2]), [])
+
+
+
+    def test_form_valid(self):
+        user1 = create_user(name='user1')
+        user2 = create_user(name='user2')
+        form  = forms.AddMemberForm(asso=self.asso, user=self.user) 
+        query_dict =  QueryDict('', mutable=True)
+        query_dict.update({'users' : repr(user1.pk)})
+        query_dict.update({'users' : repr(user2.pk)})
+        self.v.request.POST = query_dict
+        self.v.form_valid(form)
+
     def test_get_wrong_pk(self):
         pass
 

@@ -1,10 +1,11 @@
 from django.urls import reverse
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, TransactionTestCase
 from django_downloadview.test import setup_view
-from .test_models import create_event, create_date_time
+from .test_models import create_event, create_date_time, create_user, create_association
 from event import models
 from event import views
 from copy import deepcopy
+import urllib
 
 class IndexViewTests(TestCase):
     def test_get_queryset(self):
@@ -16,28 +17,28 @@ class IndexViewTests(TestCase):
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
-        self.assertQuerysetEqual(response.context['premium_event_list'], [])
+        self.assertQuerysetEqual(response.context['events'], [])
 
     def test_no_premium(self):
         create_event(premium=False)
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
-        self.assertQuerysetEqual(response.context['premium_event_list'], [])
+        self.assertQuerysetEqual(response.context['events'], [])
 
     def test_past_premium_event(self):
         create_event(start=create_date_time(days=-1), premium=True)
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
-        self.assertQuerysetEqual(response.context['premium_event_list'], []) 
+        self.assertQuerysetEqual(response.context['events'], []) 
 
     def test_future_premium_event(self):
         event = create_event(start=create_date_time(days=1), premium=True)
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, event.title)
-        self.assertQuerysetEqual(response.context['premium_event_list'],
+        self.assertQuerysetEqual(response.context['events'],
                                 [repr(event)])
         
 
@@ -50,8 +51,8 @@ class IndexViewTests(TestCase):
         future.save()
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
-        # self.assertContains(response, event.title)
-        self.assertQuerysetEqual(response.context['premium_event_list'],
+        # self.assertContains(response, future.title)
+        self.assertQuerysetEqual(response.context['events'],
                                 [repr(future)])
 
     def test_two_future_events(self):
@@ -61,37 +62,111 @@ class IndexViewTests(TestCase):
         future.save()
         response = self.client.get(reverse('event:index'))
         self.assertEqual(response.status_code, 200)
-        # self.assertContains(response, event.title)
-        self.assertQuerysetEqual(response.context['premium_event_list'],
+        # self.assertContains(response, future.title)
+        self.assertQuerysetEqual(response.context['events'],
                                 map(repr, [ref, future]), ordered=False)
 
+    def test_on_going_event(self):
+        create_event(start=create_date_time(days=-1), end=create_date_time(days=1))
+        response = self.client.get(reverse('event:index'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, No event)
+        self.assertQuerysetEqual(response.context['events'], [])
 
 
 class EventListView(TestCase):
+    def test_get_queryset(self):
+        request = RequestFactory().get('/request/machatte')
+        v = setup_view(views.EventListView(), request)
+        v.get_queryset()
+
+
     def test_no_event(self):
-        pass
+        response = self.client.get(reverse('event:events'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, No event)
+        self.assertQuerysetEqual(response.context['events'], [])
+
+
 
     def test_past_event(self):
-        pass
+        event = create_event(start=create_date_time(days=-1))
+        response = self.client.get(reverse('event:events'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, "No event")
+        self.assertQuerysetEqual(response.context['events'], []) 
+
+
 
     def test_future_event(self):
-        pass
+        event = create_event(start=create_date_time(days=1))
+        response = self.client.get(reverse('event:events'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, event.title)
+        self.assertQuerysetEqual(response.context['events'], [repr(event)]) 
+
+
 
     def test_past_and_future(self):
-        pass
+        past = create_event(start=create_date_time(days=-1))
+        future = deepcopy(past)
+        future.start = create_date_time(days=1)
+        future.end = create_date_time(days=1)
+        future.pk = None
+        future.save()
+        response = self.client.get(reverse('event:events'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, future.title)
+        self.assertQuerysetEqual(response.context['events'],
+                                [repr(future)])
+
+    def test_on_going_event(self):
+        event = create_event(start=create_date_time(days=-1), end=create_date_time(days=1))
+        response = self.client.get(reverse('event:events'))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, No event)
+        self.assertQuerysetEqual(response.context['events'], [repr(event)])
 
 
 class EventDetailViewTests(TestCase):
     def test_invalid_pk(self):
-        pass
+        response = self.client.get(reverse('event:event_detail', kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, 404)
 
-    def test_valid_pk(self):
-        pass
+    def test_valid_complete(self):
+        event = create_event()
+        response = self.client.get(reverse('event:event_detail', kwargs={'pk' : event.pk}))
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, event.title)
+        # self.assertContains(response, event.assos_id.name)
+        # self.assertContains(response, event.address_id.raw)
+        # etc.
+        self.assertEqual(response.context['event'], event)
+
+    def test_no_manager(self):
+        event = create_event()
+        response = self.client.get(reverse('event:event_detail', kwargs={'pk' : event.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No manager")
+        # self.assertContains(response, event.assos_id.name)
+        # self.assertContains(response, event.address_id.raw)
+        # etc.
+        self.assertEqual(response.context['event'], event)
 
 
-class EventCreateViewTests(TestCase):
+
+
+class EventCreateViewTests(TransactionTestCase):
+    def setUp(self):
+        super(EventCreateViewTests, self).setUp()
+        self.user = create_user()
+        self.asso = create_association()
+
     def test_not_logged_in(self):
-        pass
+        url = reverse('event:event_creation', kwargs={'asso' : self.asso.pk })
+        response = self.client.get(url, follow=True)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(url, "")
+        self.assertRedirects(response, expected_url)
 
     def test_anonymous_user(self):
         pass

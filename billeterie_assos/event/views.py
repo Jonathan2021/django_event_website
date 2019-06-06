@@ -25,12 +25,12 @@ class IndexView(generic.ListView):
 
 #Create your views here.
 
-class EventListView(generic.ListView):
+class EventListView(generic.ListView): #Resembles Index view a lot, could use same template or something
     template_name = 'event_list.html'
     context_object_name = 'events'
 
     def get_queryset(self):
-        return Event.objects.filter(end__gt=timezone.now()).order_by('start')
+        return Event.objects.filter(end__gt=timezone.now()).order_by('start') #Should you really see ongoing events?
 
 
 class EventDetailView(generic.DetailView):

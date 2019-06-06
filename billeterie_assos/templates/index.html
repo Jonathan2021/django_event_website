@@ -22,7 +22,7 @@
         </div>
         <div class="container-fluid actu-wraper">
             <div class="container actu">
-                <h1>Premium Events</h1>
+                <h1 style="margin-bottom:15px;">PREMIUM EVENTS</h1>
                 {% if events %}
                 <div class="row">
                     {% for event in events %}
@@ -30,12 +30,12 @@
                         
                             <a class="event-link" href="{% url 'event:event_detail' event.id %}">
                                 <div class="event-block">
-                                <h1>{{ event.title }}</h1>
+                                <h1 style="font-size:2rem; color:#6351ce;">{{ event.title }}</h1>
                                 <p>Starting : {{ event.start }}</p>
                                 {% if event.manager_id %}
-                                <p>Created by : {{event.manager_id}}</p>
+                                <p style="color:black;">Created by : {{event.manager_id}}</p>
                                 {% else %}
-                                <p>No manager</p>
+                                <p style="color:black;">No manager</p>
                                 {% endif %}
                             </div>
                         </a>

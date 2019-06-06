@@ -1,5 +1,7 @@
 body{
-    background-image: url(../img/wallpaper.jpg);
+    background-color:#eaf5f9;
+    background-position: center;
+    background-size: cover;
 }
 
 .banner{
@@ -28,7 +30,7 @@ body{
 }
 
 .car-img{
-    padding-top: 50px;
+    padding-top:10px;
     height: 400px;
     padding-bottom: 50px;
     image-rendering: auto;
@@ -36,8 +38,10 @@ body{
 
 .actu{
     background-color: lavenderblush;
-    padding: 5%;
+    padding: 10px;
     margin-bottom: 75px;
+    border-radius: 10px;
+    opacity: 0.9;
 }
 
 .page-footer-top{
@@ -53,23 +57,43 @@ body{
 }
 
 .event-block{
-
+    border: solid 1px #e3e0e5;
     padding: 10px;
     margin: 10px;
-    box-shadow: 5px 5px 5px grey;
     background-color:#fff3f7;
 }
 
 .event-block:hover{
-    box-shadow: 1px 1px 1px black;
+    box-shadow: 5px 5px 5px grey;
     background-color: #fff9fb;
 }
 
 .event-link{
     font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
     color: grey;
+    
 }
 .event-link:hover{
     text-decoration: none;
     color: palevioletred;
+}
+
+.navbar-style{
+    background-color:#100b2c;
+}
+
+.btn-nav{
+    margin-left:10px;
+    color:white;
+    border-color: white;
+}
+
+.btn-nav:hover{
+    background-color: #6351ce;
+    border-color: #6351ce;
+}
+
+.btn-nav:focus{
+    background-color: #6351ce;
+    border-color: #6351ce; 
 }

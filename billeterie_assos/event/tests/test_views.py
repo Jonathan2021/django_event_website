@@ -1,10 +1,12 @@
 from django.urls import reverse
 from django.test import TestCase, RequestFactory, TransactionTestCase
 from django_downloadview.test import setup_view
-from .test_models import create_event, create_date_time, create_user, create_association
+from .test_models import create_event, create_date_time, create_user, \
+    create_association, create_member
 from event import models
 from event import views
 from copy import deepcopy
+from django.contrib.auth.models import AnonymousUser
 import urllib
 
 class IndexViewTests(TestCase):
@@ -161,27 +163,32 @@ class EventCreateViewTests(TransactionTestCase):
         super(EventCreateViewTests, self).setUp()
         self.user = create_user()
         self.asso = create_association()
+        self.url = reverse('event:event_creation', kwargs={'asso' : self.asso.pk })
 
     def test_not_logged_in(self):
-        url = reverse('event:event_creation', kwargs={'asso' : self.asso.pk })
-        response = self.client.get(url, follow=True)
-        expected_url = reverse('login') + '?next=' + urllib.parse.quote(url, "")
+        response = self.client.get(self.url, follow=True)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
         self.assertRedirects(response, expected_url)
 
-    def test_anonymous_user(self):
-        pass
-
-    def test_anonymous_user_is_member(self):
-        pass
 
     def test_user_not_member(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 403)
 
     def test_user_is_member(self):
-        pass
+        create_member(profile=self.user, assos=self.asso) 
+        self.client.force_login(self.user)
+        response = self.client.get(self.url, follow=True)
+        self.assertEquals(response.status_code, 200)
+
 
     def test_wrong_asso_pk(self):
-        pass
+        url = reverse('event:event_creation', kwargs={'asso' :  69})
+        create_member(profile=self.user, assos=self.asso) 
+        self.client.force_login(self.user)
+        response = self.client.get(url, follow=True)
+        self.assertEquals(response.status_code, 404)
 
 
 class AssosDetailView(TestCase):

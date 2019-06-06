@@ -4,66 +4,86 @@
 
 {%block content %}
     {% get_obj_perms user for object as "assos_perms" %}
-    <h1>{{object.name}}</h1>
-    <h3>President</h3>
-    {% if president %}
-    <p>{{president.user.username}}</p>
-    {% endif %}
-    <h4>Membres du bureau</h4>
-    <ul>
-    {% for manager in managers %}
-    <li>{{manager.user.username}}</li>
-    {% if "manage_manager" in assos_perms %}
-    <a class="confirm" href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">retograde to member</a>
-    {% endif %}
-    {% if "manage_president" in assos_perms %}
-    <a class="confirm" href="{% url 'event:add_president' manager.pk %}">Switch with current President</a>
-    {% endif %}
-    {% endfor %}
-    </ul>
-    <h5>Membres</h5>
-    <button style="color:brown" onclick="display('add_members')">Add Members</button>
-    {% if "manage_member" in assos_perms %}
-    <form id="add_members" style="display: none;" action="{% url 'event:asso_detail' object.id %}" method="POST">
-    {% csrf_token %}
-    {{form}}
-    <input type="submit" value="Add members">
-    </form>
-    {% endif %}
-    <ul>
-    {% for member in members %}
-    <li>{{member.user.username}}</li>
-    {% if "manage_member" in assos_perms %}
-    <a class="confirm" href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
-    {% endif %}
-    {% if "manage_manager" in assos_perms %}
-    <a class="confirm" href="{% url 'event:add_manager' pk=member.pk asso_pk=object.pk %}">Promote to manager</a>
-    {% endif %}
-    {% endfor %}
-    </ul>
-    <br/>
-    <h1>Events</h1>
-    {% if "create_event" in assos_perms %}
-    <a href="{% url 'event:event_creation' asso=object.pk%}">Create an event</a>
-    {% endif %}
-    <h3>Ongoing events</h3>
-    <ul>
-    {% for event in ongoing_events %}
-    <li>{{event.title}}</li>
-    {% endfor %}
-    </ul>
-    <h3>Future events</h3>
-    <ul>
-    {% for event in future_events %}
-    <li><a href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>
-    {% endfor %}
-    </ul> 
-    {% if "delete_association" in assos_perms %}
-    <form action="{% url 'event:assos_delete' object.pk %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" class="confirm" value="Delete" />
-    </form>
-    {% endif %}
+    <div style="font-size:1.1rem;"class="container basic-block">
+        <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{object.name}}</h1>
+        {% if president %}
+        <div class="row">
+            <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                <p><b>Current president</b> : {{president.user.username}}</p>
+                {% else %}
+                <p><b>President</b> : Anonymous</p>
+                {% endif %}
+                <p><b>Membres du bureau</b> :</p>
+                <ul style="">
+                    {% for manager in managers %}
+                    <li>{{manager.user.username}}
+                    {% if "manage_manager" in assos_perms %}
+                        <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">Retograde to member</a>
+                        {% endif %}
+                        {% if "manage_president" in assos_perms %}
+                        <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:add_president' manager.pk %}">Switch with current President</a>
+                    {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                <p><b>Membres</b></p>
+                <button style="color:brown" onclick="display('add_members')">Add Members</button>
+                {% if "manage_member" in assos_perms %}
+                <form id="add_members" style="display: none;" action="{% url 'event:asso_detail' object.id %}" method="POST">
+                {% csrf_token %}
+                {{form}}
+                <input type="submit" value="Add members">
+                </form>
+                {% endif %}
+                <ul>
+                    {% for member in members %}
+                        <li>{{member.user.username}}
+                        {% if "manage_member" in assos_perms %}
+                            <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
+                        {% endif %}
+                        {% if "manage_manager" in assos_perms %}
+                            <a style="margin-left:20px; color:#6351ce; font-size: 0.8rem;" class="confirm" href="{% url 'event:add_manager' pk=member.pk asso_pk=object.pk %}">Promote to manager</a>
+                        {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <h4><b>Events</b> :</h4>
+                <div style="margin-left:50px;">
+                    {% if "create_event" in assos_perms %}
+                    <a style="margin:15px;" href="{% url 'event:event_creation' asso=object.pk%}">
+                    <button style="margin-top:20px;" class="btn btn-outline-success"> Create an event</button>
+                    </a>
+                    {% endif %}
+                    <p style="margin-top:20px;"><b>Ongoing events</b> :</p>
+                    <ul>
+                        {% for event in ongoing_events %}
+                        <li>{{event.title}}</li>
+                        {% endfor %}
+                    </ul>
+                    <p><b>Future events</b> :</p>
+                    <ul>
+                        {% for event in future_events %}
+                        <li><a style="color:#6351ce; "href="{% url 'event:event_detail' event.id %}">{{event.title}}</a></li>
+                        {% endfor %}
+                    </ul> 
+                    {% if "delete_association" in assos_perms %}
+                    <form action="{% url 'event:assos_delete' object.pk %}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="confirm" value="Delete" />
+                    </form>
+                    {% endif %}
+                </div>
+            </article>
+            <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                <img src="{% static "img/assos_detail_img.png"%}" style="
+                    opacity: 0.9;
+                    height:100%; 
+                    width:100%;
+                    border-radius: 10px;
+                ">
+            </article>
+        </div>
+    </div>
     <script>
     function display(el)
     {

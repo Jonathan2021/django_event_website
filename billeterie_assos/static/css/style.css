@@ -97,3 +97,12 @@ body{
     background-color: #6351ce;
     border-color: #6351ce; 
 }
+
+.basic-block{
+    background-color: lavenderblush;
+    margin-top:50px;
+    margin-bottom:50px;
+    padding: 10px;
+    opacity: 0.9;
+    border-radius: 5px;
+}

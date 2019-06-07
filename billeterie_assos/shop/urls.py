@@ -2,6 +2,8 @@ from django.conf.urls import url
 from django.urls import path
 from . import views
 
+
+
 urlpatterns = [
     
     path('shop', views.index_shop, name='index_shop'),

@@ -1,3 +1,5 @@
+{% load static %}
+
 <!--Navbar-->
 <nav class="navbar navbar-dark navbar-expand-lg navbar-style">
   <a class="navbar-brand" href="#"></a>
@@ -6,6 +8,8 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <img src="{% static "img/logo-epita.png" %}" style="height:5%; width:5%; margin-right:5px;">
+
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
           <a class="nav-link" href="{% url 'event:index' %}">Home <span class="sr-only">(current)</span></a>

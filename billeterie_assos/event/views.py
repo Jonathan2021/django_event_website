@@ -143,7 +143,7 @@ class ProfileView(generic.ListView):
         return context
 
     def get_queryset(self):
-        return Event.objects.filter(premium_flag=True).order_by('start') # why is it getting Events ? It s a profile view
+        return Event.objects.filter(premium_flag=True).order_by('start') # why is it getting Events ? It s a profile view xDDDDDDDDDDDDDDD
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_delete_assos, name='dispatch')

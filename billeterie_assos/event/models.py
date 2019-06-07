@@ -6,6 +6,7 @@ from compositefk.fields import CompositeOneToOneField
 import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from guardian.shortcuts import assign_perm, remove_perm
 
 # Create your models here.
 
@@ -33,7 +34,7 @@ class Profile(models.Model):
     class Meta:
         verbose_name = _("Profile")
         verbose_name_plural = _("Profiles")
-
+        
 
 class EmailAddress(models.Model):
     email = models.EmailField(_("Email address"), unique=True)
@@ -54,6 +55,15 @@ class Association(models.Model):
         verbose_name = _("Association")
         verbose_name_plural = _("Associations")
 
+        permissions = (
+            ('create_event', 'User can create an event'),
+            ('manage_member', 'User can add and remove a member'),
+            ('choose_staff', 'User can choose staff'),
+            ('manage_manager', 'User can add and remove managers'),
+            ('manage_president', 'User can modify the president'),
+            # should maybe use default add_president
+        )
+
     def __str__(self):
         return '%s' % (self.name)
 
@@ -68,6 +78,17 @@ class Member(models.Model):
         verbose_name = _("Member")
         verbose_name_plural = _("Members")
         unique_together = ('assos_id', 'user')
+
+    def __str__(self):
+        return '%s from %s' % (self.user.username, self.assos_id.name)
+
+    def save(self, *args, **kwargs):
+        super(Member, self).save(*args, **kwargs)
+        assign_perm('create_event', self.user, self.assos_id)
+
+    def delete(self):
+        remove_perm('create_event', self.user, self.assos_id)
+        super(Member, self).delete()
 
 
 class Manager(models.Model):
@@ -94,6 +115,19 @@ exist, it was probably deleted")})
         verbose_name = _("Member of the Bureau")
         verbose_name_plural = _("Members of the Bureau")
 
+    def __str__(self):
+        return '%s from %s' % (self.user.username, self.assos_id.name)
+
+    def save(self, *args, **kwargs):
+        super(Manager, self).save(*args, **kwargs)
+        assign_perm('manage_member', self.user, self.assos_id)
+        assign_perm('choose_staff', self.user, self.assos_id)
+
+    def delete(self):
+        remove_perm('choose_staff', self.user, self.assos_id)
+        remove_perm('manage_member', self.user, self.assos_id)
+        super(Manager, self).delete()
+
 
 class President(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -119,6 +153,21 @@ exist, it was probably deleted")})
         verbose_name = _("President")
         verbose_name_plural = _("Presidents")
 
+    def __str__(self):
+        return '%s from %s' % (self.user.username, self.assos_id.name)
+
+    def save(self, *args, **kwargs):
+        super(President, self).save(*args, **kwargs)
+        assign_perm('manage_manager', self.user, self.assos_id)
+        assign_perm('delete_association', self.user, self.assos_id)
+        assign_perm('change_association', self.user, self.assos_id)
+
+    def delete(self):
+        remove_perm('manage_manager', self.user, self.assos_id)
+        remove_perm('delete_association', self.user, self.assos_id)
+        remove_perm('change_association', self.user, self.assos_id)
+        super(President, self).delete()
+
 
 class Event(models.Model):
 
@@ -138,7 +187,7 @@ class Event(models.Model):
                                    choices=EVENT_STATE_CHOICES,
                                    default=PENDING)
     manager_id = models.ForeignKey(Manager, on_delete=models.SET_NULL,
-                                   null=True)
+                                   null=True, blank=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
@@ -156,6 +205,11 @@ class Event(models.Model):
     class Meta:
         verbose_name = (_("Event"))
         verbose_name_plural = (_("Events"))
+
+        permissions = (
+            ('access_dashboard', 'User can access this event\'s dashboard'),
+            ('change_state', 'User can the event\'s state'),
+        )
 
 
 class Ticket(models.Model):
@@ -251,3 +305,18 @@ class Purchase(models.Model):
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")
         unique_together = ('event_id', 'user', 'ticket_id')
+
+
+"""
+class RightsSupport(models.Model):
+
+    class Meta:
+
+        managed = False
+
+        permissions = (
+            ('customer_rights', 'Global customer rights'),
+            ('vendor_rights', 'Global vendor rights'),
+            ('any_rights', 'Global any rights'),
+        )
+"""

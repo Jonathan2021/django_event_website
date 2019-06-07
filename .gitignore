@@ -1,0 +1,3 @@
+*.swp
+billeterie_assos/db.sqlite3
+.vscode

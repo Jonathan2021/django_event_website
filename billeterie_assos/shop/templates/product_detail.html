@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {{ product.name }} |
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container" style="
+        background-color: 
+        lavenderblush;
+        margin-top:50px;
+        margin-bottom:50px;
+        padding: 10px;
+        opacity: 0.9;
+        border-radius: 5px;
+    ">
+            <p><a href="{% url 'index_shop' %}" style="color: black; text-decoration: underline;">All Products </a> &gt;
+                {{ product.name }}
+            </p>
+                <h2 style="font-family: 'Courier New', Courier, monospace;
+                font-weight:bold;
+                ">
+                    {{ product.name }}
+                </h2>
+                <div style="
+                    margin-left:10%;
+                ">
+                    <p>Price ${{ product.price }}</p>
+
+                    <form action="{% url 'product_detail' product.id product.slug %}" method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <input type="submit" value="Add to cart" class="btn btn-primary" >
+                    </form>
+                </div>
+    </div>
+{% endblock %}

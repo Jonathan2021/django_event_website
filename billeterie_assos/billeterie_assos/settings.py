@@ -25,7 +25,7 @@ SECRET_KEY = 'sh$dfd@2im$$hdq&ave5pc)vhuy$!68m8wo+$mr$wvv3kpe!d*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'rest_framework',
     'rest_framework_swagger',
     'address',
@@ -44,8 +45,10 @@ INSTALLED_APPS = [
     'cri_epita',
     'social_django',
     'epita_connect',
+    'shop',
     'accounts.apps.AccountsConfig',
     'paypal.standard.ipn',
+    'guardian',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +81,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'shop.context_processor.cart_item_count',
                 ],
         },
     },
@@ -115,6 +119,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -138,6 +147,7 @@ STATIC_URL = '/static/'
 AUTHENTICATION_BACKENDS = (
     'epita_connect.backend.EpitaOpenIdConnect',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'

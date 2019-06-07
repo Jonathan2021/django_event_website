@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('event.urls')),
+    path('', include('event.urls')), 
+    path('', include('shop.urls')),
     url(r'', include('social_django.urls' ,namespace='social')),
     url(r'paypal/', include('paypal.standard.ipn.urls')),
     path('accounts/', include('accounts.urls')),

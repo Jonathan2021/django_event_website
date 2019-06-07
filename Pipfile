@@ -6,8 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-social-auth-backend-epita = "*"
-social-auth-app-django = "*"
 django = "*"
 redgreenunittest = "*"
 djangorestframework = "*"
@@ -17,6 +15,10 @@ django-composite-foreignkey = "*"
 pillow = "*"
 django-paypal = "*"
 paypal-standard-ipm = "*"
+pytz = "*"
+django-downloadview = "*"
+social-auth-backend-epita = "*"
+django-guardian = "*"
 
 [requires]
 python_version = "3.7"

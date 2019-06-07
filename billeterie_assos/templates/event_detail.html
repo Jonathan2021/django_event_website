@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
+{% load guardian_tags %}
 
 {%block content %}   
+{% get_obj_perms user for event as "event_perms" %}
 <div style="font-size:1.1rem;"class="container basic-block">
     <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{event.title}}</h1>
     <div class="row">
@@ -30,7 +32,7 @@
                 <a style="margin-left:20px; color:#6351ce;" href="{% url 'event:asso_detail' event.assos_id.pk %}">{{event.assos_id.name}}</a>
             </h3>
             <a href="{% url 'index_shop' %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
-            {% if perms.event.delete_event %}
+            {% if "delete_event" in event_perms %}
             <form action="{% url 'event:event_delete' event.pk %}" method="POST">
             {% csrf_token %}
             <input style="margin-top:10px;" type="submit" class="confirm" value="Delete" />

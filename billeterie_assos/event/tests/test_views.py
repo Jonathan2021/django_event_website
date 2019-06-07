@@ -142,7 +142,7 @@ class EventListView(TestCase):
         event = create_event()
         user = create_user()
         self.client.force_login(user)
-        assign_perm('delete_event', user, event)
+        assign_perm('event.delete_event', user, event)
         response = self.client.get(reverse('event:events'))
         self.assertContains(response, 'Delete')
 

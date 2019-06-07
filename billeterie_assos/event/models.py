@@ -216,7 +216,7 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
         try:
             pres = self.assos_id.president
-            assign_perm('delete_event', pres.user, self)
+            assign_perm('event.delete_event', pres.user, self)
         except President.DoesNotExist:
             pass
 

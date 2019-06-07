@@ -7,19 +7,34 @@ from . import cart
 from event import views
 from event import models
 from django.db.models import ProtectedError
+from django.db import models as models_email
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+
 # Create your views here.
 
     
 def index_shop(request):
     all_products = Product.objects.all()
+    users = User.objects.all()
+    user_type = "E"
+
+    for user in users:
+        at_pos = user.email.find("@")
+        start_email = user.email[:at_pos]
+        end_email = user.email[at_pos:]
+       
+        if start_email == str(request.user) and end_email[:9] == "@epita.fr":
+            user_type = "I"         
+        
+        
     for event in views.EventListView.get_queryset(request):
         exist = False
 
         my_price = 0
         all_price = models.Price.objects.all()
         for p in all_price:
-            if p.event_id_id == event.id:
+            if p.event_id_id == event.id and p.ticket_type == user_type:
                 my_price = p.price
 
         for product in all_products:

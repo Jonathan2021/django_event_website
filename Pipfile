@@ -15,6 +15,8 @@ django-composite-foreignkey = "*"
 pillow = "*"
 pytz = "*"
 django-downloadview = "*"
+social-auth-backend-epita = "*"
+django-guardian = "*"
 
 [requires]
 python_version = "3.7"

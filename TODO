@@ -27,3 +27,9 @@ add pictures to events
 Calendar
 
 Event deletion in event_list etc. should be perms per object
+
+clicking on my_space when not logged in redirects to login page
+
+Maybe create Price if ticket number is 0 but still has price
+
+Style pop-up confirmation

@@ -5,3 +5,5 @@ footer isnt all the way to the bottom
 clicking on EPITA's logo should redirect to EPITA's website
 
 Instead of created by, show the association hosting the event
+
+BUY now in event should redirect to tickets for the event, not list of available event tickets

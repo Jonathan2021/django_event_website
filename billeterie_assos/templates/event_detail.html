@@ -1,29 +1,49 @@
 {% extends "base.html" %}
 {% load static %}
 
-{%block content %}    
-    <h1>{{event.title}}</h1>
-    <h4>State</h4>
-    <p>{{event.get_event_state_display}}</p>
-    <h4>Manager</h4>
-    {% if event.manager_id %}
-    <p>{{event.manager_id}}</p>
-    {% else %}
-    <p>No manager</p>
-    {% endif %}
-    <h4>start</h4>
-    <p>{{event.start}}</p>
-    <h4>end</h4>
-    <p>{{event.end}}</p>
-    <h4>assos</h4>
-    <a href="{% url 'event:asso_detail' event.assos_id.pk %}">{{event.assos_id.name}}</a>
-    <h4>address</h4>
-    <p>{{event.address_id.raw}}</p>
-    <h4>premium</h4>
-    <p>{{event.premium_flag}}</p>
-    {% if perms.event.delete_event %}
-    <form action="{% url 'event:event_delete' event.pk %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" class="confirm" value="Delete" />
-    {% endif %}
+{%block content %}   
+<div style="font-size:1.1rem;"class="container basic-block">
+    <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{event.title}}</h1>
+    <div class="row">
+        <article style="padding-left:40px;" class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+            <p><b>State</b> : {{event.get_event_state_display}}</p>
+            <p><b>Manager</b> :
+            {% if event.manager_id %}
+                {{event.manager_id}}
+            {% else %}
+                No manager
+            </p>
+            {% endif %}
+            <p><b>Starting date</b> :
+                {{event.start}}
+            </p>
+            <p><b>Ending date</b> :
+                {{event.end}}
+            </p>
+            <p><b>Address</b> :
+                {{event.address_id.raw}}
+            </p>
+            <p><b>Premium</b> :
+                {{event.premium_flag}}
+            </p>
+            <h3 style="padding-top:10px;"><b>Assosciation</b> :
+                <a style="margin-left:20px; color:#6351ce;" href="{% url 'event:asso_detail' event.assos_id.pk %}">{{event.assos_id.name}}</a>
+            </h3>
+            {% if perms.event.delete_event %}
+            <form action="{% url 'event:event_delete' event.pk %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" class="confirm" value="Delete" />
+            {% endif %}
+        </article>
+        <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                <img src="{% static "img/event_detail_img.png"%}" style="
+                    opacity: 0.9;
+                    height:65%; 
+                    width:65%;
+                    border-radius: 10px;
+                    border: 8px solid black;
+                ">
+        </article>
+    </div>
+</div>
 {% endblock content %}

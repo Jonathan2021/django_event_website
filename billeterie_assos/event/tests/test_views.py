@@ -5,9 +5,10 @@ from .test_models import create_event, create_date_time, create_user, \
     create_association, create_member, create_manager
 from event import models, views, forms
 from copy import deepcopy
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 import urllib
 from django.http import QueryDict
+from guardian.shortcuts import assign_perm
 
 # Do some assertTemplateUsed
 
@@ -130,6 +131,20 @@ class EventListView(TestCase):
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, No event)
         self.assertQuerysetEqual(response.context['events'], [repr(event)])
+
+    def test_no_perms(self):
+        user = create_user()
+        self.client.force_login(user)
+        response = self.client.get(reverse('event:events'))
+        self.assertNotContains(response, 'Delete')
+
+    def test_with_perms(self):
+        event = create_event()
+        user = create_user()
+        self.client.force_login(user)
+        assign_perm('delete_event', user, event)
+        response = self.client.get(reverse('event:events'))
+        self.assertContains(response, 'Delete')
 
 
 class EventDetailViewTests(TestCase):
@@ -339,10 +354,11 @@ class AssosDetailView(TestCase):
     def test_post_wrong_pk(self):
         response = self.client.post(reverse('event:asso_detail', kwargs={'pk' : 69}))
         self.assertEquals(response.status_code, 404)
-    
+
     def test_correct_post(self):
         response = self.client.post(self.url)
         self.assertRedirects(response, self.url)
+
 
 class MyAssosViewTests(TestCase):
     def test_not_logged_in(self):

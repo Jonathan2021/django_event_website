@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load guardian_tags %}
 
 {%block content %}
     <div class="container" style="
@@ -27,6 +28,7 @@
                     {% if events %}
                         <ul>
                         {% for event in events %}
+                        {% get_obj_perms user for event as "event_perms" %}
                         <li style="list-style-type: none;
                                     margin-bottom: 5px;
                             ">
@@ -37,7 +39,7 @@
                                 font-size:large;
                             " href="{% url 'event:event_detail' event.id %}">{{ event.title }}
                             </a>
-                            {% if perms.association.delete_event %}
+                            {% if "delete_event" in event_perms %}
                             <a style="margin-left:10px;" class="confirm" href="{% url 'event:event_delete' event.pk %}">Delete</a>
                             {% endif %}
                             <p style="

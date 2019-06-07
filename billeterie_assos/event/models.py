@@ -212,6 +212,14 @@ class Event(models.Model):
             ('change_state', 'User can the event\'s state'),
         )
 
+    def save(self, *args, **kwargs):
+        super(Event, self).save(*args, **kwargs)
+        try:
+            pres = self.assos_id.president
+            assign_perm('delete_event', pres.user, self)
+        except President.DoesNotExist:
+            pass
+
 
 class Ticket(models.Model):
     INTERN = 'I'

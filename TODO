@@ -25,3 +25,5 @@ ask for full_name in sign up and then use this in __str__ etc instead of usernam
 add pictures to events
 
 Calendar
+
+Event deletion in event_list etc. should be perms per object

@@ -6,21 +6,21 @@
 {% block content %}
     <div class="content-section">
         <div class="media" style="margin-top: 50px; margin-bottom:50px;">
-            <img class="rounded-circle account-img" style="height:100px; width:100px; margin-right:10px;" src = "{{ user.profile.image.url }}">
             <div class="media-body" style="background-color:white; padding-left:10px;">
-                <fieldset class="form-group">
-                    <h2 class="account-heading">{{ user.username }}</h2>
-                    <p class="text-secondary">{{ user.profile.birth_date }}</p>
-                    <p class="text-secondary">{{ user.email }}</p>
-                </fieldset>
-                <fieldset class="form-group">
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ u_form|crispy }}
-                        {{ p_form|crispy }}
-                        <button type="submit" style="margin-bottom:75px;">Update</button>
-                    </form>
-                </fieldset>
+                <div style="
+                        padding:10px;
+                    ">
+                    <p style="font-size:2rem;"><b>Username: </b>{{ user.username }}</p>
+                    <p class="text-secondary"><b>Birth :</b> {{ user.profile.birth_date }}</p>
+                    <p class="text-secondary"><b>Email :</b> {{ user.email }}</p>
+                    <p class="text-secondary"><b>Address :</b> 
+                        {% if user.address_id %}
+                        {{ user.address_id }}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </p>
+                </div>
             </div>
         </div>
     </div>

@@ -34,7 +34,7 @@ class Profile(models.Model):
     class Meta:
         verbose_name = _("Profile")
         verbose_name_plural = _("Profiles")
-
+        
 
 class EmailAddress(models.Model):
     email = models.EmailField(_("Email address"), unique=True)

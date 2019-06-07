@@ -483,8 +483,8 @@ class PresidentModelTests(TestCase):
 
 def make_event(title="event_title", state=Event.APPROVED, manager=None,
                assos=None, address=None, start=None, end=None, premium=False):
-    manager = create_manager() if manager is None else manager
-    assos = manager.assos_id if assos is None else assos
+    if assos is None:
+        assos = manager.assos_id if manager is not None else create_association()
     address = create_address() if address is None else address
     start = create_date_time(days=1) if start is None else start
     end = start + datetime.timedelta(hours=5) if end is None else end
@@ -564,7 +564,7 @@ class EventModelTests(TestCase):
         clean_and_save(event)
 
     def test_nonexistent_manager(self):
-        event = make_event()
+        event = make_event(manager=create_manager())
         event.manager_id.delete()
         with self.assertRaises(ValidationError):
             event.full_clean()
@@ -582,7 +582,7 @@ class EventModelTests(TestCase):
             event.full_clean()
 
     def test_manager_on_delete_setnull(self):
-        event = create_event()
+        event = create_event(manager=create_manager())
         event.manager_id.delete()
         self.assertTrue(Event.objects.get(pk=event.id).manager_id is None)
 

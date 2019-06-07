@@ -1,12 +1,27 @@
 Check when buying a ticket that user > 18 yo
 
-Create a Custom User Model Extending Abstract user (make email the authentification)
-https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html
-
-Use Group model and extend associations from here
-
-Write views
-
-add related names
+Use Group model and extend associations from here ?
 
 non timezoned date test
+
+Do coverage testing
+
+rename methods in test that i call all the time to setUp
+
+maybe update TestCase to SimpleTestCase and instead of just checking validation error, check the message it triggers (https://docs.djangoproject.com/en/2.2/topics/testing/tools/#django.test.SimpleTestCase)
+
+Search algorithm
+
+Get tickets by mail
+
+QRcode
+
+edit profile doesnt need all fields
+
+make edit profile work
+
+ask for full_name in sign up and then use this in __str__ etc instead of username
+
+add pictures to events
+
+

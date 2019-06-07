@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from . import models
 from functools import wraps
 
@@ -6,7 +7,7 @@ from functools import wraps
 def can_create_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
-        asso = models.Association.objects.get(pk=kwargs['asso'])
+        asso = get_object_or_404(models.Association, pk=kwargs['asso'])
         if request.user.has_perm('create_event', asso):
             return function(request, *args, **kwargs)
         else:
@@ -17,7 +18,7 @@ def can_create_event(function):
 def can_delete_assos(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
-        asso = models.Association.objects.get(pk=kwargs['pk'])
+        asso = get_object_or_404(models.Association, pk=kwargs['pk'])
         if request.user.has_perm('delete_association', asso):
             return function(request, *args, **kwargs)
         else:
@@ -28,7 +29,7 @@ def can_delete_assos(function):
 def can_manage_member(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
-        asso = models.Association.objects.get(pk=kwargs['asso_pk'])
+        asso = get_object_or_404(models.Association, pk=kwargs['asso_pk'])
         if request.user.has_perm('manage_member', asso):
             return function(request, *args, **kwargs)
         else:
@@ -39,8 +40,8 @@ def can_manage_member(function):
 def can_manage_manager(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
-        asso = models.Association.objects.get(pk=kwargs['asso_pk'])
-        if request.user.has_perm('manage_member', asso):
+        asso = get_object_or_404(models.Association, pk=kwargs['asso_pk'])
+        if request.user.has_perm('manage_manager', asso):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied

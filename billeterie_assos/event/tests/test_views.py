@@ -13,34 +13,37 @@ from guardian.shortcuts import assign_perm
 # Do some assertTemplateUsed
 
 class IndexViewTests(TestCase):
+    def setUp(self):
+        self.url = reverse('event:index')
+
     def test_get_queryset(self):
         request = RequestFactory().get('/request/mabite')
         v = setup_view(views.IndexView(), request)
         v.get_queryset()
 
     def test_no_event(self):
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
         self.assertQuerysetEqual(response.context['events'], [])
 
     def test_no_premium(self):
         create_event(premium=False)
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
         self.assertQuerysetEqual(response.context['events'], [])
 
     def test_past_premium_event(self):
         create_event(start=create_date_time(days=-1), premium=True)
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
         self.assertQuerysetEqual(response.context['events'], []) 
 
     def test_future_premium_event(self):
         event = create_event(start=create_date_time(days=1), premium=True)
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, event.title)
         self.assertQuerysetEqual(response.context['events'],
@@ -54,7 +57,7 @@ class IndexViewTests(TestCase):
         future.end = create_date_time(days=1)
         future.pk = None
         future.save()
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, future.title)
         self.assertQuerysetEqual(response.context['events'],
@@ -65,7 +68,7 @@ class IndexViewTests(TestCase):
         future = deepcopy(ref)
         future.pk = None
         future.save()
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, future.title)
         self.assertQuerysetEqual(response.context['events'],
@@ -73,13 +76,16 @@ class IndexViewTests(TestCase):
 
     def test_on_going_event(self):
         create_event(start=create_date_time(days=-1), end=create_date_time(days=1))
-        response = self.client.get(reverse('event:index'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, No event)
         self.assertQuerysetEqual(response.context['events'], [])
 
 
 class EventListView(TestCase):
+    def setUp(self):
+        self.url = reverse('event:events')
+
     def test_get_queryset(self):
         request = RequestFactory().get('/request/machatte')
         v = setup_view(views.EventListView(), request)
@@ -87,7 +93,7 @@ class EventListView(TestCase):
 
 
     def test_no_event(self):
-        response = self.client.get(reverse('event:events'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, No event)
         self.assertQuerysetEqual(response.context['events'], [])
@@ -95,8 +101,8 @@ class EventListView(TestCase):
 
 
     def test_past_event(self):
-        event = create_event(start=create_date_time(days=-1))
-        response = self.client.get(reverse('event:events'))
+        create_event(start=create_date_time(days=-1))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No event")
         self.assertQuerysetEqual(response.context['events'], []) 
@@ -105,7 +111,7 @@ class EventListView(TestCase):
 
     def test_future_event(self):
         event = create_event(start=create_date_time(days=1))
-        response = self.client.get(reverse('event:events'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, event.title)
         self.assertQuerysetEqual(response.context['events'], [repr(event)]) 
@@ -119,7 +125,7 @@ class EventListView(TestCase):
         future.end = create_date_time(days=1)
         future.pk = None
         future.save()
-        response = self.client.get(reverse('event:events'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, future.title)
         self.assertQuerysetEqual(response.context['events'],
@@ -127,50 +133,65 @@ class EventListView(TestCase):
 
     def test_on_going_event(self):
         event = create_event(start=create_date_time(days=-1), end=create_date_time(days=1))
-        response = self.client.get(reverse('event:events'))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, No event)
         self.assertQuerysetEqual(response.context['events'], [repr(event)])
 
-    def test_no_perms(self):
+    def test_no_delete_perms(self):
         user = create_user()
         self.client.force_login(user)
-        response = self.client.get(reverse('event:events'))
+        response = self.client.get(self.url)
         self.assertNotContains(response, 'Delete')
 
-    def test_with_perms(self):
+    def test_with_delete_perms(self):
         event = create_event()
         user = create_user()
         self.client.force_login(user)
         assign_perm('event.delete_event', user, event)
-        response = self.client.get(reverse('event:events'))
+        response = self.client.get(self.url)
         self.assertContains(response, 'Delete')
 
 
 class EventDetailViewTests(TestCase):
+    def setUp(self):
+        self.event = create_event()
+        self.url = reverse('event:event_detail', kwargs={'pk': self.event.pk})
     def test_invalid_pk(self):
-        response = self.client.get(reverse('event:event_detail', kwargs={'pk': 1}))
+        response = self.client.get(reverse('event:event_detail', kwargs={'pk': 69}))
         self.assertEqual(response.status_code, 404)
 
     def test_valid_complete(self):
-        event = create_event()
-        response = self.client.get(reverse('event:event_detail', kwargs={'pk' : event.pk}))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, event.title)
         # self.assertContains(response, event.assos_id.name)
         # self.assertContains(response, event.address_id.raw)
         # etc.
-        self.assertEqual(response.context['event'], event)
+        self.assertEqual(response.context['event'], self.event)
 
     def test_no_manager(self):
-        event = create_event()
-        response = self.client.get(reverse('event:event_detail', kwargs={'pk' : event.pk}))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No manager")
         # self.assertContains(response, event.assos_id.name)
         # self.assertContains(response, event.address_id.raw)
         # etc.
-        self.assertEqual(response.context['event'], event)
+        self.assertEqual(response.context['event'], self.event)
+
+    def test_no_delete_perms(self):
+        user = create_user()
+        self.client.force_login(user)
+        response = self.client.get(self.url)
+        self.assertNotContains(response, 'Delete')
+
+    def test_with_delete_perms(self):
+        user = create_user()
+        self.client.force_login(user)
+        assign_perm('event.delete_event', user, self.event)
+        response = self.client.get(self.url)
+        self.assertContains(response, 'Delete')
+
 
 
 

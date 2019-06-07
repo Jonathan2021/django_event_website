@@ -33,3 +33,5 @@ clicking on my_space when not logged in redirects to login page
 Maybe create Price if ticket number is 0 but still has price
 
 Style pop-up confirmation
+
+add models in admin

@@ -545,8 +545,6 @@ class AssosDeleteTests(TestCase):
         self.assertQuerysetEqual(models.Association.objects.all(), [])
 
 
-
-
 class MemberDeleteTests(TestCase):
     def test_not_logged_in(self):
         pass

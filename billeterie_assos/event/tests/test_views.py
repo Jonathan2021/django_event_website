@@ -546,32 +546,66 @@ class AssosDeleteTests(TestCase):
 
 
 class MemberDeleteTests(TestCase):
-    def test_not_logged_in(self):
-        pass
-
-    def test_anonymous_user_no_perms(self):
-        pass
+    def setUp(self):
+        self.asso = create_association()
+        self.user = create_user()
+        self.member = create_member(assos=self.asso, profile=self.user)
+        self.url = reverse('event:delete_member',
+                            kwargs={'pk' : self.member.pk,
+                                    'asso_pk': self.asso.pk})
     
-    def test_anonymous_user_with_perms(self):
-        pass
+    def test_get_success_url(self):
+        request = RequestFactory().get('wallah')
+        v = setup_view(views.MemberDelete(), request, asso_pk=self.asso.pk)
+        self.assertEquals(v.get_success_url(), reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+
+    def test_not_logged_in(self):
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
     def test_logged_in_no_manage_members_perms(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 403)
 
     def test_logged_in_with_perms(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_member', self.user, self.asso)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(models.Member.objects.all(), [])
 
     def test_wrong_pk(self):
-        pass
-   
+        self.client.force_login(self.user)
+        assign_perm('manage_member', self.user, self.asso)
+        response = self.client.get(reverse('event:delete_member',
+                                           kwargs={'pk': 69,
+                                                   'asso_pk': self.asso.pk}))
+        self.assertEquals(response.status_code, 404)
+
     def test_wrong_asso_pk(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_member', self.user, self.asso)
+        response = self.client.get(reverse('event:delete_member',
+                                           kwargs={'pk': self.member.pk,
+                                                   'asso_pk': 69}))
+        self.assertEquals(response.status_code, 404)
 
     def test_get(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_member', self.user, self.asso)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(models.Member.objects.all(), [])
 
     def test_post(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_member', self.user, self.asso)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(models.Member.objects.all(), [])
+
 
 class ManagerDeleteTests(TestCase):
     def test_not_logged_in(self):

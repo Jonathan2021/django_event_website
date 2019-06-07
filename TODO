@@ -35,3 +35,5 @@ Maybe create Price if ticket number is 0 but still has price
 Style pop-up confirmation
 
 add models in admin
+
+Add url field to redirect to asso website

@@ -218,6 +218,8 @@ class AssosCreateView(generic.CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 # add decorators here and remove them in urls.py
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_delete_event, name='dispatch')
 class EventDelete(generic.DeleteView):
     model = Event
     success_url = reverse_lazy('event:events')

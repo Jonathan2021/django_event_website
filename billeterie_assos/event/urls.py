@@ -26,6 +26,6 @@ urlpatterns = [
     path('shop/', com_views.index_shop, name='shop'),
     path('assos/create/', permission_required('event.add_association', login_url='login')(views.AssosCreateView.as_view()), name='asso_creation'),
     path('assos/event/create/<int:asso>', views.EventCreateView.as_view(), name='event_creation'),
-    path('event/delete/<int:pk>', permission_required('event.delete_event', login_url='login')(views.EventDelete.as_view()), name='event_delete'),
+    path('event/delete/<int:pk>', views.EventDelete.as_view(), name='event_delete'),
     path('assos/president/add/<int:pk>', permission_required('manage_president', login_url='login')(views.PresidentCreate.as_view()), name='add_president'),
 ]

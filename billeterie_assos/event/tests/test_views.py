@@ -63,16 +63,21 @@ class IndexViewTests(TestCase):
         self.assertQuerysetEqual(response.context['events'],
                                 [repr(future)])
 
-    def test_two_future_events(self):
+    def test_two_future_events_ordering(self):
         ref = create_event(start=create_date_time(days=1), premium=True)
         future = deepcopy(ref)
         future.pk = None
+        future.start = create_date_time(days=2)
+        future.end = create_date_time(days=3)
         future.save()
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, future.title)
         self.assertQuerysetEqual(response.context['events'],
-                                map(repr, [ref, future]), ordered=False)
+                                map(repr, [ref, future]))
+        with self.assertRaises(AssertionError):
+            self.assertQuerysetEqual(response.context['events'],
+                                     map(repr, [future, ref]))
 
     def test_on_going_event(self):
         create_event(start=create_date_time(days=-1), end=create_date_time(days=1))
@@ -137,6 +142,22 @@ class EventListView(TestCase):
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, No event)
         self.assertQuerysetEqual(response.context['events'], [repr(event)])
+
+    def test_two_future_events_ordering(self):
+        ref = create_event(start=create_date_time(days=1), premium=True)
+        future = deepcopy(ref)
+        future.pk = None
+        future.start = create_date_time(days=2)
+        future.end = create_date_time(days=3)
+        future.save()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        # self.assertContains(response, future.title)
+        self.assertQuerysetEqual(response.context['events'],
+                                map(repr, [ref, future]))
+        with self.assertRaises(AssertionError):
+            self.assertQuerysetEqual(response.context['events'],
+                                     map(repr, [future, ref]))
 
     def test_no_delete_perms(self):
         user = create_user()
@@ -427,19 +448,32 @@ class MyAssosViewTests(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertQuerysetEqual(response.context['assos'],
                                  map(repr, [self.asso, new_asso]))
+        with self.assertRaises(AssertionError):
+            self.assertQuerysetEqual(response.context['assos'],
+                                     map(repr, [new_asso, self.asso]))
         self.assertContains(response, self.asso.name)
         self.assertContains(response, new_asso.name)
 
 
 class AssosViewTests(TestCase):
+    def setUp(self):
+        self.url = reverse('event:assos')
+     
     def test_no_assos(self):
-        pass
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['assos'], [])
 
-    def test_assos(self):
-        pass
-
-    def test_ordering(self):
-        pass
+    def test_assos_and_ordering(self):
+        asso_1 = create_association(name="salut")
+        asso_2 = create_association(name="toi")
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['assos'], map(repr, [asso_1, asso_2]))
+        with self.assertRaises(AssertionError):
+            self.assertQuerysetEqual(response.context['assos'], map(repr, [asso_2, asso_1]))
+        self.assertContains(response, asso_1.name)
+        self.assertContains(response, asso_2.name)
 
 
 class AssosDeleteTests(TestCase):

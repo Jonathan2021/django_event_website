@@ -24,4 +24,4 @@ ask for full_name in sign up and then use this in __str__ etc instead of usernam
 
 add pictures to events
 
-
+Calendar

@@ -106,7 +106,6 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         return super(AssosDetailView, self).form_valid(form)
 
 
-@method_decorator(login_required(login_url='login'), name='dispatch')
 class MyAssosView(generic.ListView):
     template_name = 'assos_list.html'
     context_object_name = 'assos'

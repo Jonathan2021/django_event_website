@@ -382,26 +382,54 @@ class AssosDetailView(TestCase):
 
 
 class MyAssosViewTests(TestCase):
-    def test_not_logged_in(self):
-        pass
+    def setUp(self):
+        self.url = reverse('event:my_assos')
+        self.user = create_user()
+        self.asso = create_association(name="aaaa")
+        self.member = create_member(assos=self.asso, profile=self.user)
 
-    def test_anonymous_logged_in(self):
-        pass
+    def test_not_logged_in(self):
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
     def test_logged_in(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
 
     def test_no_assos(self):
-        pass
+        self.asso.delete()
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['assos'], [])
 
     def test_assos_but_no_memberships(self):
-        pass
+        self.member.delete()
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['assos'], [])
 
     def test_memberships(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['assos'], [repr(self.asso)])
+        self.assertContains(response, self.asso.name)
 
     def test_ordering(self):
-        pass
+        new_asso = create_association(name="bbbbb")
+        create_member(assos=new_asso, profile=self.user)
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['assos'],
+                                 map(repr, [self.asso, new_asso]))
+        self.assertContains(response, self.asso.name)
+        self.assertContains(response, new_asso.name)
+
 
 class AssosViewTests(TestCase):
     def test_no_assos(self):

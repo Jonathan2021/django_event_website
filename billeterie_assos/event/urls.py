@@ -11,7 +11,7 @@ app_name = 'event'
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
-    path('assos/mine/', login_required(views.MyAssosView.as_view()), name='my_assos'),
+    path('assos/mine/', login_required(views.MyAssosView.as_view(), login_url='login'), name='my_assos'),
     url(r'^admin/', admin.site.urls),
     url(r'', include('cri_epita.urls', namespace="cri")),
     path('assos/<int:pk>', views.AssosDetailView.as_view(), name='asso_detail'),

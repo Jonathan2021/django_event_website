@@ -232,8 +232,6 @@ class EventCreateViewTests(TransactionTestCase):
         v = setup_view(views.EventCreateView(), request, asso=self.asso.pk)
         v.get_form_kwargs()
 
-
-
     def test_not_logged_in(self):
         response = self.client.get(self.url, follow=True)
         expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
@@ -259,6 +257,35 @@ class EventCreateViewTests(TransactionTestCase):
         response = self.client.get(url, follow=True)
         self.assertEquals(response.status_code, 404)
 
+    def test_creation(self):
+        create_member(profile=self.user, assos=self.asso)
+        self.client.force_login(self.user)
+        form_data = {
+                'title': 'test',
+                'event_state': models.Event.PENDING,
+                'manager_id': "",
+                'start': '2019-12-25 14:30',
+                'end': '2019-12-25 17:30',
+                'assos_id': self.asso.pk,
+                'address_id': "69 rue de la baise",
+                'premium_flag': True,
+                'intern_number': 0,
+                'intern_price': 0,
+                'extern_number': 0,
+                'extern_price': 0,
+                'staff_number': 0,
+                'staff_price': 0
+                }
+        form = forms.CreateEventForm(data=form_data, user=self.user)
+        self.assertTrue(form.is_valid())
+        self.assertQuerysetEqual(models.Event.objects.all(), [])
+        response = self.client.post(self.url, form_data)
+        self.assertRedirects(response, reverse('event:assos'))
+        with self.assertRaises(AssertionError):
+            self.assertQuerysetEqual(models.Event.objects.all(), [])
+        event = models.Event.objects.get(pk=1)
+        self.assertEquals(event.title, form_data['title'])
+        
 
 class AssosDetailView(TestCase):
     def setUp(self):
@@ -311,13 +338,16 @@ class AssosDetailView(TestCase):
     def test_post_invalid_form(self):
         user1 = create_user(name='user1')
         user2 = create_user(name='user2')
-        form_data = {'users' : [user1.pk, user2.pk]}
+        form_data = {'users' : "bonjour"}
+        form = forms.AddMemberForm(data=form_data, user=self.user, asso=self.asso)
+        self.assertFalse(form.is_valid())
         request = RequestFactory().get(self.url, form_data)
         request.user = self.user
         self.v.request = request
         response = self.v.post(request) #is_bound attr of form is False since it s GET request -> form.is_valid returns false
         # should probably make it fail another way
         self.assertEquals(response.status_code, 200)
+        self.assertQuerysetEqual(models.Member.objects.filter(user__in=[user1, user2]), [])
 
     def test_post_valid_form(self):
         user1 = create_user(name='user1')
@@ -477,23 +507,45 @@ class AssosViewTests(TestCase):
 
 
 class AssosDeleteTests(TestCase):
-    def test_not_logged_in(self):
-        pass
+    def setUp(self):
+        self.asso = create_association()
+        self.url = reverse('event:assos_delete', kwargs={'pk' : self.asso.pk})
+        self.user = create_user()
 
-    def test_anonymous_user(self):
-        pass
+    def test_not_logged_in(self):
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
     def test_logged_in_but_no_delete_association_perms(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 403)
 
     def test_wrong_pk(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('event:assos_delete', kwargs={'pk' : 69}))
+        self.assertEquals(response.status_code, 404)
+
 
     def test_get(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('event.delete_association', self.user, self.asso)
+        self.assertQuerysetEqual(models.Association.objects.all(), [repr(self.asso)])
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:assos'))
+        self.assertQuerysetEqual(models.Association.objects.all(), [])
 
     def test_post(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('event.delete_association', self.user, self.asso)
+        self.assertQuerysetEqual(models.Association.objects.all(), [repr(self.asso)])
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse('event:assos'))
+        self.assertQuerysetEqual(models.Association.objects.all(), [])
+
+
+
 
 class MemberDeleteTests(TestCase):
     def test_not_logged_in(self):

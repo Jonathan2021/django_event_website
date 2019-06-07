@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 
 # Create your views here.
-
     
 def index_shop(request):
     all_products = Product.objects.all()
@@ -29,30 +28,26 @@ def index_shop(request):
         
         
     for event in views.EventListView.get_queryset(request):
-        exist = False
-
         my_price = 0
-        all_price = models.Price.objects.all()
-        for p in all_price:
-            if p.event_id_id == event.id and p.ticket_type == user_type:
-                my_price = p.price
+        all_price = event.Prices.all()
+        try:
+            my_price = all_price.get(ticket_type=user_type).price
+        except models.Price.DoesNotExist:        
+            my_price = 0
 
-        for product in all_products:
-            if product.name == event.title:
-                product.price = my_price
-                product.save()
-                exist = True
-        if not exist:
-            product = Product(name = event.title,price = my_price,id = event.id, 
-                    description = "on decrit pas nous", slug = event.id)
+        try:
+            product = all_products.get(id=event.id)
+            product.price = my_price
+            product.save()
+        except Product.DoesNotExist:        
+            product = Product(name = event.title,price = my_price,id = event.id)
             product.save()
 
+    
     for product in all_products:
-        exist = False
-        for event in views.EventListView.get_queryset(request):
-            if product.name == event.title:
-                exist = True
-        if not exist:
+        try:
+            event = views.EventListView.get_queryset(request).get(id=product.id)
+        except models.Event.DoesNotExist:
             remove_product(request, product.id)
 
     return render(request, "index_shop.html", {
@@ -62,6 +57,8 @@ def index_shop(request):
 
 def show_product(request, product_id, product_slug):
     product = get_object_or_404(Product, id=product_id)
+    event_prices = views.EventListView.get_queryset(request).get(id=product.id).Prices.all()
+    print(event_prices)
     if request.method == 'POST':
         form = CartForm(request, request.POST)
         if form.is_valid():
@@ -73,6 +70,7 @@ def show_product(request, product_id, product_slug):
     return render(request, 'product_detail.html', {
                                             'product': product,
                                             'form': form,
+                                            'prices':event_prices
                                             })
 
  

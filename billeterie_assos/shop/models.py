@@ -3,11 +3,12 @@ from event.models import Price
 
 class Product(models.Model):
     name = models.CharField(max_length=191)
-    price = models.DecimalField(max_digits=7, decimal_places=2)
+    event_id = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=7, decimal_places=2) 
     slug = models.SlugField()
     description = models.TextField()
     image = models.ImageField(upload_to='products_images/', blank=True)
-
+     
     def __str__(self):
         return self.name
 
@@ -18,6 +19,7 @@ class CartItem(models.Model):
     quantity = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user_type = models.CharField(max_length=100)
 
     def __str__(self):
         return "{}:{}".format(self.product.name, self.id)

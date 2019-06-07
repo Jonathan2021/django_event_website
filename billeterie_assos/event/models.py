@@ -270,7 +270,7 @@ def validate_price_for_sqlite(value):
 class Price(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=Ticket.TICKET_TYPE_CHOICES)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="Prices")
     price = models.PositiveIntegerField(_("Price"),
                                         validators=[validate_price_for_sqlite])
 

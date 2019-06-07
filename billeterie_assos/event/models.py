@@ -34,7 +34,7 @@ class Profile(models.Model):
     class Meta:
         verbose_name = _("Profile")
         verbose_name_plural = _("Profiles")
-        
+
 
 class EmailAddress(models.Model):
     email = models.EmailField(_("Email address"), unique=True)
@@ -92,7 +92,8 @@ class Member(models.Model):
 
 
 class Manager(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="managerships")
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
                                  related_name='managers')
     member = CompositeOneToOneField(Member, on_delete=models.CASCADE,

@@ -213,6 +213,17 @@ class AssosDetailView(TestCase):
         request.user = self.user
         self.v = setup_view(views.AssosDetailView(), request, pk=self.asso.pk)
         self.v.object = self.asso
+        jo = create_user(name='jo')
+        fred = create_user(name='fred')
+        avrel = create_user(name='avrel')
+        self.member = create_member(profile=jo, assos=self.asso)
+        self.manager = create_manager(member=create_member(profile=fred,
+                                                      assos=self.asso))
+        self.president = models.President.objects.create(
+                manager=create_manager(
+                    member=create_member(
+                            profile=avrel, assos=self.asso)))
+        
 
     def test_get_object(self):
         res = self.v.get_object()
@@ -228,25 +239,15 @@ class AssosDetailView(TestCase):
         self.assertEquals(url, reverse('event:asso_detail', kwargs={'pk' : self.asso.pk}))
 
     def test_get_context_data(self, **kwargs):
-        jo = create_user(name='jo')
-        fred = create_user(name='fred')
-        avrel = create_user(name='avrel')
-        member = create_member(profile=jo, assos=self.asso)
-        manager = create_manager(member=create_member(profile=fred,
-                                                      assos=self.asso))
-        president = models.President.objects.create(
-                manager=create_manager(
-                    member=create_member(
-                            profile=avrel, assos=self.asso)))
         context = self.v.get_context_data()
         future = create_event(assos=self.asso)
         create_event(assos=self.asso, start=create_date_time(days=-20))
         ongoing = create_event(assos=self.asso,
                                    start=create_date_time(days=-1),
                                    end=create_date_time(days=1))
-        self.assertEquals(context['president'], president)
-        self.assertQuerysetEqual(context['managers'], [repr(manager)])
-        self.assertQuerysetEqual(context['members'], [repr(member)])
+        self.assertEquals(context['president'], self.president)
+        self.assertQuerysetEqual(context['managers'], [repr(self.manager)])
+        self.assertQuerysetEqual(context['members'], [repr(self.member)])
         self.assertQuerysetEqual(context['future_events'], [repr(future)])
         self.assertQuerysetEqual(context['ongoing_events'], [repr(ongoing)])
     
@@ -286,37 +287,62 @@ class AssosDetailView(TestCase):
         self.v.form_valid(form)
 
     def test_get_wrong_pk(self):
-        pass
+        response = self.client.get(reverse('event:asso_detail', kwargs={'pk': 69}))
+        self.assertEquals(response.status_code, 404)
 
-    def test_no_president(self): # should maybe raise an error idk
-        pass
+    def test_no_president_in_context(self): # should maybe raise an error idk
+        manager = self.president.manager
+        self.president.delete()
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertIs(response.context['president'], None)
+        self.assertQuerysetEqual(response.context['managers'],
+                                 map(repr, [self.manager, manager]),
+                                 ordered=False)
+        self.assertQuerysetEqual(response.context['members'], [repr(self.member)])
 
-    def test_no_manager(self):
-        pass
+    def test_no_manager_in_context(self):
+        member = self.manager.member
+        self.manager.delete()
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.context['president'], self.president)
+        self.assertQuerysetEqual(response.context['managers'], [])
+        self.assertQuerysetEqual(response.context['members'] , map(repr, [self.member, member]), ordered=False)
 
-    def test_no_member(self):
-        pass
+    def test_no_member_in_context(self):
+        self.member.delete()
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.context['president'], self.president)
+        self.assertQuerysetEqual(response.context['managers'], [repr(self.manager)])
+        self.assertQuerysetEqual(response.context['members'] , []) 
 
     def test_president_only(self):
-        pass
-
-    def test_president_and_managers(self):
-        pass # should test if president not in manager displayed
-
-    def test_president_and_members(self):
-        pass
-
-    def test_managers_and_members(self):
-        pass
+        member = self.manager.member
+        self.manager.delete()
+        member.delete()
+        self.member.delete()
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.context['president'], self.president)
+        self.assertQuerysetEqual(response.context['managers'], [])
+        self.assertQuerysetEqual(response.context['members'] , []) 
 
     def test_pres_managers_and_members(self):
-        pass
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.context['president'], self.president)
+        self.assertQuerysetEqual(response.context['managers'], [repr(self.manager)])
+        self.assertQuerysetEqual(response.context['members'] , [repr(self.member)]) 
 
     def test_post_wrong_pk(self):
-        pass
+        response = self.client.post(reverse('event:asso_detail', kwargs={'pk' : 69}))
+        self.assertEquals(response.status_code, 404)
     
     def test_correct_post(self):
-        pass
+        response = self.client.post(self.url)
+        self.assertRedirects(response, self.url)
 
 class MyAssosViewTests(TestCase):
     def test_not_logged_in(self):

@@ -30,7 +30,7 @@
                 ">
                     {% if prices %}
                         {% for price in prices %} 
-                            <p> {{ price.get_ticket_type_display }} Price ${{ price.price }}</p>    
+                            <p> For {{ price.get_ticket_type_display }}: {{ price.price }}€</p>    
                         {% endfor %}
 
                         <form action="{% url 'product_detail' product.id product.slug %}" 

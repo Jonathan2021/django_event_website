@@ -58,9 +58,8 @@ def index_shop(request):
 def show_product(request, product_id, product_slug):
     product = get_object_or_404(Product, id=product_id)
     event_prices = views.EventListView.get_queryset(request).get(id=product.id).Prices.all()
-    print(event_prices)
     if request.method == 'POST':
-        form = CartForm(request, request.POST)
+        form = CartForm(request, request.POST, product_id)
         if form.is_valid():
             request.form_data = form.cleaned_data
             cart.add_item_to_cart(request)
@@ -82,7 +81,6 @@ def remove_product(request, product_id):
         error_message = "This object can't be deleted!!\n\n\n"
 
 def show_cart(request):
-
     if request.method == 'POST':
         if request.POST.get('submit') == 'Update':
             cart.update_item(request)

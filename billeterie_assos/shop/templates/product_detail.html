@@ -30,14 +30,15 @@
                 ">
                     {% if prices %}
                         {% for price in prices %} 
-                            <p> {{ price.get_ticket_type_display }} Price ${{ price.price }}</p>
-                            <form action="{% url 'product_detail' product.id product.slug %}" 
+                            <p> {{ price.get_ticket_type_display }} Price ${{ price.price }}</p>    
+                        {% endfor %}
+
+                        <form action="{% url 'product_detail' product.id product.slug %}" 
                                                 method="post">
                                 {% csrf_token %}
                                 {{ form }}
                                 <input type="submit" value="Add to cart" class="btn btn-primary" >
                             </form> 
-                        {% endfor %}
                     {% else %}
                         <p> No Tickets To Sell </p>
                     {% endif %}

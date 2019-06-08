@@ -1,6 +1,7 @@
 from .models import CartItem, Product
 from django.shortcuts import get_object_or_404, get_list_or_404
-
+from event import views
+from event import models
 
 def _cart_id(request):
     if 'cart_id' not in request.session:
@@ -25,14 +26,29 @@ def add_item_to_cart(request):
 
     p = get_object_or_404(Product, id=product_id)
 
-    price = p.price
+    type_chosen = request.form_data['price']
+    price = 0
+    fail = False
+    if type_chosen == "0":
+        try:
+            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="I").price
+        except models.Price.DoesNotExist:
+            fail = True
+    if type_chosen == "1":
+        try:
+            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="E").price
+        except models.Price.DoesNotExist:
+            fail = True
+
+    if fail:
+        return
 
     cart_items = get_all_cart_items(request)
 
     item_in_cart = False
 
     for cart_item in cart_items:
-        if cart_item.product_id == product_id:
+        if cart_item.product_id == product_id and cart_item.price == price:
             cart_item.update_quantity(quantity)
             # cart_item.save()
             item_in_cart = True

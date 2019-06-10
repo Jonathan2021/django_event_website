@@ -17,6 +17,8 @@ pytz = "*"
 django-downloadview = "*"
 social-auth-backend-epita = "*"
 django-guardian = "*"
+django-crispy-forms = "*"
+social-auth-app-django = "*"
 
 [requires]
 python_version = "3.7"

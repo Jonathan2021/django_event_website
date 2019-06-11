@@ -9,3 +9,9 @@ Instead of created by, show the association hosting the event
 BUY now in event should redirect to tickets for the event, not list of available event tickets
 
 each time I create an object, call full_clean()
+
+Shouldn't be called premium event in index, more like 'Fresh events etc.' premium is just for us to know
+
+Why use sscroll down intern-extern when buying?
+
+Deleting an event doesnt remove it from shop

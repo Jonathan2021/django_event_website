@@ -37,3 +37,9 @@ Style pop-up confirmation
 add models in admin
 
 Add url field to redirect to asso website
+
+Complete tests with comments at the top (tests.test_views.py)
+
+Complete views with comments
+
+Use HTTP_REFERER or smthing to redirect to previous page in history in some views

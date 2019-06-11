@@ -177,7 +177,7 @@ class ManagerDelete(generic.DeleteView):
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_manage_manager, name='dispatch')
 class ManagerCreate(generic.View):
-    def get(self, request, *args, **kwargs): # should maybe call post and put all this in post
+    def get(self, request, *args, **kwargs): 
         return self.post(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -193,10 +193,13 @@ class ManagerCreate(generic.View):
 
 class PresidentCreate(generic.View):
     def get(self, request, *args, **kwargs): #should maybe call post and move everything in post
+        return self.post(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         manager = get_object_or_404(Manager, pk=kwargs.pop('pk'))
         try :
             President.objects.get(assos_id=manager.assos_id).delete()
-        except:
+        except President.DoesNotExist:
             pass
         president = President(manager=manager)
         try:

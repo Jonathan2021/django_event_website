@@ -11,6 +11,7 @@ from django.http import QueryDict
 from guardian.shortcuts import assign_perm
 
 # Do some assertTemplateUsed
+# testing perms, should test with get and post (in same test)
 
 class IndexViewTests(TestCase):
     def setUp(self):
@@ -674,68 +675,124 @@ class ManagerDeleteTests(TestCase):
         self.assertQuerysetEqual(self.asso.members.all(), [repr(member)])
 
 
-def ManagerCreateTests(TestCase):
+class ManagerCreateTests(TestCase):
+    def setUp(self):
+        self.user = create_user()
+        self.asso = create_association()
+        self.member = create_member(assos=self.asso, profile=self.user)
+        self.url = reverse('event:add_manager', kwargs={'asso_pk' : self.asso.pk, 'pk' : self.member.pk})
     def test_not_logged_in(self):
-        pass
-
-    def test_anonymous_user_no_perms(self):
-        pass
-    
-    def test_anonymous_user_with_perms(self):
-        pass
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
     def test_logged_in_no_manage_manager_perms(self):
-        pass
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 403)
 
     def test_logged_in_with_perms(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_manager', self.user, self.asso)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(self.asso.managers.all(), map(repr, models.Manager.objects.filter(member=self.member))) # weird
+        self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
 
     def test_wrong_member_pk(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_manager', self.user, self.asso)
+        response = self.client.get(reverse('event:add_manager',
+                                           kwargs={'pk': 69,
+                                                   'asso_pk': self.asso.pk}))
+        self.assertEquals(response.status_code, 404)
 
-    def test_member_not_saved(self): # should be tested in model tests
-        pass
-   
     def test_wrong_asso_pk(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_manager', self.user, self.asso)
+        response = self.client.get(reverse('event:add_manager',
+                                           kwargs={'pk': self.member.pk,
+                                                   'asso_pk': 69}))
+        self.assertEquals(response.status_code, 404)
 
     def test_get(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('manage_manager', self.user, self.asso)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(self.asso.managers.all(), map(repr, models.Manager.objects.filter(member=self.member))) # weird how filter here is not repr
+        self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
 
     def test_post(self):
-        pass
-
+        self.client.force_login(self.user)
+        assign_perm('manage_manager', self.user, self.asso)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(self.asso.managers.all(), map(repr, models.Manager.objects.filter(member=self.member)))
+        self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
 
 class PresidentCreateTests(TestCase):
+    def setUp(self):
+        self.user = create_user()
+        self.asso = create_association()
+        self.manager = create_manager(member=create_member(assos=self.asso, profile=self.user))
+        self.president = models.President.objects.create(manager=create_manager(member=create_member(profile=create_user(name="blabla"), assos=self.asso)))
+        self.url = reverse('event:add_president', kwargs={'pk' : self.manager.pk})
+
     def test_not_logged_in(self):
-        pass
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
-    def test_anonymous_user_no_perms(self):
-        pass
-    
-    def test_anonymous_user_with_perms(self):
-        pass
-
-    def test_logged_in_no_manage_president_perms(self):
-        pass
+    def test_logged_in_no_add_president_perms(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
     def test_logged_in_with_perms(self):
-        pass
+        self.client.force_login(self.user)
+        manager = self.president.manager
+        self.assertEquals(self.asso.president, self.president)
+        assign_perm('event.add_president', self.user)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertEquals(models.President.objects.get(assos_id=self.asso).user, self.user)
+        self.assertQuerysetEqual(self.asso.managers.all(),
+                                      map(repr, [self.manager, manager]),
+                                      ordered=False)
 
     def test_wrong_manager_pk(self):
-        pass
-
-    def test_manager_not_saved(self): # should be tested in model tests
-        pass
-   
-    def test_wrong_asso_pk(self):
-        pass
+        self.client.force_login(self.user)
+        assign_perm('event.add_president', self.user)
+        response = self.client.get(reverse('event:add_president',
+                                           kwargs={'pk': 69}))
+        self.assertEquals(response.status_code, 404)
 
     def test_get(self):
-        pass
+        self.client.force_login(self.user)
+        pres_manager = self.president.manager
+        assign_perm('event.add_president', self.user)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(self.asso.managers.all(),
+                                 map(repr, [self.manager, pres_manager]),
+                                ordered=False)
+        self.assertEquals(self.asso.president.user, self.user)
+        self.assertQuerysetEqual(models.President.objects.filter(user=pres_manager.user), [])
 
     def test_post(self):
-        pass
+        self.client.force_login(self.user)
+        pres_manager = self.president.manager
+        assign_perm('event.add_president', self.user)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(self.asso.managers.all(),
+                                 map(repr, [self.manager, pres_manager]),
+                                 ordered=False)
+        self.assertEquals(self.asso.president.user, self.user)
+        self.assertQuerysetEqual(models.President.objects.filter(user=pres_manager.user), [])
+
 
 class AssosCreateViewTests(TestCase):
     def test_not_logged_in(self):

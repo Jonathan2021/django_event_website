@@ -178,6 +178,9 @@ class ManagerDelete(generic.DeleteView):
 @method_decorator(decorators.can_manage_manager, name='dispatch')
 class ManagerCreate(generic.View):
     def get(self, request, *args, **kwargs): # should maybe call post and put all this in post
+        return self.post(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         member = get_object_or_404(Member, pk=kwargs.pop('pk'))
         manager = Manager(member=member)
         try:

@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 
 # Create your views here.
 
+# redirect to HTTP_REFERER in some cases https://stackoverflow.com/questions/35796195/how-to-redirect-to-previous-page-in-django-after-post-request/35796559
 
 class IndexView(generic.ListView):
     template_name = 'index.html'
@@ -222,10 +223,9 @@ class AssosCreateView(generic.CreateView):
         self.asso = form.save(commit=True)
         return HttpResponseRedirect(self.get_success_url())
 
-# add decorators here and remove them in urls.py
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_delete_event, name='dispatch')
-class EventDelete(generic.DeleteView):
+class EventDelete(generic.DeleteView): #maybe get calling post is a problem, see csrf token
     model = Event
     success_url = reverse_lazy('event:events')
 

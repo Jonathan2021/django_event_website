@@ -86,7 +86,6 @@ class AssociationForm(forms.ModelForm):
 
     def save(self, commit=True):
         asso = super(AssociationForm, self).save(commit=commit)
-        print(asso)
         if (commit):
             president = self.cleaned_data['president'] #should add perms here maybe
             member = Member(user=president, assos_id=asso)

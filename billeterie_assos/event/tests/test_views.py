@@ -12,6 +12,8 @@ from guardian.shortcuts import assign_perm
 
 # Do some assertTemplateUsed
 # testing perms, should test with get and post (in same test)
+# Should either assign perms directly or create an object with user that assign perms, idk what is better
+#When creating and deleting, should maybe make a querysetequal assert before and after, not just after
 
 class IndexViewTests(TestCase):
     def setUp(self):
@@ -258,7 +260,7 @@ class EventCreateViewTests(TransactionTestCase):
         response = self.client.get(url, follow=True)
         self.assertEquals(response.status_code, 404)
 
-    def test_creation(self):
+    def test_creation_post(self):
         create_member(profile=self.user, assos=self.asso)
         self.client.force_login(self.user)
         form_data = {
@@ -286,6 +288,32 @@ class EventCreateViewTests(TransactionTestCase):
             self.assertQuerysetEqual(models.Event.objects.all(), [])
         event = models.Event.objects.get(pk=1)
         self.assertEquals(event.title, form_data['title'])
+
+    def test_create_get(self):
+        create_member(profile=self.user, assos=self.asso)
+        self.client.force_login(self.user)
+        form_data = {
+                'title': 'test',
+                'event_state': models.Event.PENDING,
+                'manager_id': "",
+                'start': '2019-12-25 14:30',
+                'end': '2019-12-25 17:30',
+                'assos_id': self.asso.pk,
+                'address_id': "69 rue de la baise",
+                'premium_flag': True,
+                'intern_number': 0,
+                'intern_price': 0,
+                'extern_number': 0,
+                'extern_price': 0,
+                'staff_number': 0,
+                'staff_price': 0
+                }
+        form = forms.CreateEventForm(data=form_data, user=self.user)
+        self.assertTrue(form.is_valid())
+        response = self.client.get(self.url, form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(models.Event.objects.all(), [])
+       
         
 
 class AssosDetailView(TestCase):
@@ -432,6 +460,14 @@ class AssosDetailView(TestCase):
         response = self.client.post(self.url)
         self.assertRedirects(response, self.url)
 
+    def test_form_with_get(self):
+        user1 = create_user(name='user1')
+        user2 = create_user(name='user2')
+        form_data = {'users' : [user1.pk, user2.pk]}
+        response = self.client.get(self.url, form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(self.asso.members.filter(user__in=[user1, user2]), [])
+
 
 class MyAssosViewTests(TestCase):
     def setUp(self):
@@ -573,6 +609,7 @@ class MemberDeleteTests(TestCase):
     def test_logged_in_with_perms(self):
         self.client.force_login(self.user)
         assign_perm('manage_member', self.user, self.asso)
+        self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
         response = self.client.get(self.url)
         self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
         self.assertQuerysetEqual(self.asso.members.all(), [])
@@ -596,6 +633,7 @@ class MemberDeleteTests(TestCase):
     def test_get(self):
         self.client.force_login(self.user)
         assign_perm('manage_member', self.user, self.asso)
+        self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
         response = self.client.get(self.url)
         self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
         self.assertQuerysetEqual(self.asso.members.all(), [])
@@ -603,6 +641,7 @@ class MemberDeleteTests(TestCase):
     def test_post(self):
         self.client.force_login(self.user)
         assign_perm('manage_member', self.user, self.asso)
+        self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
         response = self.client.post(self.url)
         self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
         self.assertQuerysetEqual(self.asso.members.all(), [])
@@ -635,6 +674,7 @@ class ManagerDeleteTests(TestCase):
         self.client.force_login(self.user)
         member = self.manager.member
         assign_perm('manage_manager', self.user, self.asso)
+        self.assertQuerysetEqual(self.asso.managers.all(), [repr(self.manager)])
         response = self.client.get(self.url)
         self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
         self.assertQuerysetEqual(self.asso.managers.all(), [])
@@ -660,6 +700,7 @@ class ManagerDeleteTests(TestCase):
         self.client.force_login(self.user)
         member = self.manager.member
         assign_perm('manage_manager', self.user, self.asso)
+        self.assertQuerysetEqual(self.asso.managers.all(), [repr(self.manager)])
         response = self.client.get(self.url)
         self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
         self.assertQuerysetEqual(self.asso.managers.all(), [])
@@ -669,6 +710,7 @@ class ManagerDeleteTests(TestCase):
         self.client.force_login(self.user)
         member = self.manager.member
         assign_perm('manage_manager', self.user, self.asso)
+        self.assertQuerysetEqual(self.asso.managers.all(), [repr(self.manager)])
         response = self.client.post(self.url)
         self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
         self.assertQuerysetEqual(self.asso.managers.all(), [])
@@ -795,33 +837,51 @@ class PresidentCreateTests(TestCase):
 
 
 class AssosCreateViewTests(TestCase):
+    def setUp(self):
+        self.user = create_user()
+        self.name = 'test_asso'
+        self.url = reverse('event:asso_creation')
+        
     def test_not_logged_in(self):
-        pass
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
 
-    def test_anonymous_user_no_perms(self):
-        pass
+    def test_logged_in_no_perms(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
     
-    def test_anonymous_user_with_perms(self):
-        pass
+    def test_logged_in_with_perms_post(self):
+        self.client.force_login(self.user)
+        assign_perm('event.add_association', self.user)
+        form_data = {
+                'name' : self.name,
+                'president' : self.user.pk
+                }
+        form = forms.AssociationForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        response = self.client.post(self.url, form_data)
+        asso = models.Association.objects.all().first()
+        self.assertEqual(asso.name, self.name)
+        self.assertEqual(asso.president.user, self.user)
+        self.assertQuerysetEqual(asso.members.all(), map(repr, self.user.memberships.all()))
+        self.assertQuerysetEqual(asso.managers.all(), map(repr, self.user.managerships.all()))
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk' : asso.pk}))
 
-    def test_logged_in_no_add_association_perms(self):
-        pass
-
-    def test_logged_in_with_perms(self):
-        pass
-
-    def test_no_users(self):
-        pass
-
-    def test_user_not_saved(self): # should be tested in model tests
-        pass
-   
-    def test_get(self):
-        pass
-
-    def test_post(self):
-        pass
-
+    def test_logged_in_with_perms_get(self):
+        self.client.force_login(self.user)
+        assign_perm('event.add_association', self.user)
+        form_data = {
+                'name' : self.name,
+                'president' : self.user.pk
+                }
+        form = forms.AssociationForm(data=form_data)
+        self.assertTrue(form.is_valid())
+        response = self.client.get(self.url, form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(models.Association.objects.all(), [])
 
 class EventDeleteTests(TestCase):
     def test_not_logged_in(self):

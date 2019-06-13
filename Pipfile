@@ -19,6 +19,7 @@ social-auth-backend-epita = "*"
 django-guardian = "*"
 django-crispy-forms = "*"
 social-auth-app-django = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.7"

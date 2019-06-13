@@ -126,7 +126,7 @@ class AssosView(generic.ListView):
         return Association.objects.all().order_by("name")
 
 
-class ProfileView(generic.ListView):
+class ProfileView(generic.ListView): #Shouldnt be a list view
     template_name = 'profile.html'
 
     def get_context_data(self, **kwargs):
@@ -203,11 +203,8 @@ class PresidentCreate(generic.View):
         except President.DoesNotExist:
             pass
         president = President(manager=manager)
-        try:
-            president.full_clean()
-            president.save()
-        except:
-            pass
+        president.full_clean()
+        president.save()
         return HttpResponseRedirect(reverse_lazy('event:asso_detail', kwargs={'pk':manager.assos_id.pk}))
 
 

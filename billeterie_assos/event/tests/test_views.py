@@ -774,6 +774,14 @@ class ManagerCreateTests(TestCase):
         self.assertQuerysetEqual(self.asso.managers.all(), map(repr, models.Manager.objects.filter(member=self.member)))
         self.assertQuerysetEqual(self.asso.members.all(), [repr(self.member)])
 
+    def test_already_manager(self):
+        self.client.force_login(self.user)
+        manager = create_manager(member=self.member)
+        assign_perm('manage_manager', self.user, self.asso)
+        response = self.client.post(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertQuerysetEqual(self.asso.managers.all(), [repr(manager)])
+
 class PresidentCreateTests(TestCase):
     def setUp(self):
         self.user = create_user()
@@ -835,6 +843,23 @@ class PresidentCreateTests(TestCase):
                                  ordered=False)
         self.assertEquals(self.asso.president.user, self.user)
         self.assertQuerysetEqual(models.President.objects.filter(user=pres_manager.user), [])
+
+    def test_is_already_pres(self):
+        self.client.force_login(self.user)
+        assign_perm('event.add_president', self.user)
+        self.president.delete()
+        pres = models.President.objects.create(manager=self.manager)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertEqual(repr(self.asso.president), repr(pres))
+
+    def test_pres_not_exist(self):
+        self.client.force_login(self.user)
+        assign_perm('event.add_president', self.user)
+        self.president.delete()
+        response = self.client.get(self.url)
+        self.assertRedirects(response, reverse('event:asso_detail', kwargs={'pk': self.asso.pk}))
+        self.assertEqual(self.asso.president.user, self.manager.user)
 
 
 class AssosCreateViewTests(TestCase):

@@ -4,8 +4,6 @@ Use Group model and extend associations from here ?
 
 non timezoned date test
 
-Do coverage testing
-
 rename methods in test_models.py that i call all the time to setUp
 
 maybe update TestCase to SimpleTestCase and instead of just checking validation error, check the message it triggers (https://docs.djangoproject.com/en/2.2/topics/testing/tools/#django.test.SimpleTestCase)

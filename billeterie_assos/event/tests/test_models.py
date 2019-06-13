@@ -167,6 +167,10 @@ class EmailAddressModelTests(TestCase):
         with self.assertRaises(EmailAddress.DoesNotExist):
             EmailAddress.objects.get(pk=self.emails.id)
 
+    def test_str(self):
+        self.create_all()
+        self.assertEqual(self.emails.__str__(), self.emails.email)
+
 
 """
 test_cascade
@@ -366,6 +370,12 @@ class ManagerModelTests(TestCase):
         with self.assertRaises(Manager.DoesNotExist):
             Manager.objects.get(pk=manager.id)
 
+    def test_member_id_is_none(self):
+        self.create_all()
+        self.member.id = None
+        manager = Manager(member=self.member)
+        with self.assertRaises(ValidationError):
+            manager.full_clean()
 
 def create_manager(member=None):
     member = create_member() if member is None else member
@@ -479,6 +489,19 @@ class PresidentModelTests(TestCase):
         president.manager.delete()
         with self.assertRaises(President.DoesNotExist):
             President.objects.get(pk=president.id)
+
+    def test_manager_id_is_none(self):
+        self.create_all()
+        self.manager.id = None
+        president = President(manager=self.manager)
+        with self.assertRaises(ValidationError):
+            president.full_clean()
+
+    def test_str(self):
+        self.create_all()
+        president = President(manager=self.manager)
+        self.assertEqual(president.__str__(), "%s from %s" %(president.user.username, president.assos_id.name))
+
 
 
 def make_event(title="event_title", state=Event.APPROVED, manager=None,
@@ -596,6 +619,9 @@ class EventModelTests(TestCase):
         event = create_event()
         with self.assertRaises(ProtectedError):
             event.address_id.delete()
+
+    def test_get_ticket_name_invalid(self):
+        self.assertIs(Ticket.get_ticket_name('X'), None)
 
 
 class TicketModelTests(TestCase):
@@ -775,7 +801,7 @@ class PurchaseModelTests(TestCase):
         clean_and_save(self.purchase)
         with self.assertRaises(ValidationError):
             Purchase(event_id=create_event(title="dummy",
-                     manager=self.purchase.event_id.manager_id),
+                     manager=self.purchase.event_id.manager_id, assos=create_association("blabla")),
                      user=self.purchase.user,
                      ticket_id=self.purchase.ticket_id).full_clean()
 

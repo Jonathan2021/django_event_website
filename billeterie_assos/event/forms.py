@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput
 from guardian.shortcuts import assign_perm
+from event.tests.test_models import create_member
 
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
@@ -19,7 +20,11 @@ class AddMemberForm(forms.Form):
         queryset=User.objects.none(),
         widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}),
         required=False)
-        #maybe save here instead of in form_valid
+
+        def save(self, commit=True):
+            if self.asso is not None:
+                for user in self.cleaned_data['users']:
+                    create_member(profile=user, assos=self.asso)
 
 
 class CreateEventForm(forms.ModelForm):

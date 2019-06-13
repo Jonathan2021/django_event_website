@@ -26,12 +26,12 @@ class IndexView(generic.ListView):
 
 #Create your views here.
 
-class EventListView(generic.ListView): #Resembles Index view a lot, could use same template or something
+class EventListView(generic.ListView): 
     template_name = 'event_list.html'
     context_object_name = 'events'
 
     def get_queryset(self):
-        return Event.objects.filter(end__gt=timezone.now()).order_by('start') #Should you really see ongoing events?
+        return Event.objects.filter(end__gt=timezone.now()).order_by('start')
 
 
 class EventDetailView(generic.DetailView):
@@ -55,7 +55,7 @@ class EventCreateView(generic.CreateView):
 class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Association
     template_name = 'assos_detail.html'
-    form_class = AddMemberForm # maybe have several forms for other ranks
+    form_class = AddMemberForm
 
     def get_form_kwargs(self):
         kwargs = super(AssosDetailView, self).get_form_kwargs()
@@ -64,10 +64,6 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.get('pk')})
-
-    def get_object(self): # do I really need to override?
-        my_assos = get_object_or_404(Association, pk=self.kwargs.get('pk'))
-        return my_assos
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -99,11 +95,7 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
             return self.form_invalid(form)
 
     def form_valid(self, form): #should maybe save in the forms itself
-        asso = self.get_object()
-        users = [User.objects.get(pk=pk) for pk in self.request.POST.getlist("users", "")]
-        for user in users:
-            member = Member.objects.create(user=user, assos_id=asso) #maybe have some sort of createmember view
-            assign_perm('create_event', member.user, asso)
+        form.save()
         return super(AssosDetailView, self).form_valid(form)
 
 

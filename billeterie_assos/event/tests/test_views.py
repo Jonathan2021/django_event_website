@@ -338,11 +338,6 @@ class AssosDetailView(TestCase):
                     member=create_member(
                             profile=avrel, assos=self.asso)))
         
-
-    def test_get_object(self):
-        res = self.v.get_object()
-        self.assertEquals(res, self.asso)
-
     def test_get_form_kwargs(self):
         kwargs = self.v.get_form_kwargs()
         self.assertTrue(kwargs.get('user', None) is not None)
@@ -396,11 +391,12 @@ class AssosDetailView(TestCase):
     def test_form_valid(self):
         user1 = create_user(name='user1')
         user2 = create_user(name='user2')
-        form  = forms.AddMemberForm(asso=self.asso, user=self.user) 
         query_dict =  QueryDict('', mutable=True)
         query_dict.update({'users' : repr(user1.pk)})
         query_dict.update({'users' : repr(user2.pk)})
         self.v.request.POST = query_dict
+        form  = forms.AddMemberForm(data=query_dict, asso=self.asso, user=self.user) 
+        self.assertTrue(form.is_valid())
         self.v.form_valid(form)
 
     def test_get_wrong_pk(self):

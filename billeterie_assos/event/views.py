@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from guardian.shortcuts import assign_perm
 from django.http import Http404, HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.utils import timezone
 # from django.utils import timezone
@@ -215,7 +215,15 @@ class AssosCreateView(generic.CreateView):
 @method_decorator(decorators.can_delete_event, name='dispatch')
 class EventDelete(generic.DeleteView): #maybe get calling post is a problem, see csrf token
     model = Event
-    success_url = reverse_lazy('event:events')
+
+    def get_success_url(self):
+        url = self.request.META.get('HTTP_REFERER')
+        avoid = self.request.build_absolute_uri(reverse('event:event_detail', kwargs={'pk' : self.kwargs.get('pk')}))
+        print(avoid)
+        if (url == avoid):
+            return reverse_lazy('event:index')
+        return url
+        
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)

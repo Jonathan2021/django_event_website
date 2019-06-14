@@ -209,11 +209,7 @@ class AssosCreateView(generic.CreateView):
     template_name = 'association_new.html'
     
     def get_success_url(self):
-        return reverse_lazy('event:asso_detail', kwargs={'pk': self.asso.pk})
-
-    def form_valid(self, form):
-        self.asso = form.save(commit=True)
-        return HttpResponseRedirect(self.get_success_url())
+        return reverse_lazy('event:asso_detail', kwargs={'pk': self.object.pk})
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_delete_event, name='dispatch')

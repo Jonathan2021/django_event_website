@@ -141,7 +141,14 @@ class ProfileView(generic.ListView): #Shouldnt be a list view
 @method_decorator(decorators.can_delete_assos, name='dispatch')
 class AssosDelete(generic.DeleteView):
     model = Association
-    success_url = reverse_lazy('event:assos')
+
+    def get_success_url(self):
+        url = self.request.META.get('HTTP_REFERER', reverse('event:index'))
+        avoid = self.request.build_absolute_uri(reverse('event:asso_detail', kwargs={'pk' : self.kwargs.get('pk')}))
+        if (url == avoid):
+            return reverse_lazy('event:index')
+        return url
+     
 
     def get(self, request, *args, **kwargs):
         return self.post(request, args, kwargs)

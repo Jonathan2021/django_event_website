@@ -967,6 +967,9 @@ class EventDeleteTests(TestCase):
         events = reverse('event:events')
         request.META['HTTP_REFERER'] = events
         self.assertEqual(v.get_success_url(), events)
+        request.META = {}
+        self.assertEqual(v.get_success_url(), reverse('event:index'))
+
 
     def test_not_logged_in(self):
         response = self.client.get(self.url)

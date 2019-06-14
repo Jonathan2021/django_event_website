@@ -217,9 +217,8 @@ class EventDelete(generic.DeleteView): #maybe get calling post is a problem, see
     model = Event
 
     def get_success_url(self):
-        url = self.request.META.get('HTTP_REFERER')
+        url = self.request.META.get('HTTP_REFERER', reverse('event:index'))
         avoid = self.request.build_absolute_uri(reverse('event:event_detail', kwargs={'pk' : self.kwargs.get('pk')}))
-        print(avoid)
         if (url == avoid):
             return reverse_lazy('event:index')
         return url

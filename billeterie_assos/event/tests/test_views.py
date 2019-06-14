@@ -235,6 +235,13 @@ class EventCreateViewTests(TransactionTestCase):
         create_member(profile=self.user, assos=self.asso)
         v = setup_view(views.EventCreateView(), request, asso=self.asso.pk)
         v.get_form_kwargs()
+    
+    def test_get_success_url(self):
+        request = RequestFactory().post('blabla')
+        v = setup_view(views.EventCreateView(), request)
+        event = create_event(assos=self.asso)
+        v.object = event
+        self.assertEqual(v.get_success_url(), reverse('event:event_detail', kwargs={'pk': event.pk}))
 
     def test_not_logged_in(self):
         response = self.client.get(self.url, follow=True)
@@ -284,7 +291,8 @@ class EventCreateViewTests(TransactionTestCase):
         self.assertTrue(form.is_valid())
         self.assertQuerysetEqual(models.Event.objects.all(), [])
         response = self.client.post(self.url, form_data)
-        self.assertRedirects(response, reverse('event:assos'))
+        self.assertRedirects(response, reverse('event:event_detail',
+                                               kwargs={'pk' : 1}))
         with self.assertRaises(AssertionError):
             self.assertQuerysetEqual(models.Event.objects.all(), [])
         event = models.Event.objects.get(pk=1)
@@ -868,7 +876,7 @@ class AssosCreateViewTests(TestCase):
         request = RequestFactory().post('post')
         v = setup_view(views.AssosCreateView(), request)
         asso = create_association()
-        v.asso = asso
+        v.object = asso
         self.assertEquals(v.get_success_url(),  reverse('event:asso_detail', kwargs={'pk' : asso.pk}))
 
     def test_form_valid(self):
@@ -946,7 +954,20 @@ class EventDeleteTests(TestCase):
         self.asso = create_association()
         self.event = create_event(assos=self.asso)
         self.url = reverse('event:event_delete', kwargs={'pk' : self.event.pk})
-        
+
+    def test_get_success_url(self):
+        request = RequestFactory().post('deleting')
+        request.build_absolute_uri = lambda url : url
+        avoid = reverse('event:event_detail', kwargs={'pk' : self.event.pk})
+        meta = {'HTTP_REFERER' : avoid}
+        request.META = meta
+        v = setup_view(views.EventDelete(), request)
+        v.kwargs = {'pk' : self.event.pk}
+        self.assertEqual(v.get_success_url(), reverse('event:index'))
+        events = reverse('event:events')
+        request.META['HTTP_REFERER'] = events
+        self.assertEqual(v.get_success_url(), events)
+
     def test_not_logged_in(self):
         response = self.client.get(self.url)
         expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
@@ -964,7 +985,7 @@ class EventDeleteTests(TestCase):
         self.client.force_login(self.user)
         self.assertQuerysetEqual(models.Event.objects.all(), [repr(self.event)])
         response = self.client.get(self.url)
-        self.assertRedirects(response, reverse('event:events'))
+        self.assertRedirects(response, reverse('event:index'))
         self.assertQuerysetEqual(models.Event.objects.all(), [])
 
     def test_wrong_pk(self):
@@ -978,5 +999,5 @@ class EventDeleteTests(TestCase):
         self.client.force_login(self.user)
         self.assertQuerysetEqual(models.Event.objects.all(), [repr(self.event)])
         response = self.client.post(self.url)
-        self.assertRedirects(response, reverse('event:events'))
+        self.assertRedirects(response, reverse('event:index'))
         self.assertQuerysetEqual(models.Event.objects.all(), [])

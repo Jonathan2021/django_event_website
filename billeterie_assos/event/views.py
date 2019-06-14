@@ -143,10 +143,11 @@ class AssosDelete(generic.DeleteView):
     model = Association
 
     def get_success_url(self):
-        url = self.request.META.get('HTTP_REFERER', reverse('event:index'))
+        index = reverse('event:index')
+        url = self.request.META.get('HTTP_REFERER', index)
         avoid = self.request.build_absolute_uri(reverse('event:asso_detail', kwargs={'pk' : self.kwargs.get('pk')}))
         if (url == avoid):
-            return reverse_lazy('event:index')
+            return index
         return url
      
 
@@ -224,10 +225,11 @@ class EventDelete(generic.DeleteView): #maybe get calling post is a problem, see
     model = Event
 
     def get_success_url(self):
-        url = self.request.META.get('HTTP_REFERER', reverse('event:index'))
+        index = reverse_lazy('event:index')
+        url = self.request.META.get('HTTP_REFERER', index)
         avoid = self.request.build_absolute_uri(reverse('event:event_detail', kwargs={'pk' : self.kwargs.get('pk')}))
         if (url == avoid):
-            return reverse_lazy('event:index')
+            return index
         return url
         
 

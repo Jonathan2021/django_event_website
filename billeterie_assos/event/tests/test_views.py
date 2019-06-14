@@ -554,6 +554,23 @@ class AssosDeleteTests(TestCase):
         self.url = reverse('event:assos_delete', kwargs={'pk' : self.asso.pk})
         self.user = create_user()
 
+    def test_get_success_url(self):
+        request = RequestFactory().post('deleting')
+        request.build_absolute_uri = lambda url : url
+        avoid = reverse('event:asso_detail', kwargs={'pk' : self.asso.pk})
+        meta = {'HTTP_REFERER' : avoid}
+        request.META = meta
+        v = setup_view(views.AssosDelete(), request)
+        v.kwargs = {'pk' : self.asso.pk}
+        self.assertEqual(v.get_success_url(), reverse('event:index'))
+        assos = reverse('event:assos')
+        request.META['HTTP_REFERER'] = assos
+        self.assertEqual(v.get_success_url(), assos)
+        request.META = {}
+        self.assertEqual(v.get_success_url(), reverse('event:index'))
+
+
+
     def test_not_logged_in(self):
         response = self.client.get(self.url)
         expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
@@ -575,7 +592,7 @@ class AssosDeleteTests(TestCase):
         assign_perm('event.delete_association', self.user, self.asso)
         self.assertQuerysetEqual(models.Association.objects.all(), [repr(self.asso)])
         response = self.client.get(self.url)
-        self.assertRedirects(response, reverse('event:assos'))
+        self.assertRedirects(response, reverse('event:index'))
         self.assertQuerysetEqual(models.Association.objects.all(), [])
 
     def test_post(self):
@@ -583,7 +600,7 @@ class AssosDeleteTests(TestCase):
         assign_perm('event.delete_association', self.user, self.asso)
         self.assertQuerysetEqual(models.Association.objects.all(), [repr(self.asso)])
         response = self.client.post(self.url)
-        self.assertRedirects(response, reverse('event:assos'))
+        self.assertRedirects(response, reverse('event:index'))
         self.assertQuerysetEqual(models.Association.objects.all(), [])
 
 

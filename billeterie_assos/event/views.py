@@ -45,7 +45,10 @@ class EventCreateView(generic.CreateView):
     template_name = 'event_new.html'
     model = Event
     success_url = reverse_lazy('event:assos')
-      
+
+    def get_success_url(self):
+        return reverse_lazy('event:event_detail', kwargs={'pk' : self.object.pk})
+
     def get_form_kwargs(self):
         kwargs = super(EventCreateView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user, 'asso' : self.kwargs.pop('asso', None)})

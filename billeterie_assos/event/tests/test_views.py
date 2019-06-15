@@ -10,7 +10,6 @@ import urllib
 from django.http import QueryDict
 from guardian.shortcuts import assign_perm
 
-# Do some assertTemplateUsed
 # Should either assign perms directly or create an object with user that assign perms, idk what is better
 #When creating and deleting, should maybe make a querysetequal assert before and after, not just after
 # when testing not logged in etc. maybe test that nothing was deleted or created

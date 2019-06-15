@@ -1,6 +1,7 @@
 from django.db import models
 # from django.core.validators import validate_email
 from django.contrib.auth.models import User
+from django.core import validators
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
 import datetime
@@ -47,9 +48,17 @@ class EmailAddress(models.Model):
         verbose_name = _("Email")
         verbose_name_plural = _("Emails")
 
+class UnicodeValidator(validators.RegexValidator):
+    regex = r'^[\w.@+-]+\Z'
+    message = _(
+        'Enter a valid name for your association. This value may contain only letters, '
+        'numbers, and @/./+/-/_ characters.'
+    )
+    flags = 0
 
 class Association(models.Model):
-    name = models.CharField(_("Name"), max_length=64, unique=True)
+    name = models.CharField(_("Name"), max_length=64, unique=True,
+                            validators=[UnicodeValidator()])
 
     class Meta:
         verbose_name = _("Association")
@@ -269,7 +278,8 @@ def validate_price_for_sqlite(value):
 class Price(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=Ticket.TICKET_TYPE_CHOICES)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="Prices")
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE,
+                                 related_name="Prices")
     price = models.PositiveIntegerField(_("Price"),
                                         validators=[validate_price_for_sqlite])
 

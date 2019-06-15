@@ -11,7 +11,6 @@ from django.http import QueryDict
 from guardian.shortcuts import assign_perm
 
 # Do some assertTemplateUsed
-# testing perms, should test with get and post (in same test)
 # Should either assign perms directly or create an object with user that assign perms, idk what is better
 #When creating and deleting, should maybe make a querysetequal assert before and after, not just after
 # when testing not logged in etc. maybe test that nothing was deleted or created
@@ -30,6 +29,7 @@ class IndexViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
         self.assertQuerysetEqual(response.context['events'], [])
+        self.assertTemplateUsed(response, 'index.html')
 
     def test_no_premium(self):
         create_event(premium=False)
@@ -106,6 +106,7 @@ class EventListView(TestCase):
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, No event)
         self.assertQuerysetEqual(response.context['events'], [])
+        self.assertTemplateUsed(response, 'event_list.html')
 
 
 
@@ -114,8 +115,7 @@ class EventListView(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No event")
-        self.assertQuerysetEqual(response.context['events'], []) 
-
+        self.assertQuerysetEqual(response.context['events'], [])
 
 
     def test_future_event(self):
@@ -182,6 +182,7 @@ class EventDetailViewTests(TestCase):
     def setUp(self):
         self.event = create_event()
         self.url = reverse('event:event_detail', kwargs={'pk': self.event.pk})
+
     def test_invalid_pk(self):
         response = self.client.get(reverse('event:event_detail', kwargs={'pk': 69}))
         self.assertEqual(response.status_code, 404)
@@ -189,11 +190,10 @@ class EventDetailViewTests(TestCase):
     def test_valid_complete(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        # self.assertContains(response, event.title)
-        # self.assertContains(response, event.assos_id.name)
-        # self.assertContains(response, event.address_id.raw)
-        # etc.
+        self.assertContains(response, self.event.title)
+        self.assertContains(response, self.event.assos_id.name)
         self.assertEqual(response.context['event'], self.event)
+        self.assertTemplateUsed(response, 'event_detail.html')
 
     def test_no_manager(self):
         response = self.client.get(self.url)
@@ -259,6 +259,7 @@ class EventCreateViewTests(TransactionTestCase):
         self.client.force_login(self.user)
         response = self.client.get(self.url, follow=True)
         self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event_new.html')
 
 
     def test_wrong_asso_pk(self):
@@ -456,6 +457,7 @@ class AssosDetailView(TestCase):
         self.assertEquals(response.context['president'], self.president)
         self.assertQuerysetEqual(response.context['managers'], [repr(self.manager)])
         self.assertQuerysetEqual(response.context['members'] , [repr(self.member)]) 
+        self.assertTemplateUsed(response, 'assos_detail.html')
 
     def test_post_wrong_pk(self):
         response = self.client.post(reverse('event:asso_detail', kwargs={'pk' : 69}))
@@ -464,6 +466,7 @@ class AssosDetailView(TestCase):
     def test_correct_post(self):
         response = self.client.post(self.url)
         self.assertRedirects(response, self.url)
+        self.assertTemplateNotUsed(response, 'assos_detail.html')
 
     def test_form_with_get(self):
         user1 = create_user(name='user1')
@@ -497,6 +500,7 @@ class MyAssosViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertEquals(response.status_code, 200)
         self.assertQuerysetEqual(response.context['assos'], [])
+        self.assertTemplateUsed(response, 'assos_list.html')
 
     def test_assos_but_no_memberships(self):
         self.member.delete()
@@ -504,6 +508,7 @@ class MyAssosViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertEquals(response.status_code, 200)
         self.assertQuerysetEqual(response.context['assos'], [])
+        self.assertNotContains(response, self.asso.name)
 
     def test_memberships(self):
         self.client.force_login(self.user)
@@ -535,6 +540,7 @@ class AssosViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertEquals(response.status_code, 200)
         self.assertQuerysetEqual(response.context['assos'], [])
+        self.assertTemplateUsed(response, 'assos_list.html')
 
     def test_assos_and_ordering(self):
         asso_1 = create_association(name="salut")
@@ -950,6 +956,13 @@ class AssosCreateViewTests(TestCase):
         form = forms.AssociationForm(data=form_data)
         self.assertFalse(form.is_valid())
         response = self.client.post(self.url, form_data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get(self):
+        self.client.force_login(self.user)
+        assign_perm('event.add_association', self.user)
+        response = self.client.get(self.url)
+        self.assertTemplateUsed(response, 'association_new.html')
         self.assertEqual(response.status_code, 200)
 
     def test_logged_in_with_perms_get(self):

@@ -15,8 +15,6 @@ from django.utils.decorators import method_decorator
 
 # Create your views here.
 
-# redirect to HTTP_REFERER in some cases https://stackoverflow.com/questions/35796195/how-to-redirect-to-previous-page-in-django-after-post-request/35796559
-
 class IndexView(generic.ListView):
     template_name = 'index.html'
     context_object_name = 'events'

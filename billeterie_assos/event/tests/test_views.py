@@ -13,6 +13,7 @@ from guardian.shortcuts import assign_perm
 # Should either assign perms directly or create an object with user that assign perms, idk what is better
 #When creating and deleting, should maybe make a querysetequal assert before and after, not just after
 # when testing not logged in etc. maybe test that nothing was deleted or created
+# maybe call setUpTestData instead of SetUp in some cases
 
 class IndexViewTests(TestCase):
     def setUp(self):
@@ -176,6 +177,11 @@ class EventListView(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, 'Delete')
 
+    def test_event_creation_link(self):
+        member = create_member()
+        self.client.force_login(member.user)
+        response = self.client.get(self.url)
+        self.assertContains(response, 'Create an Event')
 
 class EventDetailViewTests(TestCase):
     def setUp(self):
@@ -217,12 +223,8 @@ class EventDetailViewTests(TestCase):
         self.assertContains(response, 'Delete')
 
 
-
-
-
 class EventCreateViewTests(TransactionTestCase):
     def setUp(self):
-        super(EventCreateViewTests, self).setUp()
         self.user = create_user()
         self.asso = create_association()
         self.url = reverse('event:event_creation', kwargs={'asso' : self.asso.pk })
@@ -287,19 +289,112 @@ class EventCreateViewTests(TransactionTestCase):
                 'staff_number': 0,
                 'staff_price': 0
                 }
-        form = forms.CreateEventForm(data=form_data, user=self.user)
+        form = forms.CreateEventForm(data=form_data, user=self.user, asso=self.asso.pk)
         self.assertTrue(form.is_valid())
         self.assertQuerysetEqual(models.Event.objects.all(), [])
         response = self.client.post(self.url, form_data)
+        self.assertEqual(len(models.Event.objects.all()), 1)
+        event = models.Event.objects.all().first()
         self.assertRedirects(response, reverse('event:event_detail',
-                                               kwargs={'pk' : 1}))
-        with self.assertRaises(AssertionError):
-            self.assertQuerysetEqual(models.Event.objects.all(), [])
-        event = models.Event.objects.get(pk=1)
+                                               kwargs={'pk' : event.pk}))
         self.assertEquals(event.title, form_data['title'])
 
     def test_create_get(self):
         create_member(profile=self.user, assos=self.asso)
+        self.client.force_login(self.user)
+        form_data = {
+                'title': 'test',
+                'event_state': models.Event.PENDING,
+                'manager_id': "",
+                'start': '2019-12-25 14:30',
+                'end': '2019-12-25 17:30',
+                'assos_id': self.asso.pk,
+                'address_id': "69 rue de la baise",
+                'premium_flag': True,
+                'intern_number': 0,
+                'intern_price': 0,
+                'extern_number': 0,
+                'extern_price': 0,
+                'staff_number': 0,
+                'staff_price': 0,
+                }
+        form = forms.CreateEventForm(data=form_data, user=self.user, asso=self.asso.pk)
+        self.assertTrue(form.is_valid())
+        response = self.client.get(self.url, form_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(models.Event.objects.all(), [])
+       
+        
+class EventCreateGeneralViewTests(TransactionTestCase):
+    def setUp(self):
+        self.member = create_member()
+        self.user = self.member.user
+        self.asso = self.member.assos_id
+        self.url = reverse('event:general_event_creation')
+
+    def test_get_form_kwargs(self):
+        request = RequestFactory().get('/bonjour/toi')
+        request.user = self.user
+        self.client.force_login(self.user)
+        v = setup_view(views.EventCreateView(), request, asso=self.asso.pk)
+        my_dict = v.get_form_kwargs()
+        self.assertTrue(my_dict.pop('user', None) is not None)
+
+    def test_get_success_url(self):
+        request = RequestFactory().post('blabla')
+        v = setup_view(views.EventCreateView(), request)
+        event = create_event(assos=self.asso)
+        v.object = event
+        self.assertEqual(v.get_success_url(), reverse('event:event_detail', kwargs={'pk': event.pk}))
+
+    def test_not_logged_in(self):
+        response = self.client.get(self.url, follow=True)
+        expected_url = reverse('login') + '?next=' + urllib.parse.quote(self.url, "")
+        self.assertRedirects(response, expected_url)
+
+
+    def test_user_not_member(self):
+        self.client.force_login(self.user)
+        self.member.delete()
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 403)
+
+    def test_user_is_member(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url, follow=True)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, 'event_new.html')
+
+
+    def test_creation_post(self):
+        self.client.force_login(self.user)
+        form_data = {
+                'title': 'test',
+                'event_state': models.Event.PENDING,
+                'manager_id': "",
+                'start': '2019-12-25 14:30',
+                'end': '2019-12-25 17:30',
+                'assos_id': self.asso.pk,
+                'address_id': "69 rue de la baise",
+                'premium_flag': True,
+                'intern_number': 0,
+                'intern_price': 0,
+                'extern_number': 0,
+                'extern_price': 0,
+                'staff_number': 0,
+                'staff_price': 0
+                }
+        form = forms.CreateEventForm(data=form_data, user=self.user)
+        self.assertTrue(form.is_valid())
+        self.assertQuerysetEqual(models.Event.objects.all(), [])
+        response = self.client.post(self.url, form_data)
+        self.assertEqual(len(models.Event.objects.all()), 1)
+        event = models.Event.objects.all().first()
+        self.assertRedirects(response, reverse('event:event_detail',
+                                               kwargs={'pk' : event.pk}))
+        self.assertEquals(event.title, form_data['title'])
+
+    def test_create_get(self):
         self.client.force_login(self.user)
         form_data = {
                 'title': 'test',
@@ -322,12 +417,10 @@ class EventCreateViewTests(TransactionTestCase):
         response = self.client.get(self.url, form_data)
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(models.Event.objects.all(), [])
-       
-        
+ 
 
 class AssosDetailView(TestCase):
     def setUp(self):
-        super(AssosDetailView, self).setUp()
         self.user = create_user()
         self.asso = create_association()
         self.url = reverse('event:asso_detail', kwargs={'pk' : self.asso.pk})

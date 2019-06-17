@@ -49,7 +49,7 @@ class EmailAddress(models.Model):
         verbose_name_plural = _("Emails")
 
 class UnicodeValidator(validators.RegexValidator):
-    regex = r'^[\w.@+-]+\Z'
+    regex = r'^[\s\w.@+-]+\Z'
     message = _(
         'Enter a valid name for your association. This value may contain only letters, '
         'numbers, and @/./+/-/_ characters.'
@@ -59,6 +59,7 @@ class UnicodeValidator(validators.RegexValidator):
 class Association(models.Model):
     name = models.CharField(_("Name"), max_length=64, unique=True,
                             validators=[UnicodeValidator()])
+    url = models.URLField(_("Association's website"), null=True, blank=True)
 
     class Meta:
         verbose_name = _("Association")

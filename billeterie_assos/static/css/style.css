@@ -125,3 +125,11 @@ tr{
 td{
     padding-left:10px;
 }
+
+.errorlist{
+    color: red;
+}
+
+.error input, .error select {
+    border: 2px red solid;
+}

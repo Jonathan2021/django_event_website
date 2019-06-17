@@ -6,6 +6,9 @@
     {% get_obj_perms user for object as "assos_perms" %}
     <div style="font-size:1.1rem;"class="container basic-block">
         <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{object.name}}</h1>
+        {% if object.url != None %}
+            <a href={{object.url}}>Go to their website</a>
+        {% endif %}
         {% if president %}
         <div class="row">
             <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">

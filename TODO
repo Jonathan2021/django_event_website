@@ -24,16 +24,12 @@ Calendar
 
 Event deletion in event_list etc. should be perms per object
 
-clicking on my_space when not logged in redirects to login page
-
 Maybe create Price if ticket number is 0 but still has price
 
-Style pop-up confirmation
-
-add models in admin
-
-Add url field to redirect to asso website
+Style pop-up confirmation, for that don't use the browser's confirm()
 
 Complete tests with comments at the top (tests.test_views.py)
 
 Complete views with comments
+
+The div class container with lots of style should probably be in base.html or smthing instead of rewritting it all the time

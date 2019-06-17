@@ -4,6 +4,18 @@ from . import models
 from functools import wraps
 
 
+def has_memberships(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if request.user.memberships.all():
+            return function(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+    return wrap
+
+# Maybe fuse has_memberships and can_create_event
+
+
 def can_create_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):

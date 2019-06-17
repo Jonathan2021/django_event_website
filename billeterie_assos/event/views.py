@@ -51,7 +51,23 @@ class EventCreateView(generic.CreateView):
         kwargs = super(EventCreateView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user, 'asso' : self.kwargs.pop('asso', None)})
         return kwargs
-    
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.has_memberships, name='dispatch') #could return Permission denied in form directly
+class EventCreateGeneralView(generic.CreateView):
+    form_class = CreateEventForm
+    template_name = 'event_new.html'
+    model = Event
+
+    def get_success_url(self):
+        return reverse_lazy('event:event_detail', kwargs={'pk' : self.object.pk})
+
+    def get_form_kwargs(self):
+        kwargs = super(EventCreateGeneralView, self).get_form_kwargs()
+        kwargs.update({'user' : self.request.user})
+        return kwargs
+
 
 class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Association

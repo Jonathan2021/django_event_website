@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Member, Manager, President, Profile, Association, Event, Ticket, Price
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput
 from guardian.shortcuts import assign_perm
@@ -30,8 +30,13 @@ class AddMemberForm(forms.Form):
 class CreateEventForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        self.asso = kwargs.pop('asso', None)
         self.user = kwargs.pop('user')
+        """
+        self.user = kwargs.pop('user', None) # Should never be None
+        if self.user is None:
+            raise PermissionDenied # Idk if this is the right error I should raise
+        """
+        self.asso = kwargs.pop('asso', None)
         super(CreateEventForm, self).__init__(*args, **kwargs)
         self.fields['start'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
         self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
@@ -39,8 +44,14 @@ class CreateEventForm(forms.ModelForm):
         self.fields['address_id'].label = _("Address")
         asso_field.label = _("Association")
         if (self.asso is not None):
+            """
+            if not self.user.has_perm('create_event', self.asso):
+                raise PermissionDenied # Or maybe all this should be tested in the views
+            """
             asso_field.initial = self.asso
             asso_field.disabled = True
+        else:
+            asso_field.queryset = Association.objects.filter(id__in=self.user.memberships.all().values_list('assos_id', flat=True))
         if (not self.user.has_perm('event.change_state')):
             state_field = self.fields['event_state']
             state_field.initial = Event.PENDING

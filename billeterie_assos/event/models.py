@@ -203,7 +203,8 @@ class Event(models.Model):
                                    null=True, blank=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
-    ticket_deadline = models.DateTimeField(_("Deadline to buy tickets"))
+    ticket_deadline = models.DateTimeField(_("Deadline to buy tickets"),
+                                           null=True, blank=True)
     # tests for this field
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
                                  related_name='events')
@@ -239,6 +240,8 @@ class Event(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        if self.ticket_deadline is None:
+            self.ticket_deadline = self.start # should maybe use signals
         super(Event, self).save(*args, **kwargs)
         try:
             pres = self.assos_id.president

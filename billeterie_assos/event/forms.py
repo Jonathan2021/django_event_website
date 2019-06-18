@@ -62,7 +62,6 @@ class CreateEventForm(forms.ModelForm):
     extern_number = forms.IntegerField(label=_("Number of tickets for externs"), min_value=0, initial=0)
     extern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
     staff_number = forms.IntegerField(label=_("Number of tickets for staff"), min_value=0, initial=0)
-    staff_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
 
     class Meta:
         model = Event
@@ -76,7 +75,6 @@ class CreateEventForm(forms.ModelForm):
             staff_number = self.cleaned_data['staff_number']
             intern_price = self.cleaned_data['intern_price']
             extern_price = self.cleaned_data['extern_price']
-            staff_price = self.cleaned_data['staff_price']
             for i in range(intern_number):
                 Ticket.objects.create(ticket_type=Ticket.INTERN, event_id=event)
             for i in range(extern_number):
@@ -88,7 +86,7 @@ class CreateEventForm(forms.ModelForm):
         if (extern_number):
             Price.objects.create(ticket_type=Ticket.EXTERN, event_id=event, price=extern_price)
         if (staff_number):
-            Price.objects.create(ticket_type=Ticket.STAFF, event_id=event, price=staff_price)
+            Price.objects.create(ticket_type=Ticket.STAFF, event_id=event, price=0)
         return event
 
 

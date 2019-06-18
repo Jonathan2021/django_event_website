@@ -45,3 +45,5 @@ possibilité de passer un évenement à premium
 Test when perm are removed etc.
 
 Use signal handlers
+
+Maybe override save() in models so that it calls fullclean first

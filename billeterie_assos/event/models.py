@@ -203,6 +203,7 @@ class Event(models.Model):
                                    null=True, blank=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
+    ticket_deadline = models.DateTimeField(_("Deadline to buy tickets"))
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
                                  related_name='events')
     address_id = AddressField(on_delete=models.PROTECT)
@@ -211,13 +212,19 @@ class Event(models.Model):
     image = models.ImageField(_("Event's cover image"),
                               default='event_pics/default.jpg',
                               upload_to='event_pics/uploads/',
-                              blank=True, null=True)
+                              blank=True, null=True)  # tests for this field
 
     def clean(self):
         super(Event, self).clean()
-        if self.start is not None and self.end is not None and\
-                self.start >= self.end:
-            raise ValidationError(_('Your event should end after it starts.'))
+        if self.start is not None:
+            if self.ticket_deadline is not None and \
+                    self.ticket_deadline > self.start:
+                raise ValidationError(_(
+                    'Ticket deadline should be before the start.'))
+            if self.end is not None and\
+                    self.start >= self.end:
+                raise ValidationError(_(
+                    'Your event should end after it starts.'))
 
     class Meta:
         verbose_name = (_("Event"))

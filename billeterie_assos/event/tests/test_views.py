@@ -14,6 +14,7 @@ from guardian.shortcuts import assign_perm
 #When creating and deleting, should maybe make a querysetequal assert before and after, not just after
 # when testing not logged in etc. maybe test that nothing was deleted or created
 # maybe call setUpTestData instead of SetUp in some cases
+# TEST IF YOUR PERMS ARE REMOVED ETC...
 
 class IndexViewTests(TestCase):
     def setUp(self):

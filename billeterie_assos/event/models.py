@@ -204,6 +204,7 @@ class Event(models.Model):
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
     ticket_deadline = models.DateTimeField(_("Deadline to buy tickets"))
+    # tests for this field
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
                                  related_name='events')
     address_id = AddressField(on_delete=models.PROTECT)
@@ -213,6 +214,8 @@ class Event(models.Model):
                               default='event_pics/default.jpg',
                               upload_to='event_pics/uploads/',
                               blank=True, null=True)  # tests for this field
+    see_remaining = models.BooleanField(_("See remaining tickets"),
+                                        default=False)
 
     def clean(self):
         super(Event, self).clean()
@@ -306,6 +309,11 @@ class Price(models.Model):
     def __str__(self):
         return _('%s: %d') % (Ticket.get_ticket_name(self.ticket_type),
                               self.price)
+
+    def clean(self):
+        super(Price, self).clean()
+        if self.ticket_type == Ticket.STAFF and self.price != 0:
+            raise ValidationError(_("Staff tickets should be free"))  # test it
 
 
 class Purchase(models.Model):

@@ -43,7 +43,7 @@ class IndexViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         # self.assertContains(response, "No Premium event")
-        self.assertQuerysetEqual(response.context['events'], []) 
+        self.assertQuerysetEqual(response.context['events'], [])
 
     def test_future_premium_event(self):
         event = create_event(start=create_date_time(days=1), premium=True)
@@ -52,7 +52,7 @@ class IndexViewTests(TestCase):
         # self.assertContains(response, event.title)
         self.assertQuerysetEqual(response.context['events'],
                                 [repr(event)])
-        
+
 
     def test_past_and_future(self):
         past = create_event(start=create_date_time(days=-1), premium=True)

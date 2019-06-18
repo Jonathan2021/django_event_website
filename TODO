@@ -33,3 +33,5 @@ Complete tests with comments at the top (tests.test_views.py)
 Complete views with comments
 
 The div class container with lots of style should probably be in base.html or smthing instead of rewritting it all the time
+
+Add test for image field in model and view for the Event

@@ -22,7 +22,8 @@ def validate_birth(value):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    image = models.ImageField(default='profile_pics/default.jpg',
+                              upload_to='profile_pics/uploads/')
     gender = models.BooleanField(_("Gender"), null=True, blank=True)
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth],
                                   null=True, blank=True)
@@ -183,6 +184,7 @@ class Event(models.Model):
 
     PENDING = 'P'
     APPROVED = 'A'
+    VALIDATED = 'V'
     REFUSED = 'R'
     CANCELED = 'C'
     EVENT_STATE_CHOICES = (
@@ -190,6 +192,7 @@ class Event(models.Model):
         (APPROVED, _("Approved")),
         (REFUSED, _("Refused")),
         (CANCELED, _("Canceled")),
+        (VALIDATED, _("Validated by the president")),
     )
 
     title = models.CharField(_("Title of the event"), max_length=64)
@@ -205,6 +208,10 @@ class Event(models.Model):
     address_id = AddressField(on_delete=models.PROTECT)
     # default=epita's address
     premium_flag = models.BooleanField(_("Premium"), default=False)
+    image = models.ImageField(_("Event's cover image"),
+                              default='event_pics/default.jpg',
+                              upload_to='event_pics/uploads/',
+                              blank=True, null=True)
 
     def clean(self):
         super(Event, self).clean()
@@ -225,7 +232,7 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
         try:
             pres = self.assos_id.president
-            assign_perm('event.delete_event', pres.user, self)
+            assign_perm('event.delete_event', pres.user, self)  # if president changes, must remove rights etc... So this should be a perm given in President
         except President.DoesNotExist:
             pass
 

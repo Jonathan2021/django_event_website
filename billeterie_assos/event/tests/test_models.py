@@ -744,6 +744,12 @@ class PriceModelTests(TestCase):
         with self.assertRaises(Price.DoesNotExist):
             Price.objects.get(pk=self.price.id)
 
+    def test_not_free_staff(self):
+        self.price.ticket_type = Ticket.STAFF
+        self.price.price = 3
+        with self.assertRaises(ValidationError):
+            self.price.full_clean()
+
 
 class PurchaseModelTests(TestCase):
     def setUp(self):

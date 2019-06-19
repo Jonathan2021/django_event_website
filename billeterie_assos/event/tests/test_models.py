@@ -1,5 +1,6 @@
 from django.test import TestCase
 import unittest
+from nose.tools import raises
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
 import datetime
@@ -241,6 +242,13 @@ class MemberModelTests(TestCase):
         with self.assertRaises(Member.DoesNotExist):
             Member.objects.get(pk=self.member.id)
 
+    def test_perms(self):
+        clean_and_save(self.member)
+        user = self.member.user
+        self.assertTrue(user.has_perm('create_event', self.member.assos_id))
+        self.member.delete()
+        self.assertFalse(user.has_perm('create_event', self.member.assos_id))
+
 
 def create_member(assos=None, profile=None):
     assos = create_association() if assos is None else assos
@@ -341,6 +349,17 @@ class ManagerModelTests(TestCase):
         manager = Manager(member=self.member)
         with self.assertRaises(ValidationError):
             manager.full_clean()
+
+    def test_perms(self):
+        manager = Manager(assos_id=self.member.assos_id,
+                          user=self.member.user)
+        clean_and_save(manager)
+        user = manager.user
+        self.assertTrue(user.has_perm('manage_member', manager.assos_id))
+        self.assertTrue(user.has_perm('choose_staff', manager.assos_id))
+        manager.delete()
+        self.assertFalse(user.has_perm('manage_member', manager.assos_id))
+        self.assertFalse(user.has_perm('choose_staff', manager.assos_id))
 
 
 def create_manager(member=None):
@@ -455,6 +474,18 @@ class PresidentModelTests(TestCase):
         president = President(manager=self.manager)
         self.assertEqual(president.__str__(), "%s from %s" % (
                          president.user.username, president.assos_id.name))
+
+    def test_perms(self):
+        president = President(manager=self.manager)
+        clean_and_save(president)
+        user = president.user
+        self.assertTrue(user.has_perm('manage_manager', president.assos_id))
+        self.assertTrue(user.has_perm('delete_association', president.assos_id))
+        self.assertTrue(user.has_perm('change_association', president.assos_id))
+        president.delete()
+        self.assertFalse(user.has_perm('manage_manager', president.assos_id))
+        self.assertFalse(user.has_perm('delete_association', president.assos_id))
+        self.assertFalse(user.has_perm('change_association', president.assos_id))
 
 
 def make_event(title="event_title", state=Event.APPROVED, manager=None,

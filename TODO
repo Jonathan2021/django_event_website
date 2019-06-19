@@ -47,3 +47,9 @@ Test when perm are removed etc.
 Use signal handlers
 
 Maybe override save() in models so that it calls fullclean first
+
+Do class Methods
+
+Redo validationError that specify fields, tell values etc..
+
+Test that permissions are given in models

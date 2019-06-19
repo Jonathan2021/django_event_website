@@ -21,3 +21,5 @@ UPGARDING TO MEMBRE DE BUREAU FAIL!
 Maybe instead of testing if user.memberships is empty or not etc. make a query to get all assos where user has create_event perms
 
 When clicking in input field in forms, it shouldn't be red
+
+Should you really allow None image in event model?

@@ -459,7 +459,9 @@ class PresidentModelTests(TestCase):
 
 def make_event(title="event_title", state=Event.APPROVED, manager=None,
                assos=None, address=None, start=None, end=None, premium=False,
-               ticket_deadline=None, image=None, see_remaining=False):
+               ticket_deadline=None,
+               image=Event._meta.get_field('image').get_default(),
+               see_remaining=False):
     if assos is None:
         assos = manager.assos_id if manager is not None else \
                     create_association()
@@ -478,7 +480,8 @@ def make_event(title="event_title", state=Event.APPROVED, manager=None,
 
 def create_event(title="event_title", state=Event.APPROVED, manager=None,
                  assos=None, address=None, start=None, end=None,
-                 premium=False, ticket_deadline=None, image=None,
+                 premium=False, ticket_deadline=None,
+                 image=Event._meta.get_field('image').get_default(),
                  see_remaining=False):
     event = make_event(title, state, manager, assos, address, start,
                        end, premium, ticket_deadline, image, see_remaining)
@@ -603,7 +606,10 @@ class EventModelTests(TestCase):
             create_event(see_remaining=None)
 
     def test_none_image(self):
-        create_event()
+        event = make_event()
+        event.image = None
+        with self.assertRaises(ValidationError):
+            event.full_clean()
 
     def test_default_image(self):
         event = make_event()

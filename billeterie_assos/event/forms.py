@@ -65,7 +65,7 @@ class CreateEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['title', 'event_state', 'manager_id', 'start', 'end', 'assos_id', 'address_id', 'premium_flag', 'image', 'ticket_deadline']
+        fields = ['title', 'event_state', 'manager_id', 'start', 'end', 'assos_id', 'address_id', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
 
     def save(self, commit=True):
         event = super(CreateEventForm, self).save(commit=commit)

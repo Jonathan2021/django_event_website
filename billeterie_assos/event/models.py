@@ -267,7 +267,8 @@ class Ticket(models.Model):
 
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=TICKET_TYPE_CHOICES)
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE,
+                                 related_name='tickets')
 
     def has_event(self):
         try:
@@ -319,9 +320,11 @@ class Price(models.Model):
 
 
 class Purchase(models.Model):
-    event_id = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event, on_delete=models.CASCADE,
+                                 related_name='participants')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ticket_id = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    ticket_id = models.OneToOneField(Ticket, on_delete=models.CASCADE,
+                                     related_name='purchase')
 
     def has_ticket(self):
         try:

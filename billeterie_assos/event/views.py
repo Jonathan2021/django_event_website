@@ -7,7 +7,8 @@ from django.utils import timezone
 # from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import Event, Association, Member, President, Manager
+from .models import Event, Association, Member, President, Manager, Ticket,\
+        Purchase
 from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.models import User
 from . import decorators
@@ -35,6 +36,30 @@ class EventListView(generic.ListView):
 class EventDetailView(generic.DetailView):
     model = Event
     template_name = 'event_detail.html'
+
+    def get_context_data(self, **kwargs): # test it in views
+        context = super().get_context_data(**kwargs)
+        event = self.get_object()
+        if event.see_remaining:
+            all_tickets = event.tickets.all()
+            external_left = 0
+            internal_left = 0
+            staff_left = 0
+            for ticket in all_tickets:
+                try:
+                    ticket.purchase
+                except Purchase.DoesNotExist:
+                    if ticket.ticket_type == Ticket.EXTERN:
+                        external_left += 1
+                    if ticket.ticket_type == Ticket.INTERN:
+                        internal_left += 1
+                    if ticket.ticket_type == Ticket.STAFF:
+                        staff_left += 1
+            context['extern_left'] = external_left
+            context['intern_left'] = internal_left
+            context['staff_left'] = staff_left
+        return context
+
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_create_event, name='dispatch')

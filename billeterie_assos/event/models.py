@@ -213,8 +213,7 @@ class Event(models.Model):
     premium_flag = models.BooleanField(_("Premium"), default=False)
     image = models.ImageField(_("Event's cover image"),
                               default='event_pics/default.jpg',
-                              upload_to='event_pics/uploads/',
-                              blank=True, null=True)  # tests for this field
+                              upload_to='event_pics/uploads/')
     see_remaining = models.BooleanField(_("See remaining tickets"),
                                         default=False)
 
@@ -316,7 +315,7 @@ class Price(models.Model):
     def clean(self):
         super(Price, self).clean()
         if self.ticket_type == Ticket.STAFF and self.price != 0:
-            raise ValidationError(_("Staff tickets should be free"))  # test it
+            raise ValidationError({'price': _("Staff tickets should be free")})
 
 
 class Purchase(models.Model):

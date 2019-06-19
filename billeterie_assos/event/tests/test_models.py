@@ -1,4 +1,6 @@
 from django.test import TestCase
+import unittest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
 import datetime
 from django.utils import timezone
@@ -456,7 +458,8 @@ class PresidentModelTests(TestCase):
 
 
 def make_event(title="event_title", state=Event.APPROVED, manager=None,
-               assos=None, address=None, start=None, end=None, premium=False):
+               assos=None, address=None, start=None, end=None, premium=False,
+               ticket_deadline=None, image=None, see_remaining=False):
     if assos is None:
         assos = manager.assos_id if manager is not None else \
                     create_association()
@@ -466,14 +469,19 @@ def make_event(title="event_title", state=Event.APPROVED, manager=None,
     return Event(title=title, event_state=state,
                  manager_id=manager, assos_id=assos,
                  address_id=address, start=start, end=end,
-                 premium_flag=premium)
+                 premium_flag=premium,
+                 ticket_deadline=ticket_deadline,
+                 image=image,
+                 see_remaining=see_remaining
+                 )
 
 
 def create_event(title="event_title", state=Event.APPROVED, manager=None,
                  assos=None, address=None, start=None, end=None,
-                 premium=False):
+                 premium=False, ticket_deadline=None, image=None,
+                 see_remaining=False):
     event = make_event(title, state, manager, assos, address, start,
-                       end, premium)
+                       end, premium, ticket_deadline, image, see_remaining)
     clean_and_save(event)
     return event
 
@@ -575,6 +583,40 @@ class EventModelTests(TestCase):
     def test_get_ticket_name_invalid(self):
         self.assertIs(Ticket.get_ticket_name('X'), None)
 
+    def test_null_ticket_deadline(self):
+        event = create_event(ticket_deadline=None)
+        self.assertEqual(event.start, event.ticket_deadline)
+
+    def test_late_ticket_deadline(self):
+        event = make_event()
+        event.ticket_deadline = event.end
+        with self.assertRaises(ValidationError):
+            event.full_clean()
+
+    def test_past_ticket_deadline(self):
+        event = make_event()
+        event.ticket_deadline = event.start + datetime.timedelta(days=-1)
+        event.full_clean()
+
+    def test_see_remaining_is_null(self):
+        with self.assertRaises(ValidationError):
+            create_event(see_remaining=None)
+
+    def test_none_image(self):
+        create_event()
+
+    def test_default_image(self):
+        event = make_event()
+        event.image = Event._meta.get_field('image').get_default()
+        event.full_clean()
+        event.save()
+
+    @unittest.expectedFailure
+    def test_non_existent_image(self): # Pas fou, c est simpleuploaded qui fail
+        event = make_event()
+        event.image = SimpleUploadedFile(name='test_image.jpg', content=open('wrong/path', 'rb').read(), content_type='image/jpeg')
+        event.full_clean()
+        event.save()
 
 class TicketModelTests(TestCase):
     def setUp(self):

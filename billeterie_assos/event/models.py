@@ -223,8 +223,8 @@ class Event(models.Model):
         if self.start is not None:
             if self.ticket_deadline is not None and \
                     self.ticket_deadline > self.start:
-                raise ValidationError(_(
-                    'Ticket deadline should be before the start.'))
+                raise ValidationError({'ticket_deadline': _(
+                    'Ticket deadline should be before the start.')})
             if self.end is not None and\
                     self.start >= self.end:
                 raise ValidationError(_(

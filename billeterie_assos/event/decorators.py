@@ -5,31 +5,19 @@ from functools import wraps
 from guardian.shortcuts import get_objects_for_user
 
 
-def has_memberships(function):
-    @wraps(function)
-    def wrap(request, *args, **kwargs):
-        if request.user.memberships.all():
-            return function(request, *args, **kwargs)
-        else:
-            raise PermissionDenied
-    return wrap
-
-# Maybe fuse has_memberships and can_create_event
-
-
 def can_create_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         pk = kwargs.get('asso', None)
         if pk is not None:
             asso = get_object_or_404(models.Association, pk=pk)
-            if request.user.has_perm('create_event', asso):
+            if request.user.has_perm('create_event', asso) or \
+                    request.user.has_perm('event.create_event'):
                 return function(request, *args, **kwargs)
         elif get_objects_for_user(request.user, 'create_event',
                                   models.Association.objects.all()):
             return function(request, *args, **kwargs)
-        else:
-            raise PermissionDenied
+        raise PermissionDenied
     return wrap
 
 
@@ -37,7 +25,8 @@ def can_delete_assos(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         asso = get_object_or_404(models.Association, pk=kwargs['pk'])
-        if request.user.has_perm('delete_association', asso):
+        if request.user.has_perm('delete_association', asso) or \
+                request.user.has_perm('event.delete_association'):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -48,7 +37,8 @@ def can_delete_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         event = get_object_or_404(models.Event, pk=kwargs['pk'])
-        if request.user.has_perm('delete_event', event):
+        if request.user.has_perm('delete_event', event) or \
+                request.user.has_perm('event.delete_event'):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -59,7 +49,8 @@ def can_manage_member(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         asso = get_object_or_404(models.Association, pk=kwargs['asso_pk'])
-        if request.user.has_perm('manage_member', asso):
+        if request.user.has_perm('manage_member', asso) or \
+                request.user.has_perm('event.manage_member'):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
@@ -70,7 +61,8 @@ def can_manage_manager(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         asso = get_object_or_404(models.Association, pk=kwargs['asso_pk'])
-        if request.user.has_perm('manage_manager', asso):
+        if request.user.has_perm('manage_manager', asso) or \
+                request.user.has_perm('event.manage_manager'):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied

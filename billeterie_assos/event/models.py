@@ -213,6 +213,7 @@ class Boss(SingletonModel):
         assign_perm('event.choose_premium', self.user)
         assign_perm('event.approve_event', self.user)
         assign_perm('event.cancel_event', self.user)
+        assign_perm('event.delete_association', self.user)
 
     def delete(self):
         remove_perm('event.create_event', self.user)
@@ -225,6 +226,7 @@ class Boss(SingletonModel):
         remove_perm('event.choose_premium', self.user)
         remove_perm('event.approve_event', self.user)
         remove_perm('event.cancel_event', self.user)
+        remove_perm('event.delete_association', self.user)
         super(Boss, self).delete()
 
 

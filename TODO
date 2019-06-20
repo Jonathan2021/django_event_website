@@ -55,3 +55,9 @@ Redo validationError that specify fields, tell values etc..
 Maybe self.fail() all cases supposed to fail() and add unittest expectedfail decorator
 
 Add links from ticket remaining to shop in event detail html
+
+Generate xls with participants
+
+ics format for events
+
+xls format for stats

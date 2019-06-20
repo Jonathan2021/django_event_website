@@ -21,7 +21,7 @@ class IndexView(generic.ListView):
     context_object_name = 'events'
 
     def get_queryset(self):
-        return Event.objects.filter(premium_flag=True).exclude(start__lte=timezone.now()).order_by('start')
+        return Event.objects.filter(start__gt=timezone.now(), premium_flag=True, event_state=Event.APPROVED).order_by('start')
 
 #Create your views here.
 
@@ -30,7 +30,7 @@ class EventListView(generic.ListView):
     context_object_name = 'events'
 
     def get_queryset(self):
-        return Event.objects.filter(end__gt=timezone.now()).order_by('start')
+        return Event.objects.filter(end__gt=timezone.now(), event_state=Event.APPROVED).order_by('start')
 
 
 class EventDetailView(generic.DetailView):

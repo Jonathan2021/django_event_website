@@ -73,6 +73,8 @@ class Association(models.Model):
             ('manage_manager', 'User can add and remove managers'),
             ('modify_event', 'User can modify an event'),
             ('cancel_event', 'User can cancel an event'),
+            ('validate_event',
+             'User can validate event and make it available for approval')
             # ('manage_president', 'User can modify the president'),
         )
 
@@ -176,6 +178,7 @@ exist, it was probably deleted")})
         assign_perm('change_association', self.user, self.assos_id)
         assign_perm('modify_event', self.user, self.assos_id)
         assign_perm('cancel_event', self.user, self.assos_id)
+        assign_perm('validate_event', self.user, self.assos_id)
 
     def delete(self):
         remove_perm('manage_manager', self.user, self.assos_id)
@@ -183,6 +186,7 @@ exist, it was probably deleted")})
         remove_perm('change_association', self.user, self.assos_id)
         remove_perm('modify_event', self.user, self.assos_id)
         remove_perm('cancel_event', self.user, self.assos_id)
+        remove_perm('validate_event', self.user, self.assos_id)
         super(President, self).delete()
 
 
@@ -242,6 +246,7 @@ class Event(models.Model):
         permissions = (
             ('access_dashboard', 'User can access this event\'s dashboard'),
             ('change_state', 'User can the event\'s state'),
+            ('choose_premium', 'User can make an event premium or not'),
         )
 
     def save(self, *args, **kwargs):

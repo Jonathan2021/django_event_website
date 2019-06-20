@@ -4,9 +4,10 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Member, Manager, President, Profile, Association, Event, Ticket, Price
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils.translation import ugettext_lazy as _
-from django.forms.widgets import DateTimeInput
+from django.forms.widgets import DateTimeInput, HiddenInput
 from guardian.shortcuts import assign_perm
 from event.tests.test_models import create_member
+
 
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
@@ -51,11 +52,9 @@ class CreateEventForm(forms.ModelForm):
             asso_field.initial = self.asso
             asso_field.disabled = True
         else:
-            asso_field.queryset = Association.objects.filter(id__in=self.user.memberships.all().values_list('assos_id', flat=True))
-        if (not self.user.has_perm('event.change_state')):
-            state_field = self.fields['event_state']
-            state_field.initial = Event.PENDING
-            state_field.disabled = True
+            asso_field.queryset = Association.objects.filter(id__in=self.user.memberships.all().values_list('assos_id', flat=True)) # should be all where you have create perms
+        if not self.user.has_perm('choose_premium'):
+            self.fields['premium_flag'].widget = HiddenInput()
 
     intern_number = forms.IntegerField(label=_("Number of tickets for interns"), min_value=0, initial=0)
     intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
@@ -65,11 +64,16 @@ class CreateEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['title', 'event_state', 'manager_id', 'start', 'end', 'assos_id', 'address_id', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
+        fields = ['title', 'manager_id', 'start', 'end', 'assos_id', 'address_id', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
 
     def save(self, commit=True):
-        event = super(CreateEventForm, self).save(commit=commit)
+        event = super(CreateEventForm, self).save(commit=False)
+        if self.user.has_perm('approve_event'):
+            event.event_state = Event.APPROVED
+        if self.user.has_perm('validate_event', event.assos_id):
+            event.event_state = Event.VALIDATED
         if (commit):
+            event.save()
             intern_number = self.cleaned_data['intern_number']
             extern_number = self.cleaned_data['extern_number']
             staff_number = self.cleaned_data['staff_number']

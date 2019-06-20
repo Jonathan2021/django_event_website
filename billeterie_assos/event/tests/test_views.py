@@ -184,10 +184,29 @@ class EventListView(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, 'Create an Event')
 
+
 class EventDetailViewTests(TestCase):
     def setUp(self):
         self.event = create_event()
         self.url = reverse('event:event_detail', kwargs={'pk': self.event.pk})
+
+    def test_get_context_data(self):
+        request = RequestFactory().get(self.url)
+        v = setup_view(views.EventDetailView(), request, pk=self.event.pk)
+        self.event.see_remaining = True
+        self.event.save()
+        v.object = self.event
+        context = v.get_context_data()
+        self.assertIs(context.pop('extern_left', None), 0)
+        self.assertIs(context.pop('intern_left', None), 0)
+        self.assertIs(context.pop('staff_left', None), 0)
+        self.event.see_remaining = False
+        self.event.save()
+        context = v.get_context_data()
+        self.assertIs(context.pop('extern_left', None), None)
+        self.assertIs(context.pop('intern_left', None), None)
+        self.assertIs(context.pop('staff_left', None), None)
+
 
     def test_invalid_pk(self):
         response = self.client.get(reverse('event:event_detail', kwargs={'pk': 69}))

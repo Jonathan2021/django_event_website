@@ -71,7 +71,7 @@ class CreateEventForm(forms.ModelForm):
         event = super(CreateEventForm, self).save(commit=False)
         if self.user.has_perm('approve_event'):
             event.event_state = Event.APPROVED
-        if self.user.has_perm('validate_event', event.assos_id):
+        elif self.user.has_perm('validate_event', event.assos_id):
             event.event_state = Event.VALIDATED
         if (commit):
             event.save()

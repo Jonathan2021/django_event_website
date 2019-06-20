@@ -52,8 +52,6 @@ Do class Methods
 
 Redo validationError that specify fields, tell values etc..
 
-Test that permissions are given in models
-
 Maybe self.fail() all cases supposed to fail() and add unittest expectedfail decorator
 
 Add links from ticket remaining to shop in event detail html

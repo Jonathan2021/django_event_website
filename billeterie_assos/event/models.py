@@ -71,6 +71,8 @@ class Association(models.Model):
             ('manage_member', 'User can add and remove a member'),
             ('choose_staff', 'User can choose staff'),
             ('manage_manager', 'User can add and remove managers'),
+            ('modify_event', 'User can modify an event'),
+            ('cancel_event', 'User can cancel an event'),
             # ('manage_president', 'User can modify the president'),
         )
 
@@ -172,11 +174,15 @@ exist, it was probably deleted")})
         assign_perm('manage_manager', self.user, self.assos_id)
         assign_perm('delete_association', self.user, self.assos_id)
         assign_perm('change_association', self.user, self.assos_id)
+        assign_perm('modify_event', self.user, self.assos_id)
+        assign_perm('cancel_event', self.user, self.assos_id)
 
     def delete(self):
         remove_perm('manage_manager', self.user, self.assos_id)
         remove_perm('delete_association', self.user, self.assos_id)
         remove_perm('change_association', self.user, self.assos_id)
+        remove_perm('modify_event', self.user, self.assos_id)
+        remove_perm('cancel_event', self.user, self.assos_id)
         super(President, self).delete()
 
 
@@ -242,11 +248,6 @@ class Event(models.Model):
         if self.ticket_deadline is None:
             self.ticket_deadline = self.start # should maybe use signals
         super(Event, self).save(*args, **kwargs)
-        try:
-            pres = self.assos_id.president
-            assign_perm('event.delete_event', pres.user, self)  # if president changes, must remove rights etc... So this should be a perm given in President
-        except President.DoesNotExist:
-            pass
 
 
 class Ticket(models.Model):

@@ -54,8 +54,9 @@ class CreateEventForm(forms.ModelForm):
         else:
             asso_field.queryset = get_objects_for_user(self.user,
                     'create_event', Association.objects.all())
-        if not self.user.has_perm('choose_premium'):
+        if not self.user.has_perm('event.choose_premium'):
             self.fields['premium_flag'].widget = HiddenInput()
+
 
     intern_number = forms.IntegerField(label=_("Number of tickets for interns"), min_value=0, initial=0)
     intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
@@ -69,7 +70,7 @@ class CreateEventForm(forms.ModelForm):
 
     def save(self, commit=True):
         event = super(CreateEventForm, self).save(commit=False)
-        if self.user.has_perm('approve_event'):
+        if self.user.has_perm('event.approve_event'):
             event.event_state = Event.APPROVED
         elif self.user.has_perm('validate_event', event.assos_id):
             event.event_state = Event.VALIDATED

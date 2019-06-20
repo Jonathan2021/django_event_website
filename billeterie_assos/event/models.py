@@ -200,6 +200,34 @@ class Boss(SingletonModel):
     class Meta:
         verbose_name = _("Boss")
 
+    def save(self, *args, **kwargs):
+        super(Boss, self).save(*args, **kwargs)
+        assign_perm('event.create_event', self.user)
+        assign_perm('event.manage_member', self.user)
+        assign_perm('event.choose_staff', self.user)
+        assign_perm('event.manage_manager', self.user)
+        assign_perm('event.modify_event', self.user)
+        assign_perm('event.cancel_event', self.user)
+        assign_perm('event.add_president', self.user)
+        assign_perm('event.delete_president', self.user)
+        assign_perm('event.choose_premium', self.user)
+        assign_perm('event.approve_event', self.user)
+        assign_perm('event.cancel_event', self.user)
+
+    def delete(self):
+        remove_perm('event.create_event', self.user)
+        remove_perm('event.manage_member', self.user)
+        remove_perm('event.choose_staff', self.user)
+        remove_perm('event.manage_manager', self.user)
+        remove_perm('event.modify_event', self.user)
+        remove_perm('event.cancel_event', self.user)
+        remove_perm('event.add_president', self.user)
+        remove_perm('event.delete_president', self.user)
+        remove_perm('event.choose_premium', self.user)
+        remove_perm('event.approve_event', self.user)
+        remove_perm('event.cancel_event', self.user)
+        super(Boss, self).delete()
+
 
 class Event(models.Model):
 
@@ -256,8 +284,9 @@ class Event(models.Model):
 
         permissions = (
             ('access_dashboard', 'User can access this event\'s dashboard'),
-            ('change_state', 'User can the event\'s state'),
+            ('approve_event', 'User can approve of the event'),
             ('choose_premium', 'User can make an event premium or not'),
+            ('cancel_event', 'User can cancel the event'),
         )
 
     def save(self, *args, **kwargs):

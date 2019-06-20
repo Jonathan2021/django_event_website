@@ -20,6 +20,7 @@ django-guardian = "*"
 django-crispy-forms = "*"
 social-auth-app-django = "*"
 coverage = "*"
+django-solo = "*"
 
 [requires]
 python_version = "3.7"

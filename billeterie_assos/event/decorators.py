@@ -2,6 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from . import models
 from functools import wraps
+from guardian.shortcuts import get_objects_for_user
 
 
 def has_memberships(function):
@@ -19,8 +20,13 @@ def has_memberships(function):
 def can_create_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
-        asso = get_object_or_404(models.Association, pk=kwargs['asso'])
-        if request.user.has_perm('create_event', asso):
+        pk = kwargs.get('asso', None)
+        if pk is not None:
+            asso = get_object_or_404(models.Association, pk=pk)
+            if request.user.has_perm('create_event', asso):
+                return function(request, *args, **kwargs)
+        elif get_objects_for_user(request.user, 'create_event',
+                                  models.Association.objects.all()):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied

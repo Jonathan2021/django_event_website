@@ -8,6 +8,7 @@ import datetime
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign_perm, remove_perm
+from solo.models import SingletonModel
 
 # Create your models here.
 
@@ -188,6 +189,16 @@ exist, it was probably deleted")})
         remove_perm('cancel_event', self.user, self.assos_id)
         remove_perm('validate_event', self.user, self.assos_id)
         super(President, self).delete()
+
+
+class Boss(SingletonModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __unicode__(self):
+        return u"Boss: %s" % (self.user.username)
+
+    class Meta:
+        verbose_name = _("Boss")
 
 
 class Event(models.Model):

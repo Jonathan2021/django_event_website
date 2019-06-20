@@ -79,7 +79,7 @@ class EventCreateView(generic.CreateView):
 
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
-@method_decorator(decorators.has_memberships, name='dispatch') #could return Permission denied in form directly
+@method_decorator(decorators.can_create_event, name='dispatch') #could return Permission denied in form directly
 class EventCreateGeneralView(generic.CreateView):
     form_class = CreateEventForm
     template_name = 'event_new.html'

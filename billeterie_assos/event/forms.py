@@ -5,7 +5,7 @@ from .models import Member, Manager, President, Profile, Association, Event, Tic
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput, HiddenInput
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_objects_for_user
 from event.tests.test_models import create_member
 
 
@@ -52,7 +52,8 @@ class CreateEventForm(forms.ModelForm):
             asso_field.initial = self.asso
             asso_field.disabled = True
         else:
-            asso_field.queryset = Association.objects.filter(id__in=self.user.memberships.all().values_list('assos_id', flat=True)) # should be all where you have create perms
+            asso_field.queryset = get_objects_for_user(self.user,
+                    'create_event', Association.objects.all())
         if not self.user.has_perm('choose_premium'):
             self.fields['premium_flag'].widget = HiddenInput()
 

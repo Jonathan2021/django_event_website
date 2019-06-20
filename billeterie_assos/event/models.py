@@ -73,7 +73,7 @@ class Association(models.Model):
             ('choose_staff', 'User can choose staff'),
             ('manage_manager', 'User can add and remove managers'),
             ('modify_event', 'User can modify an event'),
-            ('cancel_event', 'User can cancel an event'),
+            ('make_event_cancelable', 'User can cancel an event'),
             ('validate_event',
              'User can validate event and make it available for approval')
             # ('manage_president', 'User can modify the president'),
@@ -178,7 +178,7 @@ exist, it was probably deleted")})
         assign_perm('delete_association', self.user, self.assos_id)
         assign_perm('change_association', self.user, self.assos_id)
         assign_perm('modify_event', self.user, self.assos_id)
-        assign_perm('cancel_event', self.user, self.assos_id)
+        assign_perm('make_event_cancelable', self.user, self.assos_id)
         assign_perm('validate_event', self.user, self.assos_id)
 
     def delete(self):
@@ -186,7 +186,7 @@ exist, it was probably deleted")})
         remove_perm('delete_association', self.user, self.assos_id)
         remove_perm('change_association', self.user, self.assos_id)
         remove_perm('modify_event', self.user, self.assos_id)
-        remove_perm('cancel_event', self.user, self.assos_id)
+        remove_perm('make_event_cancelable', self.user, self.assos_id)
         remove_perm('validate_event', self.user, self.assos_id)
         super(President, self).delete()
 
@@ -199,6 +199,7 @@ class Boss(SingletonModel):
 
     class Meta:
         verbose_name = _("Boss")
+        verbose_name_plural = _("Boss")
 
     def save(self, *args, **kwargs):
         super(Boss, self).save(*args, **kwargs)
@@ -207,7 +208,6 @@ class Boss(SingletonModel):
         assign_perm('event.choose_staff', self.user)
         assign_perm('event.manage_manager', self.user)
         assign_perm('event.modify_event', self.user)
-        assign_perm('event.cancel_event', self.user)
         assign_perm('event.add_president', self.user)
         assign_perm('event.delete_president', self.user)
         assign_perm('event.choose_premium', self.user)
@@ -220,7 +220,6 @@ class Boss(SingletonModel):
         remove_perm('event.choose_staff', self.user)
         remove_perm('event.manage_manager', self.user)
         remove_perm('event.modify_event', self.user)
-        remove_perm('event.cancel_event', self.user)
         remove_perm('event.add_president', self.user)
         remove_perm('event.delete_president', self.user)
         remove_perm('event.choose_premium', self.user)

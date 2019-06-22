@@ -37,8 +37,8 @@ def can_delete_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         event = get_object_or_404(models.Event, pk=kwargs['pk'])
-        if request.user.has_perm('delete_event', event) or \
-                request.user.has_perm('event.delete_event'):
+        if request.user.has_perm('remove_event', event.assos_id) or \
+                request.user.has_perm('event.remove_event'):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied

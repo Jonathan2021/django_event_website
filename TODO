@@ -63,3 +63,5 @@ ics format for events
 xls format for stats
 
 Check if redirect raises 404 before redirecting using example in resolve https://docs.djangoproject.com/en/dev/ref/urlresolvers/#django.core.urlresolvers.resolve
+
+Add image in tab

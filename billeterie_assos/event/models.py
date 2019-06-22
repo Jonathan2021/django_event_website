@@ -6,6 +6,7 @@ from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
 import datetime
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign_perm, remove_perm
 from solo.models import SingletonModel
@@ -283,6 +284,11 @@ class Event(models.Model):
     def is_ok_delete(self):
         return self.event_state in [Event.PENDING, Event.VALIDATED]
 
+    def ask_validation(self):
+        pass
+
+        
+
     def clean(self):
         super(Event, self).clean()
         if self.start is not None:
@@ -307,6 +313,8 @@ class Event(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.ask_validation()
         if self.ticket_deadline is None:
             self.ticket_deadline = self.start # should maybe use signals
         super(Event, self).save(*args, **kwargs)

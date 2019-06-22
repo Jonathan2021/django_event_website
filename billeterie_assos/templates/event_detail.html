@@ -49,8 +49,15 @@
                 <form action="{% url 'event:make_cancelable' event.pk %}" method="POST">
                 {% csrf_token %}
                 <input style="margin-top:10px;" type="submit" class="confirm" value="Cancel" />
-
+            {% elif event.is_ok_delete %}
+                {% get_obj_perms user for event.assos_id as "asso_perms" %}
+                {% if "remove_event" in asso_perms or perms.event.remove_event %}
+                <form action="{% url 'event:event_delete' event.pk %}" method="POST">
+                {% csrf_token %}
+                <input style="margin-top:10px;" type="submit" class="confirm" value="Delete" />
+                {% endif %}
             {% endif %}
+
         </article>
         <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
             <img src={{ event.image.url }} style="

@@ -290,6 +290,7 @@ class EventCancelable(generic.View):
 
 
 # Should probably fuse into a Change state with new state in url
+# Or do I really need a view ? Cant I just create a cancel method in event and do event.cancel from template? -> Not very flexible
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
 @method_decorator(decorators.can_cancel, name='dispatch')

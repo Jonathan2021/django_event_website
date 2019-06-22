@@ -33,3 +33,5 @@ Should pipenv install address and add it to installed app instead of having sour
 Repetition in perms (assos_detail), maybe store result in var
 
 write get_absolute_url for models
+
+.all().first() should be replaced by .first()

@@ -73,6 +73,7 @@ class Association(models.Model):
             ('choose_staff', 'User can choose staff'),
             ('manage_manager', 'User can add and remove managers'),
             ('modify_event', 'User can modify an event'),
+            ('remove_event', 'User can delete an event'),
             ('make_event_cancelable', 'User can cancel an event'),
             ('validate_event',
              'User can validate event and make it available for approval')
@@ -178,6 +179,7 @@ exist, it was probably deleted")})
         assign_perm('delete_association', self.user, self.assos_id)
         assign_perm('change_association', self.user, self.assos_id)
         assign_perm('modify_event', self.user, self.assos_id)
+        assign_perm('remove_event', self.user, self.assos_id)
         assign_perm('make_event_cancelable', self.user, self.assos_id)
         assign_perm('validate_event', self.user, self.assos_id)
 
@@ -186,6 +188,7 @@ exist, it was probably deleted")})
         remove_perm('delete_association', self.user, self.assos_id)
         remove_perm('change_association', self.user, self.assos_id)
         remove_perm('modify_event', self.user, self.assos_id)
+        remove_perm('remove_event', self.user, self.assos_id)
         remove_perm('make_event_cancelable', self.user, self.assos_id)
         remove_perm('validate_event', self.user, self.assos_id)
         super(President, self).delete()
@@ -208,6 +211,7 @@ class Boss(SingletonModel):
         assign_perm('event.choose_staff', self.user)
         assign_perm('event.manage_manager', self.user)
         assign_perm('event.modify_event', self.user)
+        assign_perm('event.remove_event', self.user)
         assign_perm('event.add_president', self.user)
         assign_perm('event.delete_president', self.user)
         assign_perm('event.choose_premium', self.user)
@@ -221,6 +225,7 @@ class Boss(SingletonModel):
         remove_perm('event.choose_staff', self.user)
         remove_perm('event.manage_manager', self.user)
         remove_perm('event.modify_event', self.user)
+        remove_perm('event.remove_event', self.user)
         remove_perm('event.add_president', self.user)
         remove_perm('event.delete_president', self.user)
         remove_perm('event.choose_premium', self.user)
@@ -270,11 +275,13 @@ class Event(models.Model):
                                         default=False)
 
     def is_ok_cancelable(self):
-        return self.event_state not in [Event.CANCELABLE, Event.CANCELED,
-                                        Event.REFUSED]
+        return self.event_state == Event.APPROVED
 
     def is_ok_cancel(self):
-        return self.event_state not in [Event.CANCELED, Event.REFUSED]
+        return self.event_state in [Event.APPROVED, Event.CANCELABLE]
+
+    def is_ok_delete(self):
+        return self.event_state in [Event.PENDING, Event.VALIDATED]
 
     def clean(self):
         super(Event, self).clean()

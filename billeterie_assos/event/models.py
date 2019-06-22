@@ -10,6 +10,8 @@ from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign_perm, remove_perm
 from solo.models import SingletonModel
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 # Create your models here.
 
@@ -38,6 +40,15 @@ class Profile(models.Model):
     class Meta:
         verbose_name = _("Profile")
         verbose_name_plural = _("Profiles")
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 
 class EmailAddress(models.Model):

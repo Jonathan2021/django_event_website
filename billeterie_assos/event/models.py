@@ -255,7 +255,8 @@ class Event(models.Model):
         (VALIDATED, _("Validated by the president")),
     )
 
-    title = models.CharField(_("Title of the event"), max_length=64)
+    title = models.CharField(_("Title of the event"), max_length=64,
+                             validators=[UnicodeValidator()])
     event_state = models.CharField(_("State of the event"), max_length=1,
                                    choices=EVENT_STATE_CHOICES,
                                    default=PENDING)

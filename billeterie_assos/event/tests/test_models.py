@@ -41,9 +41,11 @@ def create_date_time(days=0, hours=0):
 class ProfileModelTests(TestCase):
 
     def setUp(self, gender=True, birthdate=create_date_time(days=-1)):
-        self.profile = Profile(user=create_user(), gender=gender,
-                               birth_date=birthdate,
-                               address_id=create_address())
+        user = create_user()
+        self.profile  = user.profile
+        self.profile.gender = gender
+        self.profile.birth_date = birthdate
+        self.profile.address_id = create_address()
 
     def test_null_user(self):
         self.profile.user = None
@@ -109,9 +111,11 @@ class ProfileModelTests(TestCase):
 
 
 def create_profile(name="default_name"):
-    profile = Profile(user=create_user(name), gender=True,
-                      birth_date=create_date_time(days=-1),
-                      address_id=create_address())
+    user = create_user(name)
+    profile = user.profile
+    profile.gender = True
+    profile.birth_date = create_date_time(days=-1)
+    profile.address_id = create_address()
     clean_and_save(profile)
     return profile
 

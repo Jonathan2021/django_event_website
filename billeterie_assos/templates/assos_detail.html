@@ -20,17 +20,17 @@
                 <ul style="">
                     {% for manager in managers %}
                     <li>{{manager.user.username}}
-                    {% if "manage_manager" in assos_perms %}
+                    {% if "manage_manager" in assos_perms or perms.event.manage_manager %}
                         <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:delete_manager' asso_pk=object.pk pk=manager.pk %}">Retograde to member</a>
                         {% endif %}
-                        {% if "manage_president" in assos_perms %}
+                        {% if perms.event.add_president %}
                         <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:add_president' manager.pk %}">Switch with current President</a>
                     {% endif %}
                     </li>
                     {% endfor %}
                 </ul>
                 <p><b>Membres </b> :<button style="margin-left:20px;" class="btn btn-outline-success" onclick="display('add_members')">Add Members</button></p>
-                {% if "manage_member" in assos_perms %}
+                {% if "manage_member" in assos_perms or perms.event.manage_member %}
                 <form id="add_members" style="display: none;" action="{% url 'event:asso_detail' object.id %}" method="POST">
                 {% csrf_token %}
                 {{form}}
@@ -40,10 +40,10 @@
                 <ul>
                     {% for member in members %}
                         <li>{{member.user.username}}
-                        {% if "manage_member" in assos_perms %}
+                        {% if "manage_member" in assos_perms or perms.event.manage_member %}
                             <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:delete_member' asso_pk=object.pk pk=member.pk %}">Remove</a>
                         {% endif %}
-                        {% if "manage_manager" in assos_perms %}
+                        {% if "manage_manager" in assos_perms or perms.event.manage_manger %}
                             <a style="margin-left:20px; color:#6351ce; font-size: 0.8rem;" class="confirm" href="{% url 'event:add_manager' pk=member.pk asso_pk=object.pk %}">Promote to manager</a>
                         {% endif %}
                         </li>
@@ -51,7 +51,7 @@
                 </ul>
                 <h4><b style="text-decoration: underline;">Events</b> :</h4>
                 <div style="margin-left:50px;">
-                    {% if "create_event" in assos_perms %}
+                    {% if "create_event" in assos_perms or perms.event.create_event %}
                     <a style="margin:15px;" href="{% url 'event:event_creation' asso=object.pk%}">
                     <button style="margin-top:20px;" class="btn btn-outline-success">Create an event</button>
                     </a>

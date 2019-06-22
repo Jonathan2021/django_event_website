@@ -32,6 +32,7 @@
                         <ul>
                         {% for event in events %}
                         {% get_obj_perms user for event as "event_perms" %}
+                        {% get_obj_perms user for event.assos_id as "asso_perms" %}
                         <li style="list-style-type: none;
                                     margin-bottom: 5px;
                             ">
@@ -42,8 +43,11 @@
                                 font-size:large;
                             " href="{% url 'event:event_detail' event.id %}">{{ event.title }}
                             </a>
-                            {% if "delete_event" in event_perms %}
-                            <a style="margin-left:10px;" class="confirm" href="{% url 'event:event_delete' event.pk %}">Delete</a>
+                            {% if event.is_ok_cancel and perms.event.cancel_event %}
+                            <a style="margin-left:10px;" class="confirm" href="{% url 'event:event_cancel' event.pk %}">Cancel</a>
+                            {% elif event.is_ok_cancelable and "make_event_cancelable" in asso_perms %}
+                            <a style="margin-left:10px;" class="confirm" href="{% url 'event:make_cancelable' event.pk %}">Cancel</a>
+
                             {% endif %}
                             <p style="
                                 font-weight: lighter;

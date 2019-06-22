@@ -29,3 +29,7 @@ Slide montre toujours 3 évenements alors que ca devrait etre tous, et si il y e
 Change __str__ to __unicode__
 
 Should pipenv install address and add it to installed app instead of having source code in it
+
+Repetition in perms (assos_detail), maybe store result in var
+
+write get_absolute_url for models

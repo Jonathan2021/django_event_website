@@ -45,6 +45,29 @@ def can_delete_event(function):
     return wrap
 
 
+def can_make_cancelable(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        event = get_object_or_404(models.Event, pk=kwargs['pk'])
+        if event.is_ok_cancelable() \
+                and request.user.has_perm('make_event_cancelable',
+                                          event.assos_id):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied
+    return wrap
+
+
+def can_cancel(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        event = get_object_or_404(models.Event, pk=kwargs['pk'])
+        if event.is_ok_cancel() \
+                and request.user.has_perm('event.cancel_event'):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied
+    return wrap
+
+
 def can_manage_member(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):

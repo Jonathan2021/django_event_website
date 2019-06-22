@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from guardian.shortcuts import assign_perm
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
@@ -234,8 +234,9 @@ class ManagerCreate(generic.View):
         return HttpResponseRedirect(reverse_lazy('event:asso_detail', kwargs={'pk':member.assos_id.pk}))
 
 
+#Add decorators ?
 class PresidentCreate(generic.View):
-    def get(self, request, *args, **kwargs): #should maybe call post and move everything in post
+    def get(self, request, *args, **kwargs): 
         return self.post(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -270,7 +271,34 @@ class EventDelete(generic.DeleteView): #maybe get calling post is a problem, see
         if (url == avoid):
             return index
         return url
-        
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_make_cancelable, name='dispatch')
+class EventCancelable(generic.View):
+    def get(self, request, *args, **kwargs):
+        return self.post(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs.get('pk'))
+        event.event_state = Event.CANCELABLE
+        event.save()
+        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
+
+
+# Should probably fuse into a Change state with new state in url
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_cancel, name='dispatch')
+class EventCancel(generic.View):
+    def get(self, request, *args, **kwargs):
+        return self.post(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs.get('pk'))
+        event.event_state = Event.CANCELED
+        event.save()
+        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))

@@ -236,12 +236,14 @@ class Event(models.Model):
     APPROVED = 'A'
     VALIDATED = 'V'
     REFUSED = 'R'
+    CANCELABLE = 'c'
     CANCELED = 'C'
     EVENT_STATE_CHOICES = (
         (PENDING, _("Pending")),
         (APPROVED, _("Approved")),
         (REFUSED, _("Refused")),
         (CANCELED, _("Canceled")),
+        (CANCELABLE, _("Canceled by the president")),
         (VALIDATED, _("Validated by the president")),
     )
 
@@ -266,6 +268,13 @@ class Event(models.Model):
                               upload_to='event_pics/uploads/')
     see_remaining = models.BooleanField(_("See remaining tickets"),
                                         default=False)
+
+    def is_ok_cancelable(self):
+        return self.event_state not in [Event.CANCELABLE, Event.CANCELED,
+                                        Event.REFUSED]
+
+    def is_ok_cancel(self):
+        return self.event_state not in [Event.CANCELED, Event.REFUSED]
 
     def clean(self):
         super(Event, self).clean()

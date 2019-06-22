@@ -28,5 +28,7 @@ urlpatterns = [
     path('assos/event/create/', views.EventCreateGeneralView.as_view(), name='general_event_creation'),
     path('assos/event/create/<int:asso>', views.EventCreateView.as_view(), name='event_creation'),
     path('event/delete/<int:pk>', views.EventDelete.as_view(), name='event_delete'),
+    path('event/cancelable/<int:pk>', views.EventCancelable.as_view(), name='make_cancelable'),
+    path('event/cancel/<int:pk>', views.EventCancel.as_view(), name='event_cancel'),
     path('assos/president/add/<int:pk>', permission_required('event.add_president', login_url='login')(views.PresidentCreate.as_view()), name='add_president'),
 ]

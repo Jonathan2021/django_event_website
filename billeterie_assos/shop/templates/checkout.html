@@ -1,49 +1,6 @@
-{% extends 'base.html' %}
-
-{% load static %}
-{% block title %}
-    Checkout |
-{% endblock %}
-
-{% block content %}
-
-    <div class="container" style="
-    background-color: 
-    lavenderblush;
-    margin-top:50px;
-    margin-bottom:50px;
-    padding: 10px;
-    opacity: 0.9;
-    border-radius: 5px;
-    ">
-        <h2 style="font-family: 'Courier New', Courier, monospace;
-        font-weight:bold;
-        ">Checkout</h2>
-        <div class="row">
-            <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-                <form action="" method="post">
-                    <table>
-                        {% csrf_token %}
-                        {{ form.as_table }}
-                        <tr>
-                            <td></td>
-                            <td><input type="submit" class="btn btn-info" value="Place Order"></td>
-                        </tr>
-                    </table>
-                </form>
-            </article>
-            <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
-                <img src="{% static "img/checkout_img.png"%}" style="
-                    opacity: 0.9;
-                    height:100%; 
-                    width:100%;
-                    border-radius: 10px;
-                ">
-            </article>
-        </div>
-    </div>
-
-{% endblock %}
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="V9JBKKMPQ5548">
+<input type="image" src="https://www.paypalobjects.com/fr_FR/FR/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal, le réflexe sécurité pour payer en ligne">
+<img alt="" border="0" src="https://www.paypalobjects.com/fr_FR/i/scr/pixel.gif" width="1" height="1">
+</form>

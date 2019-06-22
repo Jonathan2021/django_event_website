@@ -21,6 +21,7 @@ django-crispy-forms = "*"
 social-auth-app-django = "*"
 coverage = "*"
 django-solo = "*"
+nose = "*"
 
 [requires]
 python_version = "3.7"

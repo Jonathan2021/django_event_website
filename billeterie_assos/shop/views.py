@@ -40,7 +40,8 @@ def index_shop(request):
             product.price = my_price
             product.save()
         except Product.DoesNotExist:        
-            product = Product(name = event.title,price = my_price,id = event.id)
+            product = Product(name = event.title,price = my_price,id = event.id,
+                    product_detail = "soiree")
             product.save()
 
     
@@ -55,7 +56,7 @@ def index_shop(request):
                                     })
 
 
-def show_product(request, product_id, product_slug):
+def show_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     event_prices = views.EventListView.get_queryset(request).get(id=product.id).Prices.all()
     if request.method == 'POST':

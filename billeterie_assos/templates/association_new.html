@@ -2,8 +2,11 @@
 {% load static %}
 
 {% block content %}
+<div class="basic-block">
+    <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">Assos Creation</h1>
     <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Create">
     </form>
+</div>
 {% endblock content %}

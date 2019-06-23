@@ -1,6 +1,7 @@
 from django.db import models
 # from django.core.validators import validate_email
 from django.contrib.auth.models import User
+from django.contrib import admin
 from django.core import validators
 from address.models import AddressField
 from compositefk.fields import CompositeOneToOneField
@@ -12,6 +13,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 from solo.models import SingletonModel
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from calendar import HTMLCalendar
 
 # Create your models here.
 
@@ -254,7 +256,7 @@ class Event(models.Model):
         (CANCELABLE, _("Canceled by the president")),
         (VALIDATED, _("Validated by the president")),
     )
-
+    
     title = models.CharField(_("Title of the event"), max_length=64,
                              validators=[UnicodeValidator()])
     event_state = models.CharField(_("State of the event"), max_length=1,
@@ -425,6 +427,55 @@ class Purchase(models.Model):
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")
         unique_together = ('event_id', 'user', 'ticket_id')
+
+class EventCalendar(HTMLCalendar):
+    def __init__(self, events=None):
+        super(EventCalendar, self).__init__()
+        self.events = events
+ 
+    def formatday(self, day, weekday, events):
+        """
+        Return a day as a table cell.
+        """
+        events_from_day = events.filter(start__day=day)
+        events_html = '<ul style="height:50px; margin-bottom:10px;">'
+        for event in events_from_day:
+            events_html += "- " + event.title + "<br>"
+        events_html += "</ul>"
+ 
+        if day == 0:
+            return '<td class="noday" style="border:solid 1px #e3e0e5;">&nbsp;</td>'  # day outside month
+        else:
+            return '<td class="%s" style="border:solid 1px #e3e0e5;" >%d%s</td>' % (self.cssclasses[weekday], day, events_html)
+ 
+    def formatweek(self, theweek, events):
+        """
+        Return a complete week as a table row.
+        """
+        s = ''.join(self.formatday(d, wd, events) for (d, wd) in theweek)
+        return '<tr style="">%s</tr>' % s
+ 
+    def formatmonth(self, theyear, themonth, withyear=True):
+        """
+        Return a formatted month as a table.
+        """
+ 
+        events = Event.objects.filter(start__month=themonth)
+ 
+        v = []
+        a = v.append
+        a('<table border="0" cellpadding="0" cellspacing="0" class="month" style="border-collapse: collapse; border-spacing: 0;">')
+        a('\n')
+        a(self.formatmonthname(theyear, themonth, withyear=withyear))
+        a('\n')
+        a(self.formatweekheader())
+        a('\n')
+        for week in self.monthdays2calendar(theyear, themonth):
+            a(self.formatweek(week, events))
+            a('\n')
+        a('</table>')
+        a('\n')
+        return ''.join(v) 
 
 
 """

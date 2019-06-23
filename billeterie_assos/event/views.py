@@ -8,20 +8,44 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Event, Association, Member, President, Manager, Ticket,\
-        Purchase
+        Purchase, EventCalendar
 from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.models import User
 from . import decorators
 from django.utils.decorators import method_decorator
+import datetime
+import calendar
+from django.urls import reverse
+from calendar import HTMLCalendar
+from django.utils.safestring import mark_safe
 
 # Create your views here.
 
 class IndexView(generic.ListView):
     template_name = 'index.html'
-    context_object_name = 'events'
+    model = Event
 
-    def get_queryset(self):
-        return Event.objects.filter(start__gt=timezone.now(), premium_flag=True, event_state=Event.APPROVED).order_by('start')
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        context['events'] = Event.objects.filter(start__gt=timezone.now(), premium_flag=True, event_state=Event.APPROVED).order_by('start')
+
+        d = datetime.date.today()
+        previous_month = datetime.date(year=d.year, month=d.month, day=1)  # find first day of current month
+        previous_month = previous_month - datetime.timedelta(days=1)  # backs up a single day
+        previous_month = datetime.date(year=previous_month.year, month=previous_month.month,
+                                       day=1)  # find first day of previous month
+ 
+        last_day = calendar.monthrange(d.year, d.month)
+        next_month = datetime.date(year=d.year, month=d.month, day=last_day[1])  # find last day of current month
+        next_month = next_month + datetime.timedelta(days=1)  # forward a single day
+        next_month = datetime.date(year=next_month.year, month=next_month.month,
+                                   day=1)  # find first day of next month
+
+        cal = EventCalendar()
+        html_calendar = cal.formatmonth(d.year, d.month, withyear=True)
+        html_calendar = html_calendar.replace('<td ', '<td  width="150" height="150"')
+        context['calendar'] = mark_safe(html_calendar)
+        return context
 
 #Create your views here.
 

@@ -1,5 +1,12 @@
 from django.contrib import admin
 from . import models
+from django.urls import reverse
+import datetime
+import calendar
+from calendar import HTMLCalendar
+from django.utils.safestring import mark_safe
+from .models import Event
+
 
 """
 from .forms import MemberAdminFormset
@@ -31,6 +38,7 @@ class AssociationAdmin(admin.ModelAdmin):
             (_('Name of the association'), {'fields': ['name']})
     ]
 """
+
 
 admin.site.register(models.Profile)
 admin.site.register(models.EmailAddress)

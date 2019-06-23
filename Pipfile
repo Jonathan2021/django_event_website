@@ -22,6 +22,7 @@ social-auth-app-django = "*"
 coverage = "*"
 django-solo = "*"
 nose = "*"
+django-qr-code = "*"
 
 [requires]
 python_version = "3.7"

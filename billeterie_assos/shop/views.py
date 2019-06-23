@@ -97,38 +97,6 @@ def show_cart(request):
 
 
 def checkout(request):
-    if request.method == 'POST':
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            o = Order(
-                name = cleaned_data.get('name'),
-                email = cleaned_data.get('email'),
-                postal_code = cleaned_data.get('postal_code'),
-                address = cleaned_data.get('address'),
-            )
-            o.save()
-
-            all_items = cart.get_all_cart_items(request)
-            for cart_item in all_items:
-                li = LineItem(
-                    product_id = cart_item.product_id,
-                    price = cart_item.price,
-                    quantity = cart_item.quantity,
-                    order_id = o.id
-                )
-
-                li.save()
-
-            cart.clear(request)
-
-            request.session['order_id'] = o.id
-
-            messages.add_message(request, messages.INFO, 'Order Placed!')
-            return redirect('checkout')
-
-
-    else:
-        form = CheckoutForm()
-        return render(request, 'checkout.html', {'form': form})
+    price = cart.subtotal(request)
+    return render(request, 'checkout.html', {'price': price})
 

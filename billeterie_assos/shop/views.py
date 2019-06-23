@@ -10,6 +10,7 @@ from django.db.models import ProtectedError
 from django.db import models as models_email
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+import qrcode
 
 # Create your views here.
     
@@ -40,8 +41,7 @@ def index_shop(request):
             product.price = my_price
             product.save()
         except Product.DoesNotExist:        
-            product = Product(name = event.title,price = my_price,id = event.id,
-                    product_detail = "soiree")
+            product = Product(name = event.title,price = my_price,id = event.id)
             product.save()
 
     
@@ -100,3 +100,7 @@ def checkout(request):
     price = cart.subtotal(request)
     return render(request, 'checkout.html', {'price': price})
 
+def qrcode(request):
+   qc = qrcode.make(request.user)
+   qc.save('qrcode/{}.png'.format(request.user), 'PNG')
+   return render(request,'index.html')

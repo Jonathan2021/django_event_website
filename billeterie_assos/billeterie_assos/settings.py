@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'shop',
     'accounts.apps.AccountsConfig',
     'guardian',
+    'qr_code',
 ]
 
 MIDDLEWARE = [

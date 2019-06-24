@@ -40,6 +40,11 @@ def add_item_to_cart(request):
             price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="E").price
         except models.Price.DoesNotExist:
             fail = True
+    if type_chosen == "2":
+        try:
+            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="S").price
+        except models.Price.DoesNotExist:
+            fail = True
 
     if fail:
         return

@@ -223,6 +223,7 @@ class Boss(SingletonModel):
         assign_perm('event.choose_premium', self.user)
         assign_perm('event.approve_event', self.user)
         assign_perm('event.cancel_event', self.user)
+        assign_perm('event.add_association', self.user)
         assign_perm('event.delete_association', self.user)
 
     def delete(self):
@@ -237,6 +238,7 @@ class Boss(SingletonModel):
         remove_perm('event.choose_premium', self.user)
         remove_perm('event.approve_event', self.user)
         remove_perm('event.cancel_event', self.user)
+        remove_perm('event.add_association', self.user)
         remove_perm('event.delete_association', self.user)
         super(Boss, self).delete()
 
@@ -257,7 +259,7 @@ class Event(models.Model):
         (CANCELABLE, _("Canceled by the president")),
         (VALIDATED, _("Validated by the president")),
     )
-    
+
     title = models.CharField(_("Title of the event"), max_length=64,
                              validators=[UnicodeValidator()])
     event_state = models.CharField(_("State of the event"), max_length=1,

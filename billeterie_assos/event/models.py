@@ -292,11 +292,6 @@ class Event(models.Model):
     def is_ok_delete(self):
         return self.event_state in [Event.PENDING, Event.VALIDATED]
 
-    def ask_validation(self):
-        pass
-
-        
-
     def clean(self):
         super(Event, self).clean()
         if self.start is not None:
@@ -319,13 +314,6 @@ class Event(models.Model):
             ('choose_premium', 'User can make an event premium or not'),
             ('cancel_event', 'User can cancel the event'),
         )
-
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            self.ask_validation()
-        if self.ticket_deadline is None:
-            self.ticket_deadline = self.start # should maybe use signals
-        super(Event, self).save(*args, **kwargs)
 
 
 class Ticket(models.Model):
@@ -379,7 +367,7 @@ class Price(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=Ticket.TICKET_TYPE_CHOICES)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE,
-                                 related_name="Prices")
+                                 related_name="prices")
     price = models.PositiveIntegerField(_("Price"),
                                         validators=[validate_price_for_sqlite])
 
@@ -430,6 +418,7 @@ class Purchase(models.Model):
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")
         unique_together = ('event_id', 'user', 'ticket_id')
+
 
 class EventCalendar(HTMLCalendar):
     def __init__(self, events=None):

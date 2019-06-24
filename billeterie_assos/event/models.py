@@ -18,6 +18,7 @@ from calendar import HTMLCalendar
 # Create your models here.
 
 User._meta.get_field('email').blank = False
+User._meta.get_field('email').null = False
 
 
 def validate_birth(value):

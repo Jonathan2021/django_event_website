@@ -37,3 +37,5 @@ write get_absolute_url for models
 .all().first() should be replaced by .first()
 
 See if Hide can be hacked for forms
+
+order members by username in addmemberform + should only be epita's

@@ -1,5 +1,5 @@
 body{
-    background-color:#eaf5f9;
+    background-color:#e9e5F0;
     background-position: center;
     background-size: cover;
 }
@@ -37,7 +37,7 @@ body{
 }
 
 .actu{
-    background-color: lavenderblush;
+    background-color: #f8fcfd;
     padding: 10px;
     margin-bottom: 75px;
     border-radius: 10px;
@@ -60,10 +60,10 @@ body{
 }
 
 .event-block{
-    border: solid 1px #e3e0e5;
+    border: solid 1px #ccc9ce;
     padding: 10px;
     margin: 10px;
-    background-color:#fff3f7;
+    background-color:white;
 }
 
 .event-block:hover{
@@ -102,7 +102,7 @@ body{
 }
 
 .basic-block{
-    background-color: lavenderblush;
+    background-color: #f8fcfd;
     margin-top:50px;
     margin-bottom:50px;
     padding: 10px;

@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from event.models import Profile, Event, Boss
 from django.core.mail import send_mail
 from django.urls import reverse
+import absoluteuri
 
 
 @receiver(post_save, sender=User)
@@ -22,7 +23,7 @@ def send_email_event(sender, instance, created, **kwargs):
     if created:
         send_mail(
             'Validate an event',
-            'This event needs validation.\n%s' % (reverse(
+            'This event needs validation.\n%s' % absoluteuri.build_absolute_uri(reverse(
                     'event:event_detail', kwargs={'pk': instance.pk})),
             'billeterie@epita.com',
             [instance.assos_id.president.user.email],

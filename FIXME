@@ -35,3 +35,5 @@ Repetition in perms (assos_detail), maybe store result in var
 write get_absolute_url for models
 
 .all().first() should be replaced by .first()
+
+See if Hide can be hacked for forms

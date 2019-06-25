@@ -15,7 +15,7 @@ def can_create_event(function):
                     request.user.has_perm('event.create_event'):
                 return function(request, *args, **kwargs)
         elif get_objects_for_user(request.user, 'create_event',
-                                  models.Association.objects.all()):
+                                  models.Association.objects.all()).exists():
             return function(request, *args, **kwargs)
         raise PermissionDenied
     return wrap

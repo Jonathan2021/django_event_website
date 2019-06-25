@@ -1,4 +1,5 @@
 from django.db import models
+import os
 # from django.core.validators import validate_email
 from django.contrib.auth.models import User
 from django.contrib import admin
@@ -27,10 +28,14 @@ def validate_birth(value):
                               params={'value': value},)
 
 
+def get_upload_path_profile(instance, filename):
+    return os.path.join('profile_pics/uploads/', datetime.datetime.now().date().strftime("%Y/%m/%d"), filename)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(default='profile_pics/default.jpg',
-                              upload_to='profile_pics/uploads/')
+                              upload_to=get_upload_path_profile)
     gender = models.NullBooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth],
                                   null=True, blank=True)
@@ -245,6 +250,11 @@ class Boss(SingletonModel):
         super(Boss, self).delete()
 
 
+def get_upload_path_event(instance, filename):
+    return os.path.join('event_pics/uploads/', datetime.datetime.now().date().strftime("%Y/%m/%d"), filename)
+
+
+
 class Event(models.Model):
 
     PENDING = 'P'
@@ -286,7 +296,7 @@ class Event(models.Model):
                                        help_text=_("Will be make it visible on the home page"))
     image = models.ImageField(_("Event's cover image"),
                               default='event_pics/default.jpg',
-                              upload_to='event_pics/uploads/')
+                              upload_to=get_upload_path_event)
     see_remaining = models.BooleanField(_("See remaining tickets"),
                                         default=False,
                                         help_text=_("if set to True, users will be able to see the remaining tickets on the event's page"))

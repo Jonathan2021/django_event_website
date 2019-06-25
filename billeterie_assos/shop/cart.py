@@ -60,8 +60,20 @@ def add_item_to_cart(request):
 
     event = views.EventListView.get_queryset(request).get(id=product_id)
     tickets = models.Ticket.objects.filter(event_id=event.id, ticket_type=ticket_type)
-    if len(tickets) < quantity:
-        quantity = len(tickets)
+    nb_tickets = 0
+    for ticket in tickets:                                                  
+        try:                                                                    
+            ticket.purchase                                                     
+        except models.Purchase.DoesNotExist:                                    
+            if ticket.ticket_type == models.Ticket.EXTERN:                      
+                nb_tickets += 1
+            if ticket.ticket_type == models.Ticket.INTERN:                      
+                nb_tickets += 1
+            if ticket.ticket_type == models.Ticket.STAFF:                      
+                nb_tickets += 1
+    
+    if nb_tickets < quantity:
+        quantity = nb_tickets
 
     for cart_item in cart_items:
         if cart_item.product_id == product_id and cart_item.price == price  and cart_item.ticket_type == ticket_type:

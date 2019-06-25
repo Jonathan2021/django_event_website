@@ -2,6 +2,7 @@ from .models import CartItem, Product
 from django.shortcuts import get_object_or_404, get_list_or_404
 from event import views
 from event import models
+import qrcode
 
 def _cart_id(request):
     if 'cart_id' not in request.session:
@@ -37,6 +38,11 @@ def add_item_to_cart(request):
     if type_chosen == "1":
         try:
             price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="E").price
+        except models.Price.DoesNotExist:
+            fail = True
+    if type_chosen == "2":
+        try:
+            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="S").price
         except models.Price.DoesNotExist:
             fail = True
 
@@ -98,4 +104,9 @@ def clear(request):
     cart_items = get_all_cart_items(request)
     cart_items.delete()
 
-
+def qrcode(request):                                                            
+    qrc = qrcode.QRCode(box_size=8,border=0)                                    
+    qrc.add_data(request.user)                                                  
+    qrc.make()                                                                  
+    qrc.save('qrcode/{}.png'.format(request.user), 'PNG')                       
+    return render(request,'index.html')

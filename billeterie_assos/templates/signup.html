@@ -4,10 +4,13 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
+<div class="basic-block">
   <h2 style="margin-top:50px;">Sign up</h2>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" style="margin-bottom:75px;">Sign up</button>
   </form>
+  <a href="{% url 'login' %}">Already have an account?</a>
+  </div>
 {% endblock %}

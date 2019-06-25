@@ -23,6 +23,8 @@ coverage = "*"
 django-solo = "*"
 nose = "*"
 django-qr-code = "*"
+pyqrcode = "*"
+qrcode = {extras = ["pil"],version = "*"}
 
 [requires]
 python_version = "3.7"

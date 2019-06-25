@@ -19,6 +19,8 @@ from django.conf.urls import url
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('event.urls')), 
@@ -26,6 +28,7 @@ urlpatterns = [
     url(r'', include('social_django.urls' ,namespace='social')),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls'))
+   
 ]
 
 if settings.DEBUG:

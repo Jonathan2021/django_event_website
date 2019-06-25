@@ -5,7 +5,7 @@
 {%block content %}    
     <div class="main_body">
         <div style="
-            margin-bottom:50px;
+            
         " id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
             <ol class="carousel-indicators">
                 <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
@@ -60,8 +60,9 @@
             </a>
         </div>
 
+        <div class="basic-block" style="margin-top:0px; margin-bottom:0px; padding-top:10px;">
         <div class="container-fluid actu-wraper">
-            <div class="container actu">
+            <div class="container actu" style="padding-bottom: 0px;">
                 <h1 style="margin-bottom:15px;">PREMIUM EVENTS</h1>
                 {% if events %}
                 <div class="row">
@@ -70,7 +71,7 @@
                         
                             <a class="event-link" href="{% url 'event:event_detail' event.id %}">
                                 <div class="event-block">
-                                <h1 style="font-size:2rem; color:#6351ce;">{{ event.title }}</h1>
+                                <h1 style="font-size:2rem; color:#312867;">{{ event.title }}</h1>
                                 <p>Starting : {{ event.start }}</p>
                                 {% if event.manager_id %}
                                 <p style="color:black;">Created by : {{event.manager_id}}</p>
@@ -88,6 +89,14 @@
                 {% endif %}
             </div>
         </div>
+
+        <div class="basic-block">
+            <h1 style="margin-bottom:15px;">This month calendar</h1>
+
+            {{ calendar }}
+        </div>
+        </div>
+          
     </div>
 {% endblock content %}
 <script type="text/javascript">

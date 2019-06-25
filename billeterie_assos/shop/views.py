@@ -15,7 +15,6 @@ from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail.message import EmailMessage
 from django.core import mail
 from django.core.mail import get_connection
-
 # Create your views here.
     
 def index_shop(request):
@@ -54,7 +53,10 @@ def index_shop(request):
             event = views.EventListView.get_queryset(request).get(id=product.id)
         except models.Event.DoesNotExist:
             remove_product(request, product.id)
+
     send_mail_ticket(request)
+    
+    all_products = Product.objects.all()
     return render(request, "index_shop.html", {
                                     'all_products': all_products,
                                     })
@@ -111,9 +113,5 @@ def show_cart(request):
 
 def checkout(request):
     price = cart.subtotal(request)
+    #cart.qrcode(request)
     return render(request, 'checkout.html', {'price': price})
-
-def qrcode(request):
-   qc = qrcode.make(request.user)
-   qc.save('qrcode/{}.png'.format(request.user), 'PNG')
-   return render(request,'index.html')

@@ -15,7 +15,7 @@ class AddMemberForm(forms.Form):
             self.user = kwargs.pop('user', None)
             super(AddMemberForm,self).__init__(*args,**kwargs)
             unwanted = self.asso.members.all().values_list('user', flat=True)
-            self.fields['users'].queryset = User.objects.all().exclude(id__in=unwanted)
+            self.fields['users'].queryset = User.objects.all().exclude(id__in=unwanted).order_by('username')
 
         users = forms.ModelMultipleChoiceField(label=_("Members to add"),
         queryset=User.objects.none(),

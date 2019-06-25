@@ -54,7 +54,7 @@ def index_shop(request):
         except models.Event.DoesNotExist:
             remove_product(request, product.id)
 
-    send_mail_ticket(request)
+    #send_mail_ticket(request)
     
     all_products = Product.objects.all()
     return render(request, "index_shop.html", {

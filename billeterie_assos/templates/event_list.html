@@ -34,7 +34,7 @@
                                 opacity:0.8;
                                 font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
                                 font-size:large;
-                            " href="{% url 'event:event_detail' event.id %}">{{ event.title }}
+                                " href="{{event.get_absolute_url}}">{{ event.title }}
                             </a>
                             {% if event.is_ok_cancel and perms.event.cancel_event %}
                             <a style="margin-left:10px;" class="confirm" href="{% url 'event:event_cancel' event.pk %}">Cancel</a>

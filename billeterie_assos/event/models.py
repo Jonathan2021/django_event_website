@@ -15,6 +15,7 @@ from solo.models import SingletonModel
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from calendar import HTMLCalendar
+from django.urls import reverse
 
 # Create your models here.
 
@@ -95,6 +96,9 @@ class Association(models.Model):
 
     def __str__(self):
         return '%s' % (self.name)
+
+    def get_absolute_url(self):
+        return reverse('event:asso_detail', kwargs={'pk': self.id})
 
 
 class Member(models.Model):
@@ -343,6 +347,9 @@ class Event(models.Model):
             ('choose_premium', 'User can make an event premium or not'),
             ('cancel_event', 'User can cancel the event'),
         )
+
+    def get_absolute_url(self):
+        return reverse('event:event_detail', kwargs={'pk': self.id})
 
 
 class Ticket(models.Model):

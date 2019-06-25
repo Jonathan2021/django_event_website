@@ -20,6 +20,7 @@ class CartItem(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user_type = models.CharField(max_length=100)
+    ticket_type = models.CharField(max_length=50)
 
     def __str__(self):
         return "{}:{}".format(self.product.name, self.id)

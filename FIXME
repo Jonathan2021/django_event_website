@@ -39,3 +39,13 @@ write get_absolute_url for models
 See if Hide can be hacked for forms
 
 order members by username in addmemberform + should only be epita's
+
+use only() for querysets if you need a field from a model
+
+ instead of if queryset: do something use if queryset.exists(): do something
+
+ https://steelkiwi.com/blog/best-practices-working-django-models-python/
+
+ Maybe should do it the other way around, old_values become the modified ones and thoses saved in the database or the old_ones
+
+ Users cant see event detail if it is not approved even with correct url

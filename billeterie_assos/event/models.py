@@ -260,6 +260,8 @@ class Event(models.Model):
         (VALIDATED, _("Validated by the president")),
     )
 
+
+
     title = models.CharField(_("Title of the event"), max_length=64,
                              validators=[UnicodeValidator()])
     event_state = models.CharField(_("State of the event"), max_length=1,
@@ -283,6 +285,13 @@ class Event(models.Model):
     see_remaining = models.BooleanField(_("See remaining tickets"),
                                         default=False)
 
+    def was_modified(self):
+        return not (self.event_state == self.__old_event_state and
+                    self.__old_title == self.title and
+                    self.__old_start == self.start and
+                    self.__old_end == self.end and
+                    self.__old_ticket_deadline == self.ticket_deadline)
+
     def is_ok_cancelable(self):
         return self.event_state == Event.APPROVED
 
@@ -291,6 +300,10 @@ class Event(models.Model):
 
     def is_ok_delete(self):
         return self.event_state in [Event.PENDING, Event.VALIDATED]
+
+    def __init__(self, *args, **kwargs):
+        super(Event, self).__init__(*args, **kwargs)
+        print('WOW')
 
     def clean(self):
         super(Event, self).clean()

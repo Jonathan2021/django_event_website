@@ -29,8 +29,8 @@
                     </li>
                     {% endfor %}
                 </ul>
-                <p><b>Membres </b> :<button style="margin-left:20px;" class="btn btn-outline-success" onclick="display('add_members')">Add Members</button></p>
                 {% if "manage_member" in assos_perms or perms.event.manage_member %}
+                <p><b>Membres </b> :<button style="margin-left:20px;" class="btn btn-outline-success" onclick="display('add_members')">Add Members</button></p>
                 <form id="add_members" style="display: none;" action="{{object.get_absolute_url}}" method="POST">
                 {% csrf_token %}
                 {{form}}

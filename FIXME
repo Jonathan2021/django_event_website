@@ -21,3 +21,5 @@ members in memberform should only be from epita should only be epita's
  Maybe should do it the other way around, old_values become the modified ones and thoses saved in the database or the old_ones
 
  Users cant see event detail if it is not approved even with correct url
+
+ Should put restriction on post AssoDetailView

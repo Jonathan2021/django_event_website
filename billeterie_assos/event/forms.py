@@ -11,8 +11,8 @@ from event.tests.test_models import create_member
 
 class AddMemberForm(forms.Form):
         def __init__(self, *args, **kwargs):
-            self.asso = kwargs.pop('asso', None)
-            self.user = kwargs.pop('user', None)
+            self.asso = kwargs.pop('asso')
+            self.user = kwargs.pop('user')
             super(AddMemberForm,self).__init__(*args,**kwargs)
             unwanted = self.asso.members.all().values_list('user', flat=True)
             self.fields['users'].queryset = User.objects.all().exclude(id__in=unwanted).order_by('username')
@@ -23,6 +23,8 @@ class AddMemberForm(forms.Form):
         required=False)
 
         def save(self, commit=True):
+            if not (self.user.has_perm('manager_member', self.asso) or self.user.has_perm('event.manage_member')):
+                    raise PermissionDenied
             if self.asso is not None:
                 for user in self.cleaned_data['users']:
                     create_member(profile=user, assos=self.asso)
@@ -70,6 +72,8 @@ class CreateEventForm(forms.ModelForm):
 
     def save(self, commit=True):
         event = super(CreateEventForm, self).save(commit=False)
+        if not (self.user.has_perm('create_event', event.assos_id) or self.user.has_perm('event.create_event')):
+            raise PermissionDenied
         if self.user.has_perm('event.approve_event'):
             event.event_state = Event.APPROVED
         elif self.user.has_perm('validate_event', event.assos_id):
@@ -95,6 +99,77 @@ class CreateEventForm(forms.ModelForm):
             Price.objects.create(ticket_type=Ticket.STAFF, event_id=event, price=0)
         return event
 
+
+class UpdateEventForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        """
+        self.user = kwargs.pop('user', None) # Should never be None
+        if self.user is None:
+            raise PermissionDenied # Idk if this is the right error I should raise
+        """
+        self.event = kwargs.pop('instance')
+        super(UpdateEventForm, self).__init__(*args, **kwargs)
+        """
+        self.fields['title'].widget.attrs.update({"value" : self.event.title})
+        self.fields['start'].widget = DateTimeInput(attrs={"value" : self.event.start})
+        self.fields['end'].widget = DateTimeInput(attrs={"value" : self.event.end})
+        self.fields['address_id'].widget.attrs={"value" : self.event.address_id}
+        self.fields['image'].widget.attrs.update({"value" : self.event.image})
+        self.fields['ticket_deadline'].widget.attrs.update({"value" : self.event.ticket_deadline})
+        self.fields['see_remaining'].widget.attrs.update({"value" : self.event.see_remaining})
+        self.fields['premium_flag'].widget.attrs.update({"value" : self.event.premium_flag})
+        """
+        self.fields['title'].required = False
+        self.fields['start'].required = False
+        self.fields['end'].required = False
+        self.fields['image'].required = False
+        self.fields['ticket_deadline'].required = False
+        self.fields['see_remaining'].required = False
+        self.fields['premium_flag'].required = False
+        
+        if not self.user.has_perm('event.choose_premium'):
+            self.fields['premium_flag'].widget = HiddenInput()
+
+    """
+    intern_number = forms.IntegerField(label=_("Number of tickets for interns"), min_value=0, initial=0)
+    intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
+    extern_number = forms.IntegerField(label=_("Number of tickets for externs"), min_value=0, initial=0)
+    extern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
+    staff_number = forms.IntegerField(label=_("Number of tickets for staff"), min_value=0, initial=0)
+    """
+    class Meta:
+        model = Event
+        fields = ['title', 'start', 'end', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
+
+    def save(self, commit=True):
+        title = self.cleaned_data['title']
+        start = self.cleaned_data['start']
+        end = self.cleaned_data['end']
+        premium_flag = self.cleaned_data['premium_flag']
+        image = self.cleaned_data['image']
+        ticket_deadline = self.cleaned_data['ticket_deadline']
+        see_remaining = self.cleaned_data['see_remaining']
+        print(image)
+
+        if title:
+            self.event.title = title
+        if start:
+            self.event.start = start
+        if end:
+            self.event.end = end
+        if premium_flag:
+            self.event.premium_flag = premium_flag
+        if ticket_deadline:
+            self.event.ticket_deadline = ticket_deadline
+        if see_remaining:
+            self.event.see_remaining = see_remaining
+        if image:
+            self.event.image = image
+
+        if (commit):
+            self.event.save()
+        return self.event
 
 class AssociationForm(forms.ModelForm):
     president = forms.ModelChoiceField(label=_("President"),

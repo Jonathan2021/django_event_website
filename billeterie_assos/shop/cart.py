@@ -58,6 +58,11 @@ def add_item_to_cart(request):
 
     item_in_cart = False
 
+    event = views.EventListView.get_queryset(request).get(id=product_id)
+    tickets = models.Ticket.objects.filter(event_id=event.id, ticket_type=ticket_type)
+    if len(tickets) < quantity:
+        quantity = len(tickets)
+
     for cart_item in cart_items:
         if cart_item.product_id == product_id and cart_item.price == price:
             cart_item.update_quantity(quantity)
@@ -77,12 +82,7 @@ def add_item_to_cart(request):
         item.save()
 
 
-    event = views.EventListView.get_queryset(request).get(id=product_id)
-    tickets = models.Ticket.objects.filter(event_id=event.id, ticket_type=ticket_type)
-    
-    if len(tickets) < quantity:
-        quantity = len(tickets) - 1
-    
+        
     user = User.objects.get(id=request.user.id)
         
     while quantity != 0:

@@ -5,6 +5,13 @@
 {%block content %}   
 {% get_obj_perms user for event as "event_perms" %}
 <div style="font-size:1.1rem;"class="container basic-block">
+    {% if "modify_event" in event_perms or perms.event.modify_event %}
+    <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
+        {% csrf_token %}
+        {{form}}
+        <input type="submit" value="Done">
+    </form>
+    {% endif %}
     <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{event.title}}</h1>
     <div class="row">
         <article style="padding-left:40px;" class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
@@ -17,9 +24,6 @@
             </p>
             <p><b>Address</b> :
                 {{event.address_id.raw}}
-            </p>
-            <p><b>Premium</b> :
-                {{event.premium_flag}}
             </p>
             {% if event.see_remaining %}
             <p><b>Tickets left</b> :

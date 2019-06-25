@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Event, Association, Member, President, Manager, Ticket,\
         Purchase, EventCalendar
-from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm
+from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm, UpdateEventForm
 from django.contrib.auth.models import User
 from . import decorators
 from django.utils.decorators import method_decorator
@@ -57,9 +57,32 @@ class EventListView(generic.ListView):
         return Event.objects.filter(end__gt=timezone.now(), event_state=Event.APPROVED).order_by('start')
 
 
-class EventDetailView(generic.DetailView):
+class EventDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Event
+    form_class = UpdateEventForm
     template_name = 'event_detail.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(EventDetailView, self).get_form_kwargs()
+        kwargs.update({'user': self.request.user, 'instance' : self.get_object()})
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('event:event_detail', kwargs={'pk': self.kwargs.get('pk')})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form): #should maybe save in the forms itself
+        form.save()
+        return super(EventDetailView, self).form_valid(form)
+
+
 
     def get_context_data(self, **kwargs): # test it in views
         context = super().get_context_data(**kwargs)
@@ -83,6 +106,7 @@ class EventDetailView(generic.DetailView):
             context['intern_left'] = internal_left
             context['staff_left'] = staff_left
         return context
+
 
 
 @method_decorator(login_required(login_url='login'), name='dispatch')
@@ -127,7 +151,7 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         kwargs = super(AssosDetailView, self).get_form_kwargs()
         kwargs.update({'user': self.request.user, 'asso' : self.get_object()})
         return kwargs
-    
+
     def get_success_url(self):
         return reverse_lazy('event:asso_detail', kwargs={'pk': self.kwargs.get('pk')})
 
@@ -160,7 +184,7 @@ class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
         else:
             return self.form_invalid(form)
 
-    def form_valid(self, form): #should maybe save in the forms itself
+    def form_valid(self, form):
         form.save()
         return super(AssosDetailView, self).form_valid(form)
 

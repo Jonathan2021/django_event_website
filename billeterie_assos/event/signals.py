@@ -17,7 +17,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_profile(sender, instance, **kwargs):
     instance.profile.save()
 
-
+"""
 @receiver(post_save, sender=Event)  # maybe cleaner to create email object and modify it with if then send it
 def send_email_event_post(sender, instance, created, **kwargs):
     to_boss = EmailMessage(
@@ -143,3 +143,4 @@ def save_price(sender, instance, **kwargs):
 def old_fields_price(sender, instance, **kwargs):
     if instance.event_id.event_state == Event.APPROVED:
         instance.__old_price = instance.price
+"""

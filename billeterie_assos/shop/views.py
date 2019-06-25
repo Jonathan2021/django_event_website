@@ -74,6 +74,33 @@ def send_mail_ticket(request):
 def show_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     event_prices = views.EventListView.get_queryset(request).get(id=product.id).prices.all()
+    
+    all_tickets = models.Ticket.objects.filter(event_id=product_id)
+    external_left = 0
+    internal_left = 0
+    staff_left = 0
+    for ticket in all_tickets:
+        try:
+            ticket.purchase
+        except models.Purchase.DoesNotExist:
+            if ticket.ticket_type == models.Ticket.EXTERN:
+                external_left += 1
+            if ticket.ticket_type == models.Ticket.INTERN:
+                internal_left += 1
+            if ticket.ticket_type == models.Ticket.STAFF:
+                staff_left += 1
+
+    ext = "Some Extern Places Left"
+    inter = "Some Intern Places Left"
+    staff = "Some Staff Places Left"
+
+    if external_left == 0:
+        ext = "No Extern Places Left"
+    if internal_left == 0:
+        inter = "No intern Places Left"
+    if staff_left == 0:
+        ext = "No staff Places Left"
+
     if request.method == 'POST':
         form = CartForm(request, request.POST, product_id)
         if form.is_valid():
@@ -85,7 +112,10 @@ def show_product(request, product_id):
     return render(request, 'product_detail.html', {
                                             'product': product,
                                             'form': form,
-                                            'prices':event_prices
+                                            'prices':event_prices,
+                                            'ext' : ext,
+                                            'int' : inter,
+                                            'staff' : staff
                                             })
 
  

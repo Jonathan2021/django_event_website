@@ -214,8 +214,8 @@ exist, it was probably deleted")})
 class Boss(SingletonModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    def __unicode__(self):
-        return u"Boss: %s" % (self.user.username)
+    def __str__(self):
+        return _("Boss: %s") % (self.user.username)
 
     class Meta:
         verbose_name = _("Boss")
@@ -284,8 +284,6 @@ class Event(models.Model):
     event_state = models.CharField(_("State of the event"), max_length=1,
                                    choices=EVENT_STATE_CHOICES,
                                    default=PENDING)
-    manager_id = models.ForeignKey(Manager, on_delete=models.SET_NULL,
-                                   null=True, blank=True)
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
     ticket_deadline = models.DateTimeField(_("Deadline to buy tickets"),
@@ -320,10 +318,6 @@ class Event(models.Model):
 
     def is_ok_delete(self):
         return self.event_state in [Event.PENDING, Event.VALIDATED]
-
-    def __init__(self, *args, **kwargs):
-        super(Event, self).__init__(*args, **kwargs)
-        print('WOW')
 
     def clean(self):
         super(Event, self).clean()

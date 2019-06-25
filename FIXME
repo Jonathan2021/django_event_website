@@ -4,31 +4,15 @@ footer isnt all the way to the bottom
 
 clicking on EPITA's logo should redirect to EPITA's website
 
-Instead of created by, show the association hosting the event
-
 BUY now in event should redirect to tickets for the event, not list of available event tickets
 
 each time I create an object, call full_clean()
 
-Shouldn't be called premium event in index, more like 'Fresh events etc.' premium is just for us to know
-
-Why use sscroll down intern-extern when buying?
+Why use scroll down intern-extern when buying?
 
 Deleting an event doesnt remove it from shop
 
-UPGARDING TO MEMBRE DE BUREAU FAIL!
-
-Maybe instead of testing if user.memberships is empty or not etc. make a query to get all assos where user has create_event perms
-
-When clicking in input field in forms, it shouldn't be red
-
-Should you really allow None image in event model?
-
 Slide montre toujours 3 évenements alors que ca devrait etre tous, et si il y en a qu un, tu peux toujours glisser sur 3 (ce qui ne devrait pas être le cas)
-
-Change __str__ to __unicode__
-
-Should pipenv install address and add it to installed app instead of having source code in it
 
 See if Hide can be hacked for forms
 

@@ -63,7 +63,7 @@
         <div class="basic-block" style="margin-top:0px; margin-bottom:0px; padding-top:10px;">
         <div class="container-fluid actu-wraper">
             <div class="container actu" style="padding-bottom: 0px;">
-                <h1 style="margin-bottom:15px;">PREMIUM EVENTS</h1>
+                <h1 style="margin-bottom:15px;">FRESH EVENTS</h1>
                 {% if events %}
                 <div class="row">
                     {% for event in events %}
@@ -73,11 +73,7 @@
                                 <div class="event-block">
                                 <h1 style="font-size:2rem; color:#312867;">{{ event.title }}</h1>
                                 <p>Starting : {{ event.start }}</p>
-                                {% if event.manager_id %}
-                                <p style="color:black;">Created by : {{event.manager_id}}</p>
-                                {% else %}
-                                <p style="color:black;">No manager</p>
-                                {% endif %}
+                                <p style="color:black;">Created by : {{event.assos_id}}</p>
                             </div>
                         </a>
                         

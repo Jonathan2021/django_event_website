@@ -9,13 +9,6 @@
     <div class="row">
         <article style="padding-left:40px;" class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
             <p><b>State</b> : {{event.get_event_state_display}}</p>
-            <p><b>Manager</b> :
-            {% if event.manager_id %}
-                {{event.manager_id}}
-            {% else %}
-                No manager
-            </p>
-            {% endif %}
             <p><b>Starting date</b> :
                 {{event.start}}
             </p>

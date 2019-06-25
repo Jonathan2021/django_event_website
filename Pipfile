@@ -25,6 +25,7 @@ nose = "*"
 django-qr-code = "*"
 pyqrcode = "*"
 django-absoluteuri = "*"
+django-address = "*"
 
 [requires]
 python_version = "3.7"

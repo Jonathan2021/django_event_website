@@ -169,7 +169,7 @@ MEDIA_URL = '/media/'
 
 TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
 
-GOOGLE_API_KEY = 'AIzaSyD--your-google-maps-key-SjQBE'
+GOOGLE_API_KEY = 'AIzaSyC0F8pXih1IQOThs1aHmrKN667UzFAWczc'
 
 LOGIN_REDIRECT_URL = 'event:index'
 LOGOUT_REDIRECT_URL = 'event:index'

@@ -30,10 +30,6 @@ Change __str__ to __unicode__
 
 Should pipenv install address and add it to installed app instead of having source code in it
 
-Repetition in perms (assos_detail), maybe store result in var
-
-write get_absolute_url for models
-
 See if Hide can be hacked for forms
 
 members in memberform should only be from epita should only be epita's

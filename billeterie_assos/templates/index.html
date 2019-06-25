@@ -4,9 +4,7 @@
 
 {%block content %}    
     <div class="main_body">
-        <div style="
-            
-        " id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
             <ol class="carousel-indicators">
                 <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
                 <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
@@ -39,7 +37,7 @@
                         {% if events.1 %}
                         <h1 class="carousel-title">{{ events.1.title }}</h1>
                         <p>Starting date: {{ events.1.start }} by {{ events.1.assos_id }}</p>
-                        <a class="event-link" href="{{event.1.get_absolute_url}}">
+                        <a class="event-link" href="{{events.1.get_absolute_url}}">
                             More informations
                         </a>
                         {% endif %}

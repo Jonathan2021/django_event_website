@@ -81,8 +81,7 @@ class EventDetailView(generic.DetailView, generic.edit.FormMixin):
     def form_valid(self, form): #should maybe save in the forms itself
         form.save()
         return super(EventDetailView, self).form_valid(form)
-
-
+        
 
     def get_context_data(self, **kwargs): # test it in views
         context = super().get_context_data(**kwargs)

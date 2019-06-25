@@ -5,13 +5,6 @@
 {%block content %}   
 {% get_obj_perms user for event as "event_perms" %}
 <div style="font-size:1.1rem;"class="container basic-block">
-    {% if "modify_event" in event_perms or perms.event.modify_event %}
-    <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
-        {% csrf_token %}
-        {{form}}
-        <input type="submit" value="Done">
-    </form>
-    {% endif %}
     <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{event.title}}</h1>
     <div class="row">
         <article style="padding-left:40px;" class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
@@ -41,11 +34,11 @@
             {% if event.is_ok_cancel and perms.event.cancel_event %}
                 <form action="{% url 'event:event_cancel' event.pk %}" method="POST">
                 {% csrf_token %}
-                <input style="margin-top:10px;" type="submit" class="confirm" value="Cancel" />
+                <button class="btn btn-outline-danger">Cancel<input style="margin-top:10px;" type="hidden" class="confirm" /></button>
             {% elif event.is_ok_cancelable and "make_event_cancelable" in event_perms %}
                 <form action="{% url 'event:make_cancelable' event.pk %}" method="POST">
                 {% csrf_token %}
-                <input style="margin-top:10px;" type="submit" class="confirm" value="Cancel" />
+                <button class="btn btn-outline-danger">Cancel<input style="margin-top:10px;" type="hidden" class="confirm" /></button>
             {% elif event.is_ok_delete %}
                 {% get_obj_perms user for event.assos_id as "asso_perms" %}
                 {% if "remove_event" in asso_perms or perms.event.remove_event %}
@@ -54,7 +47,7 @@
                 <input style="margin-top:10px;" type="submit" class="confirm" value="Delete" />
                 {% endif %}
             {% endif %}
-
+        
         </article>
         <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
             <img src={{ event.image.url }} style="
@@ -65,6 +58,17 @@
                     border: 8px solid black;
                 ">
         </article>
+        {% if "modify_event" in event_perms or perms.event.modify_event %}
+    <!---<button class="btn btn-outline-info" onclick="showUpdate()">Modify</button> -->
+    <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+        <h2>Update :</h2><br/>
+        <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" value="Done">
+        </form>
+        {% endif %}
+    </article>
     </div>
 </div>
 {% endblock content %}

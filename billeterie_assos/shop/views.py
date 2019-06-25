@@ -11,6 +11,10 @@ from django.db import models as models_email
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 import qrcode
+from django.core.mail.backends.smtp import EmailBackend
+from django.core.mail.message import EmailMessage
+from django.core import mail
+from django.core.mail import get_connection
 
 # Create your views here.
     
@@ -50,11 +54,20 @@ def index_shop(request):
             event = views.EventListView.get_queryset(request).get(id=product.id)
         except models.Event.DoesNotExist:
             remove_product(request, product.id)
-
+    send_mail_ticket(request)
     return render(request, "index_shop.html", {
                                     'all_products': all_products,
                                     })
 
+
+def send_mail_ticket(request):
+    email = EmailMessage()
+    email.subject = 'Ticket'
+    email.body = 'Thanks for buying a ticket'
+    email.to = ['romain.chuit@epita.fr']
+    #email.attach_file("/home/romain/Downloads/clement.davin.jpeg")
+    email.connection = get_connection()
+    return email.send()
 
 def show_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)

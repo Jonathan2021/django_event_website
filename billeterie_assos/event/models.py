@@ -31,7 +31,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(default='profile_pics/default.jpg',
                               upload_to='profile_pics/uploads/')
-    gender = models.BooleanField(_("Gender"), null=True, blank=True)
+    gender = models.NullBooleanField(_("Gender"))
     birth_date = models.DateField(_("Birth Date"), validators=[validate_birth],
                                   null=True, blank=True)
     address_id = AddressField(null=True, blank=True, related_name="emails",

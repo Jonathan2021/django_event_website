@@ -66,8 +66,10 @@ class UnicodeValidator(validators.RegexValidator):
 
 class Association(models.Model):
     name = models.CharField(_("Name"), max_length=64, unique=True,
-                            validators=[UnicodeValidator()])
-    url = models.URLField(_("Association's website"), null=True, blank=True)
+                            validators=[UnicodeValidator()],
+                            help_text=_("64 characters max"))
+    url = models.URLField(_("Association's website"), null=True, blank=True,
+                          help_text=_("If your association has its own website"))
 
     class Meta:
         verbose_name = _("Association")
@@ -263,7 +265,8 @@ class Event(models.Model):
 
 
     title = models.CharField(_("Title of the event"), max_length=64,
-                             validators=[UnicodeValidator()])
+                             validators=[UnicodeValidator()],
+                             help_text=_("max 64 characters"))
     event_state = models.CharField(_("State of the event"), max_length=1,
                                    choices=EVENT_STATE_CHOICES,
                                    default=PENDING)
@@ -272,18 +275,21 @@ class Event(models.Model):
     start = models.DateTimeField(_("Start date and time"))
     end = models.DateTimeField(_("End date and time"))
     ticket_deadline = models.DateTimeField(_("Deadline to buy tickets"),
-                                           null=True, blank=True)
+                                           null=True, blank=True,
+                                           help_text=_("if left empty, it is equal to start"))
     # tests for this field
     assos_id = models.ForeignKey(Association, on_delete=models.CASCADE,
                                  related_name='events')
     address_id = AddressField(on_delete=models.PROTECT)
     # default=epita's address
-    premium_flag = models.BooleanField(_("Premium"), default=False)
+    premium_flag = models.BooleanField(_("Premium"), default=False,
+                                       help_text=_("Will be make it visible on the home page"))
     image = models.ImageField(_("Event's cover image"),
                               default='event_pics/default.jpg',
                               upload_to='event_pics/uploads/')
     see_remaining = models.BooleanField(_("See remaining tickets"),
-                                        default=False)
+                                        default=False,
+                                        help_text=_("if set to True, users will be able to see the remaining tickets on the event's page"))
 
     def was_modified(self):
         return not (self.event_state == self.__old_event_state and

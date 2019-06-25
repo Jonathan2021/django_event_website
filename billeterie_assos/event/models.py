@@ -223,6 +223,7 @@ class Boss(SingletonModel):
         assign_perm('event.choose_premium', self.user)
         assign_perm('event.approve_event', self.user)
         assign_perm('event.cancel_event', self.user)
+        assign_perm('event.add_association', self.user)
         assign_perm('event.delete_association', self.user)
 
     def delete(self):
@@ -237,6 +238,7 @@ class Boss(SingletonModel):
         remove_perm('event.choose_premium', self.user)
         remove_perm('event.approve_event', self.user)
         remove_perm('event.cancel_event', self.user)
+        remove_perm('event.add_association', self.user)
         remove_perm('event.delete_association', self.user)
         super(Boss, self).delete()
 
@@ -257,7 +259,9 @@ class Event(models.Model):
         (CANCELABLE, _("Canceled by the president")),
         (VALIDATED, _("Validated by the president")),
     )
-    
+
+
+
     title = models.CharField(_("Title of the event"), max_length=64,
                              validators=[UnicodeValidator()])
     event_state = models.CharField(_("State of the event"), max_length=1,
@@ -281,6 +285,13 @@ class Event(models.Model):
     see_remaining = models.BooleanField(_("See remaining tickets"),
                                         default=False)
 
+    def was_modified(self):
+        return not (self.event_state == self.__old_event_state and
+                    self.__old_title == self.title and
+                    self.__old_start == self.start and
+                    self.__old_end == self.end and
+                    self.__old_ticket_deadline == self.ticket_deadline)
+
     def is_ok_cancelable(self):
         return self.event_state == Event.APPROVED
 
@@ -290,10 +301,9 @@ class Event(models.Model):
     def is_ok_delete(self):
         return self.event_state in [Event.PENDING, Event.VALIDATED]
 
-    def ask_validation(self):
-        pass
-
-        
+    def __init__(self, *args, **kwargs):
+        super(Event, self).__init__(*args, **kwargs)
+        print('WOW')
 
     def clean(self):
         super(Event, self).clean()
@@ -317,13 +327,6 @@ class Event(models.Model):
             ('choose_premium', 'User can make an event premium or not'),
             ('cancel_event', 'User can cancel the event'),
         )
-
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            self.ask_validation()
-        if self.ticket_deadline is None:
-            self.ticket_deadline = self.start # should maybe use signals
-        super(Event, self).save(*args, **kwargs)
 
 
 class Ticket(models.Model):
@@ -377,7 +380,7 @@ class Price(models.Model):
     ticket_type = models.CharField(_("Type of ticket"), max_length=1,
                                    choices=Ticket.TICKET_TYPE_CHOICES)
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE,
-                                 related_name="Prices")
+                                 related_name="prices")
     price = models.PositiveIntegerField(_("Price"),
                                         validators=[validate_price_for_sqlite])
 
@@ -428,6 +431,7 @@ class Purchase(models.Model):
         verbose_name = _("Purchase")
         verbose_name_plural = _("Purchases")
         unique_together = ('event_id', 'user', 'ticket_id')
+
 
 class EventCalendar(HTMLCalendar):
     def __init__(self, events=None):

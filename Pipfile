@@ -24,7 +24,11 @@ django-solo = "*"
 nose = "*"
 django-qr-code = "*"
 pyqrcode = "*"
-qrcode = {extras = ["pil"],version = "*"}
+django-absoluteuri = "*"
 
 [requires]
 python_version = "3.7"
+
+[packages.qrcode]
+extras = [ "pil",]
+version = "*"

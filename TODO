@@ -66,4 +66,6 @@ Check if redirect raises 404 before redirecting using example in resolve https:/
 
 Add image in tab
 
-had help_text in forms
+had help_text in forms (can be done on models directly)
+
+pass update_fields to save()

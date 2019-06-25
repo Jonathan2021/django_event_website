@@ -32,17 +32,17 @@ def add_item_to_cart(request):
     fail = False
     if type_chosen == "0":
         try:
-            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="I").price
+            price = views.EventListView.get_queryset(request).get(id=product_id).prices.get(ticket_type="I").price
         except models.Price.DoesNotExist:
             fail = True
     if type_chosen == "1":
         try:
-            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="E").price
+            price = views.EventListView.get_queryset(request).get(id=product_id).prices.get(ticket_type="E").price
         except models.Price.DoesNotExist:
             fail = True
     if type_chosen == "2":
         try:
-            price = views.EventListView.get_queryset(request).get(id=product_id).Prices.get(ticket_type="S").price
+            price = views.EventListView.get_queryset(request).get(id=product_id).prices.get(ticket_type="S").price
         except models.Price.DoesNotExist:
             fail = True
 

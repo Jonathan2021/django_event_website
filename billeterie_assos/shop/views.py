@@ -33,7 +33,7 @@ def index_shop(request):
         
     for event in views.EventListView.get_queryset(request):
         my_price = 0
-        all_price = event.Prices.all()
+        all_price = event.prices.all()
         try:
             my_price = all_price.get(ticket_type=user_type).price
         except models.Price.DoesNotExist:        
@@ -73,7 +73,7 @@ def send_mail_ticket(request):
 
 def show_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    event_prices = views.EventListView.get_queryset(request).get(id=product.id).Prices.all()
+    event_prices = views.EventListView.get_queryset(request).get(id=product.id).prices.all()
     if request.method == 'POST':
         form = CartForm(request, request.POST, product_id)
         if form.is_valid():

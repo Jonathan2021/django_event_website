@@ -33,4 +33,5 @@ urlpatterns = [
     path('event/cancelable/<int:pk>', views.EventCancelable.as_view(), name='make_cancelable'),
     path('event/cancel/<int:pk>', views.EventCancel.as_view(), name='event_cancel'),
     path('assos/president/add/<int:pk>', permission_required('event.add_president', login_url='login')(views.PresidentCreate.as_view()), name='add_president'),
+    path('event/<int:event_pk>/staff/delete/<int:pk>', views.StaffDelete.as_view(), name='staff_delete'),
 ]

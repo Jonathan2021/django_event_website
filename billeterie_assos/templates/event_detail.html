@@ -27,7 +27,11 @@
             <p><b>Staffs</b> :
             <ul>
             {% for staff in staffs %}
-            <li>{{staff.user.username}}</li>
+            <li>{{staff.user.username}}
+                {% if "choose_staff" in asso_perms or perms.event.choose_staff %}
+                <a style="margin-left:20px; color:#6351ce; font-size:0.8rem;" class="confirm" href="{% url 'event:staff_delete' pk=staff.pk event_pk=event.pk %}">Remove from staff</a>
+                {% endif %}
+            </li>
             {% endfor %}
             </ul>
             {% if event.see_remaining %}

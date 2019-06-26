@@ -358,6 +358,19 @@ class EventCancel(generic.View):
         event.save()
         return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_choose_staff, name='dispatch')
+class StaffDelete(generic.DeleteView):
+    model = Purchase
+
+    def get_success_url(self):
+        return reverse_lazy('event:event_detail', kwargs={'pk': self.kwargs.pop('event_pk')})
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+
+
 
 def search(request):
     if request.method == 'GET':

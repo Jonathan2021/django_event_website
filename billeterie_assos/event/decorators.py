@@ -104,3 +104,15 @@ def can_modify_event(function):
         else:
             raise PermissionDenied
     return wrap
+
+
+def can_choose_staff(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        event = get_object_or_404(models.Event, pk=kwargs['event_pk'])
+        if request.user.has_perm('choose_staff', event.assos_id) or \
+                request.user.has_perm('event.choose_staff'):
+            return function(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+    return wrap

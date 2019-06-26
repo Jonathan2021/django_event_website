@@ -74,7 +74,10 @@ def add_item_to_cart(request):
     
     if nb_tickets < quantity:
         quantity = nb_tickets
-
+    
+    if quantity == 0:
+        return
+    
     for cart_item in cart_items:
         if cart_item.product_id == product_id and cart_item.price == price  and cart_item.ticket_type == ticket_type:
             cart_item.update_quantity(quantity)

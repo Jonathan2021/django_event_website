@@ -164,6 +164,7 @@ def info(request):
                     ticket_id = my_ticket.ticket_id.id,
                 )
                 o.save()
+                send_mail_ticket(request, "Ticket Buy !", "Thanks for Buying this ticket ! your ticket's id is : " + str(my_ticket.ticket_id.id), o.email)
 
             all_items = cart.get_all_cart_items(request)
             for cart_item in all_items:

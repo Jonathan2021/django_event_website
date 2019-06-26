@@ -71,7 +71,7 @@
                     {% if "delete_association" in assos_perms or perms.event.delete_association %}
                     <form action="{% url 'event:assos_delete' object.pk %}" method="POST">
                     {% csrf_token %}
-                    <input type="submit" class="confirm" value="Delete" />
+                    <input class="btn btn-danger" type="submit" class="confirm" value="Delete" />
                     </form>
                     {% endif %}
                 </div>
@@ -79,8 +79,8 @@
             <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
                 <img src="{% static "img/assos_detail_img.png"%}" style="
                     opacity: 0.9;
-                    height:100%; 
-                    width:100%;
+                    height:80%; 
+                    width:80%;
                     border-radius: 10px;
                 ">
             </article>

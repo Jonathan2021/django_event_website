@@ -297,7 +297,7 @@ class Event(models.Model):
     premium_flag = models.BooleanField(_("Premium"), default=False,
                                        help_text=_("Will be make it visible on the home page"))
     image = models.ImageField(_("Event's cover image"),
-                              default='event_pics/default.jpg',
+                              default='event_pics/default.png',
                               upload_to=get_upload_path_event)
     see_remaining = models.BooleanField(_("See remaining tickets"),
                                         default=False,
@@ -463,7 +463,8 @@ class EventCalendar(HTMLCalendar):
         events_from_day = events.filter(start__day=day)
         events_html = '<ul style="height:50px; margin-bottom:10px;">'
         for event in events_from_day:
-            events_html += "- " + event.title + "<br>"
+            url_ev = reverse('event:event_detail', kwargs={'pk': event.id})
+            events_html += "- " + '<a href=' + url_ev + '>' + event.title + '</a>' + "<br>"
         events_html += "</ul>"
  
         if day == 0:

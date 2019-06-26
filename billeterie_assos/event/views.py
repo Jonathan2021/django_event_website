@@ -86,6 +86,8 @@ class EventDetailView(generic.DetailView, generic.edit.FormMixin):
     def get_context_data(self, **kwargs): # test it in views
         context = super().get_context_data(**kwargs)
         event = self.get_object()
+        staff = event.participants.filter(ticket_id__ticket_type=Ticket.STAFF)
+        context['staffs'] = staff
         if event.see_remaining:
             all_tickets = event.tickets.all()
             external_left = 0

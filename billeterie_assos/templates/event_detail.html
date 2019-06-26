@@ -19,6 +19,12 @@
             <p><b>Address</b> :
                 {{event.address_id.raw}}
             </p>
+            <p><b>Staffs</b> :
+            <ul>
+            {% for staff in staffs %}
+            <li>{{staff.user.username}}</li>
+            {% endfor %}
+            </ul>
             {% if event.see_remaining %}
             <p><b>Tickets left</b> :
             <br/>

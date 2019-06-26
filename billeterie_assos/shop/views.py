@@ -58,19 +58,17 @@ def index_shop(request):
         except models.Event.DoesNotExist:
             remove_product(request, product.id)
 
-    send_mail_ticket(request)
-    
     all_products = Product.objects.all()
     return render(request, "index_shop.html", {
                                     'all_products': all_products,
                                     })
 
 
-def send_mail_ticket(request):
+def send_mail_ticket(request, subject, body, to):
     email = EmailMessage()
-    email.subject = 'Ticket'
-    email.body = 'Thanks for buying a ticket'
-    email.to = ['clement.davin@epita.fr']
+    email.subject = subject
+    email.body = body
+    email.to = [to]
     #email.attach_file("/home/romain/Downloads/clement.davin.jpeg")
     email.connection = get_connection()
     return email.send()
@@ -155,13 +153,17 @@ def info(request):
         form = CheckoutForm(request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            o = Order(
-                name = cleaned_data.get('name'),
-                email = cleaned_data.get('email'),
-                postal_code = cleaned_data.get('postal_code'),
-                address = cleaned_data.get('address'),
-            )
-            o.save()
+            user = User.objects.get(id=request.user.id)
+            my_tickets = views.Purchase.objects.filter(user=user)
+            for my_ticket in my_tickets:
+                o = Order(
+                    name = cleaned_data.get('name'),
+                    email = cleaned_data.get('email'),
+                    postal_code = cleaned_data.get('postal_code'),
+                    address = cleaned_data.get('address'),
+                    ticket_id = my_ticket.ticket_id.id,
+                )
+                o.save()
 
             all_items = cart.get_all_cart_items(request)
             for cart_item in all_items:
@@ -179,7 +181,7 @@ def info(request):
             request.session['order_id'] = o.id
 
             messages.add_message(request, messages.INFO, 'Order Placed!')
-            return redirect('info')
+        return render(request, 'index.html')
 
 
     else:

@@ -15,7 +15,7 @@ class CartForm(forms.Form):
 class CheckoutForm(forms.ModelForm):
     class Meta:
         model = Order
-        exclude = ('paid',)
+        exclude = ('paid', 'ticket_id',)
 
         widgets = {
             'address': forms.Textarea(attrs={'row': 5, 'col': 8}),

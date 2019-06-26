@@ -40,6 +40,7 @@ class Order(models.Model):
     address = models.CharField(max_length=191)
     date = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
+    ticket_id = models.IntegerField()
 
     def __str__(self):
         return "{}:{}".format(self.id, self.email)

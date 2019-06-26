@@ -126,9 +126,12 @@ class UpdateEventForm(forms.ModelForm):
         self.nb_intern = self.intern.count()
         self.nb_extern = self.extern.count()
         self.nb_staff = self.staff.count()
-        self.intern_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.INTERN).count()
-        self.extern_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.EXTERN).count()
-        self.staff_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.STAFF).count()
+        self.intern_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.INTERN)
+        self.intern_purchase_nb = self.intern_purchase.count()
+        self.extern_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.EXTERN)
+        self.extern_purchase_nb = self.extern_purchase.count()
+        self.staff_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.STAFF)
+        self.staff_purchase_nb = self.staff_purchase.count()
         self.fields['title'].required = False
         self.fields['start'].required = False
         self.fields['end'].required = False
@@ -137,17 +140,17 @@ class UpdateEventForm(forms.ModelForm):
         self.fields['see_remaining'].required = False
         self.fields['premium_flag'].required = False
         intern_field = self.fields['intern_number']
-        intern_field.min_value=self.intern_purchase
+        intern_field.min_value=self.intern_purchase_nb
         intern_field.initial=self.nb_intern
-        intern_field.help_text=_('%d tickets already bought') % self.intern_purchase
+        intern_field.help_text=_('%d tickets already bought') % self.intern_purchase_nb
         extern_field = self.fields['extern_number']
-        extern_field.min_value=self.extern_purchase
+        extern_field.min_value=self.extern_purchase_nb
         extern_field.initial=self.nb_extern
-        extern_field.help_text=_('%d tickets already bought') % self.extern_purchase
+        extern_field.help_text=_('%d tickets already bought') % self.extern_purchase_nb
         staff_field = self.fields['staff_number']
-        staff_field.min_value=self.staff_purchase
+        staff_field.min_value=self.staff_purchase_nb
         staff_field.initial=self.nb_staff
-        staff_field.help_text=_('%d staff members already') % self.staff_purchase
+        staff_field.help_text=_('%d staff members already') % self.staff_purchase_nb
 
         try:
             price = self.event.prices.get(ticket_type=Ticket.INTERN).price
@@ -186,7 +189,11 @@ class UpdateEventForm(forms.ModelForm):
         image = self.cleaned_data['image']
         ticket_deadline = self.cleaned_data['ticket_deadline']
         see_remaining = self.cleaned_data['see_remaining']
-        print(image)
+        intern_number = self.cleaned_data['intern_number']
+        extern_number = self.cleaned_data['extern_number']
+        staff_number = self.cleaned_data['staff_number']
+        intern_price = self.cleaned_data['intern_price']
+        extern_price = self.cleaned_data['extern_price']
 
         if title:
             self.event.title = title
@@ -204,6 +211,48 @@ class UpdateEventForm(forms.ModelForm):
             self.event.image = image
 
         if (commit):
+            if intern_number < self.nb_intern:
+                purchase = self.intern_purchase.values_list('ticket_id', flat=True)
+                self.intern.exclude(id__in=purchase)[:(self.nb_intern - intern_number)].delete()
+
+            elif intern_number > self.nb_intern:
+                for i in range(intern_number - self.nb_intern):
+                    Ticket.objects.create(ticket_type=Ticket.INTERN, event_id=self.event)
+
+            if intern_number:
+                obj, created = Price.objects.get_or_create(ticket_type=Ticket.INTERN, event_id=self.event, defaults={'price': intern_price})
+                if not created:
+                    obj.price = intern_price
+                    obj.save()
+
+            if extern_number < self.nb_extern:
+                purchase = self.extern_purchase.values_list('ticket_id', flat=True)
+                self.extern.exclude(id__in=purchase)[:(self.nb_extern - extern_number)].delete()
+
+            elif extern_number > self.nb_extern:
+                for i in range(extern_number - self.nb_extern):
+                    Ticket.objects.create(ticket_type=Ticket.EXTERN, event_id=self.event)
+
+            if extern_number:
+                obj, created = Price.objects.get_or_create(ticket_type=Ticket.EXTERN, event_id=self.event, defaults={'price': extern_price})
+                if not created:
+                    obj.price = extern_price
+                    obj.save()
+
+            if staff_number < self.nb_staff:
+                purchase = self.staff_purchase.values_list('ticket_id', flat=True)
+                self.staff.exclude(id__in=purchase)[:(self.nb_staff - staff_number)].delete()
+
+            elif staff_number > self.nb_staff:
+                for i in range(staff_number - self.nb_staff):
+                    Ticket.objects.create(ticket_type=Ticket.STAFF, event_id=self.event)
+
+            if staff_number:
+                obj, created = Price.objects.get_or_create(ticket_type=Ticket.STAFF, event_id=self.event, defaults={'price': 0})
+                if not created:
+                    obj.price = 0
+                    obj.save()
+
             self.event.save()
         return self.event
 

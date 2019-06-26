@@ -350,3 +350,16 @@ class EventCancel(generic.View):
         event.event_state = Event.CANCELED
         event.save()
         return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
+
+
+def search(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('search_bar')
+        events = Event.objects.filter(end__gt=timezone.now(), event_state=Event.APPROVED)
+
+        matching_events = []
+        for event in events:
+            if event.title[:len(search_query)] == search_query:
+                matching_events.append(event)
+
+    return render(request, 'search_event.html', { 'events':matching_events})

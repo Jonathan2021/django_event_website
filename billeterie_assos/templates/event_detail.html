@@ -40,7 +40,7 @@
             <a href="{% url 'index_shop' %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
             {% if "modify_event" in asso_perms or perms.event.modify_event %}
                 <br/>  
-                <button id="modify" class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="display('update')">Modify</button>
+                <button id="modify" class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="show()">Modify</button>
             {% endif %}
             {% if event.is_ok_cancel and perms.event.cancel_event %}
                 <form action="{% url 'event:event_cancel' event.pk %}" method="POST">
@@ -73,10 +73,11 @@
         </article>
         <article id='update' style="{% if not form.errors %} display: none;{% endif %} margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
         <h2>Update :</h2><br/>
-        <form  id='my-form' enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
+
+        <form style="margin-left:40px;" id='my-form' enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
             {% csrf_token %}
             {{form.as_p}}
-            <input type="submit" value="Done">
+            <input class="btn btn-secondary" type="submit" value="Done">
         </form>
     </article>
     </div>
@@ -87,5 +88,14 @@
         $(document).on('click', "#modify", function(){
             scrollToAnchor("#my-form");
         });
+        function show() {
+            var x = document.getElementById("update");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+            }
     </script>
+    
 {% endblock script %}

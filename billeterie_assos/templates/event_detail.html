@@ -19,6 +19,12 @@
             <p><b>Address</b> :
                 {{event.address_id.raw}}
             </p>
+            <p><b>Staffs</b> :
+            <ul>
+            {% for staff in staffs %}
+            <li>{{staff.user.username}}</li>
+            {% endfor %}
+            </ul>
             {% if event.see_remaining %}
             <p><b>Tickets left</b> :
             <br/>
@@ -32,9 +38,9 @@
                 <a style="margin-left:20px; color:#6351ce;" href="{{event.assos_id.get_absolute_url}}">{{event.assos_id.name}}</a>
             </h3>
             <a href="{% url 'index_shop' %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
-            {% if "modify_event" in event_perms or perms.event.modify_event %}
+            {% if "modify_event" in asso_perms or perms.event.modify_event %}
                 <br/>  
-                <button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="display('update')">Modify</button>
+                <button id="modify" class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="show()">Modify</button>
             {% endif %}
             {% if event.is_ok_cancel and perms.event.cancel_event %}
                 <form action="{% url 'event:event_cancel' event.pk %}" method="POST">
@@ -65,14 +71,31 @@
                     border: 8px solid black;
                 ">
         </article>
-    <article id='update' style="display: none; margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+        <article id='update' style="{% if not form.errors %} display: none;{% endif %} margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
         <h2>Update :</h2><br/>
-        <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
+
+        <form style="margin-left:40px;" id='my-form' enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
             {% csrf_token %}
             {{form.as_p}}
-            <input type="submit" value="Done">
+            <input class="btn btn-secondary" type="submit" value="Done">
         </form>
     </article>
     </div>
 </div>
 {% endblock content %}
+{% block script %}
+    <script type="text/javascript">
+        $(document).on('click', "#modify", function(){
+            scrollToAnchor("#my-form");
+        });
+        function show() {
+            var x = document.getElementById("update");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+            }
+    </script>
+    
+{% endblock script %}

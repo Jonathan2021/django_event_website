@@ -19,7 +19,7 @@
                 </article>
                 <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
                     {% if user.is_authenticated and user.memberships.all %}
-                        <a href="{% url 'event:general_event_creation' %}">Create an Event</a>
+                        <a style="margin-bottom:45px;" class="btn btn-danger" href="{% url 'event:general_event_creation' %}">Create an Event</a>
                     {% endif %}
                     {% if events %}
                         <ul>

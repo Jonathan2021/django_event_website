@@ -5,12 +5,12 @@
 
 {% block content %}
 <div class="basic-block">
-  <h2 style="margin-top:50px;">Sign up</h2>
-  <form method="post">
+  <h2 style="margin-top:10px; margin-bottom: 50px;">Sign up</h2>
+  <form method="post" style="margin-left:30px;">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" style="margin-bottom:75px;">Sign up</button>
+    <button class="btn btn-danger" type="submit" style="margin-bottom:40px;">Sign up</button>
   </form>
   <a href="{% url 'login' %}">Already have an account?</a>
-  </div>
+</div>
 {% endblock %}

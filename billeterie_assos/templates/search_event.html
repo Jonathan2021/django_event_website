@@ -3,30 +3,25 @@
 
 {% block content %}
 
-    <div class="container" style="
-        background-color: 
-        lavenderblush;
-        margin-top:50px;
-        margin-bottom:50px;
-        padding: 10px;
-        opacity: 0.9;
-        border-radius: 5px;
-    ">
+    <div class="container basic-block">
         <div class="container">
             <div class="row">
                 <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
                     <h2 style="font-family: 'Courier New', Courier, monospace;
                                 font-weight:bold;
+                                margin-bottom: 30px;
                     ">
                         Events Corresponding</h2>
-                    <ul style="margin-left: 35%;">
+                    <ul style="margin-left: 25%;">
                     {% for event in events %}
-                        <li>
+                        <li style="list-style-type: none; ">
                             <tr>
-                                <h3 style="font-family: 'Courier New', Courier, monospace;
-                                        font-style: italic;
-                                ">
-                                    {{ event.title }}</h3>
+                                <a style="font-family: 'Courier New', Courier, monospace;
+                                        font-size: 1.7rem;
+                                        color: black;
+                                " href="{{ event.get_absolute_url}}"
+                                >
+                                    {{ event.title }}</a>
                             </tr>
                         </li>
                     {% endfor %}

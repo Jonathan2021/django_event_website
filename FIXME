@@ -27,3 +27,7 @@ members in memberform should only be from epita should only be epita's
  use bulk_create instead of for loop
 
  Maybe create prices automatically when creating event ?
+
+ Dans Assos detail l image s'étend sur toute la longueur, ca fait moche si le truc est trop long
+
+ Should avoid computing redundancy in event detail using something like this: https://stackoverflow.com/questions/6907388/updating-context-data-in-formview-form-valid-method

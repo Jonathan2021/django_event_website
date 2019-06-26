@@ -145,6 +145,18 @@
     return confirm('Are you sure?');
     })
     </script>
+    <script type="text/javascript">
+        function scrollToAnchor(id){
+        $('html,body').animate({scrollTop: $(id).offset().top},'slow');
+        }
+    </script>
+    <script type="text/javascript">
+    $(function () {
+        {% if anchor %}
+            scrollToAnchor($("#" + "{{ anchor }}"));
+        {% endif %}
+    });
+    </script>
     <script>
     function display(el)
     {
@@ -152,5 +164,6 @@
         x.style.display = "block";
     }
     </script>
+    {% block script %}{% endblock script %}
 </body>
 </html>

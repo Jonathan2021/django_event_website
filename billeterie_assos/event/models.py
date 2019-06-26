@@ -419,7 +419,8 @@ class Price(models.Model):
 class Purchase(models.Model):
     event_id = models.ForeignKey(Event, on_delete=models.CASCADE,
                                  related_name='participants')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='purchases')
     ticket_id = models.OneToOneField(Ticket, on_delete=models.CASCADE,
                                      related_name='purchase')
 

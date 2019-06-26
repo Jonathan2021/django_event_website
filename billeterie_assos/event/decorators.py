@@ -98,9 +98,9 @@ def can_modify_event(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
         event = get_object_or_404(models.Event, pk=kwargs['pk'])
-        if request.user.has_perm('modify_event', event) or \
+        if request.user.has_perm('modify_event', event.assos_id) or \
                 request.user.has_perm('event.modify_event'):
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied
-        return wrap
+    return wrap

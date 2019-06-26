@@ -40,7 +40,7 @@
             <a href="{% url 'index_shop' %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
             {% if "modify_event" in event_perms or perms.event.modify_event %}
                 <br/>  
-                <button id="modify" class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="display('update')">Modify</button>
+                <button id="modify" class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="show()">Modify</button>
             {% endif %}
             {% if event.is_ok_cancel and perms.event.cancel_event %}
                 <form action="{% url 'event:event_cancel' event.pk %}" method="POST">
@@ -88,5 +88,14 @@
         $(document).on('click', "#modify", function(){
             scrollToAnchor("#my-form");
         });
+        function show() {
+            var x = document.getElementById("update");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+            }
     </script>
+    
 {% endblock script %}

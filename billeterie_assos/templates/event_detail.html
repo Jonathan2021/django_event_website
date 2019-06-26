@@ -19,6 +19,11 @@
             <p><b>Address</b> :
                 {{event.address_id.raw}}
             </p>
+            {% if perms.event.choose_premium %}
+            <p><b>Premium</b> :
+                {{event.premium_flag}}
+            </p>
+            {% endif %}
             <p><b>Staffs</b> :
             <ul>
             {% for staff in staffs %}

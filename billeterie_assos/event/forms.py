@@ -73,7 +73,11 @@ class CreateEventForm(forms.ModelForm):
         fields = ['title', 'start', 'end', 'assos_id', 'address_id', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
 
     def save(self, commit=True):
+        address = self.cleaned_data['address_id']
+        self.cleaned_data['address_id'] = None
+        obj = Address.objects.get_or_create(raw=address)[0]
         event = super(CreateEventForm, self).save(commit=False)
+        event.address_id = obj
         if not (self.user.has_perm('create_event', event.assos_id) or self.user.has_perm('event.create_event')):
             raise PermissionDenied
         if self.user.has_perm('event.approve_event'):
@@ -140,7 +144,7 @@ class UpdateEventForm(forms.ModelForm):
         self.fields['image'].required = False
         self.fields['ticket_deadline'].required = False
         self.fields['see_remaining'].required = False
-        self.fields['premium_flag'].required = False
+        self.fields['premium_flag'].initial = self.event.premium_flag
         self.fields['start'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
         self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
         self.fields['address_id'].label = _("Address")
@@ -232,8 +236,7 @@ class UpdateEventForm(forms.ModelForm):
             self.event.start = start
         if end:
             self.event.end = end
-        if premium_flag:
-            self.event.premium_flag = premium_flag
+        self.event.premium_flag = premium_flag
         if ticket_deadline:
             self.event.ticket_deadline = ticket_deadline
         if see_remaining:

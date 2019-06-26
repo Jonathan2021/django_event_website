@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Member, Manager, President, Profile, Association, Event, Ticket, Price
+from .models import Member, Manager, President, Profile, Association, Event, Ticket, Price, Purchase
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import DateTimeInput, HiddenInput
@@ -140,17 +140,26 @@ class UpdateEventForm(forms.ModelForm):
         self.fields['see_remaining'].required = False
         self.fields['premium_flag'].required = False
         intern_field = self.fields['intern_number']
-        intern_field.min_value=self.intern_purchase_nb
-        intern_field.initial=self.nb_intern
-        intern_field.help_text=_('%d tickets already bought') % self.intern_purchase_nb
+        intern_field.widget.attrs['min'] = self.intern_purchase_nb
+        intern_field.initial = self.nb_intern
+        intern_field.help_text = _('total : %d | bought : %d') % \
+                (self.nb_intern, self.intern_purchase_nb)
         extern_field = self.fields['extern_number']
-        extern_field.min_value=self.extern_purchase_nb
-        extern_field.initial=self.nb_extern
-        extern_field.help_text=_('%d tickets already bought') % self.extern_purchase_nb
+        extern_field.widget.attrs['min'] = self.extern_purchase_nb
+        extern_field.initial = self.nb_extern
+        extern_field.help_text = _('total : %d | bought : %d') % \
+                (self.nb_extern, self.extern_purchase_nb)
         staff_field = self.fields['staff_number']
-        staff_field.min_value=self.staff_purchase_nb
-        staff_field.initial=self.nb_staff
-        staff_field.help_text=_('%d staff members already') % self.staff_purchase_nb
+        staff_field.widget.attrs['min'] = self.staff_purchase_nb
+        staff_field.initial = self.nb_staff
+        staff_field.help_text = _('total : %d | selected staff: %d') % \
+                (self.nb_staff, self.staff_purchase_nb)
+        staffs_field = self.fields['staffs']
+        # should maybe make a staff model with an event and a member
+        # would select members from asso where not already staff
+        wanted = self.event.assos_id.members.all().values_list('user', flat=True)
+        unwanted = self.event.participants.filter(ticket_id__ticket_type=Ticket.STAFF).values_list('user', flat=True)
+        staffs_field.queryset = User.objects.filter(id__in=wanted).exclude(id__in=unwanted)
 
         try:
             price = self.event.prices.get(ticket_type=Ticket.INTERN).price
@@ -175,11 +184,25 @@ class UpdateEventForm(forms.ModelForm):
     intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
     extern_number = forms.IntegerField(label=_("Number of tickets for externs"))
     extern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
-    staff_number = forms.IntegerField(label=_("Number staff"))
+    staff_number = forms.IntegerField(label=_("Total staff number"))
+    staffs = forms.ModelMultipleChoiceField(label=_("Staff to add"),
+        queryset=User.objects.none(),
+        widget=forms.SelectMultiple(attrs={"class" : "form-control select-multiple"}),
+        required=False)
+
+
 
     class Meta:
         model = Event
         fields = ['title', 'start', 'end', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
+
+    def clean_staffs(self):
+        value = self.cleaned_data['staffs']
+        maximum = self.cleaned_data['staff_number']
+        if len(value) + self.staff_purchase_nb > maximum and maximum >= self.nb_staff:
+            raise forms.ValidationError(_("You can't have more than %d staffs on this event") %
+                                        (maximum))
+        return value
 
     def save(self, commit=True):
         title = self.cleaned_data['title']
@@ -194,6 +217,7 @@ class UpdateEventForm(forms.ModelForm):
         staff_number = self.cleaned_data['staff_number']
         intern_price = self.cleaned_data['intern_price']
         extern_price = self.cleaned_data['extern_price']
+        staffs = self.cleaned_data['staffs']
 
         if title:
             self.event.title = title
@@ -213,7 +237,8 @@ class UpdateEventForm(forms.ModelForm):
         if (commit):
             if intern_number < self.nb_intern:
                 purchase = self.intern_purchase.values_list('ticket_id', flat=True)
-                self.intern.exclude(id__in=purchase)[:(self.nb_intern - intern_number)].delete()
+                for ticket in self.intern.exclude(id__in=purchase)[:(self.nb_intern - intern_number)]:
+                    ticket.delete()
 
             elif intern_number > self.nb_intern:
                 for i in range(intern_number - self.nb_intern):
@@ -227,7 +252,8 @@ class UpdateEventForm(forms.ModelForm):
 
             if extern_number < self.nb_extern:
                 purchase = self.extern_purchase.values_list('ticket_id', flat=True)
-                self.extern.exclude(id__in=purchase)[:(self.nb_extern - extern_number)].delete()
+                for ticket in self.extern.exclude(id__in=purchase)[:(self.nb_extern - extern_number)]:
+                    ticket.delete()
 
             elif extern_number > self.nb_extern:
                 for i in range(extern_number - self.nb_extern):
@@ -239,19 +265,25 @@ class UpdateEventForm(forms.ModelForm):
                     obj.price = extern_price
                     obj.save()
 
-            if staff_number < self.nb_staff:
-                purchase = self.staff_purchase.values_list('ticket_id', flat=True)
-                self.staff.exclude(id__in=purchase)[:(self.nb_staff - staff_number)].delete()
-
-            elif staff_number > self.nb_staff:
+            if staff_number > self.nb_staff:
                 for i in range(staff_number - self.nb_staff):
                     Ticket.objects.create(ticket_type=Ticket.STAFF, event_id=self.event)
 
+            if staff_number < self.nb_staff:
+                purchase = self.staff_purchase.values_list('ticket_id', flat=True)
+                for staff in self.staff.exclude(id__in=purchase)[:(self.nb_staff - staff_number)]:
+                    staff.delete()
+
+            if staffs:
+                purchase = self.staff_purchase.values_list('ticket_id', flat=True)
+                available = self.staff.exclude(id__in=purchase)
+                for user in staffs:
+                    Purchase.objects.create(event_id=self.event, user=user, ticket_id=available[0])
+
             if staff_number:
                 obj, created = Price.objects.get_or_create(ticket_type=Ticket.STAFF, event_id=self.event, defaults={'price': 0})
-                if not created:
-                    obj.price = 0
-                    obj.save()
+
+
 
             self.event.save()
         return self.event

@@ -81,11 +81,16 @@ class EventDetailView(generic.DetailView, generic.edit.FormMixin):
     def form_valid(self, form): #should maybe save in the forms itself
         form.save()
         return super(EventDetailView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form, anchor='my-form'))
         
 
     def get_context_data(self, **kwargs): # test it in views
         context = super().get_context_data(**kwargs)
         event = self.get_object()
+        staff = event.participants.filter(ticket_id__ticket_type=Ticket.STAFF)
+        context['staffs'] = staff
         if event.see_remaining:
             all_tickets = event.tickets.all()
             external_left = 0

@@ -1,5 +1,6 @@
 from django.db import models
 from event.models import Price
+from django.contrib.auth.models import User
 
 class Product(models.Model):
     name = models.CharField(max_length=191)
@@ -41,7 +42,7 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     ticket_id = models.IntegerField()
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return "{}:{}".format(self.id, self.email)
 

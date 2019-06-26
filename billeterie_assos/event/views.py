@@ -18,6 +18,7 @@ import calendar
 from django.urls import reverse
 from calendar import HTMLCalendar
 from django.utils.safestring import mark_safe
+from shop import models as shop_models
 
 # Create your views here.
 
@@ -383,3 +384,21 @@ def search(request):
                 matching_events.append(event)
 
     return render(request, 'search_event.html', { 'events':matching_events})
+
+def Upcomming_Events(request):
+    user = User.objects.get(id=request.user.id)
+    orders = shop_models.Order.objects.filter(user=user)
+    events = []
+    for order in orders:
+        try:
+            event = Ticket.objects.get(id=order.ticket_id).event_id
+        except Ticket.DoesNotExist:
+            continue
+        exist = False
+        for e in events:
+            if e.title == event.title:
+                exist = True
+        if not exist:
+            events.append(event)
+
+    return render(request, 'my_events.html', { 'events':events})

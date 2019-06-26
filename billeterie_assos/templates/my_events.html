@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container basic-block">
+        <div class="container">
+            <div class="row">
+                <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                    <h2 style="font-family: 'Courier New', Courier, monospace;
+                                font-weight:bold;
+                                margin-bottom: 30px;
+                    ">
+                        <p style="text-decoration: underline;">My Upcomming Events :</p></h2>
+                    {% for event in events %}
+                        <li style="list-style-type: none; ">
+                            <tr>
+                                <a style="font-family: 'Courier New', Courier, monospace;
+                                        font-size: 1.7rem;
+                                        color: black;
+                                " href="{{ event.get_absolute_url}}"
+                                >
+                                    - {{ event.title }}</a>
+                            </tr>
+                        </li>
+                    {% endfor %}
+                </article>
+                <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                    <img src= "{% static "img/shop_img.jpg"%}"/ style="
+                        height:100%; 
+                        width:100%;
+                        opacity: 0.9;
+                    ">
+                </article>
+            </div>
+        </div>
+    </div>
+{% endblock %}

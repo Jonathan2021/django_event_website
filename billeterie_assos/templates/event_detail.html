@@ -32,6 +32,10 @@
                 <a style="margin-left:20px; color:#6351ce;" href="{{event.assos_id.get_absolute_url}}">{{event.assos_id.name}}</a>
             </h3>
             <a href="{% url 'index_shop' %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
+            {% if "modify_event" in event_perms or perms.event.modify_event %}
+                <br/>  
+                <button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="display('update')">Modify</button>
+            {% endif %}
             {% if event.is_ok_cancel and perms.event.cancel_event %}
                 <form action="{% url 'event:event_cancel' event.pk %}" method="POST">
                 {% csrf_token %}
@@ -48,7 +52,9 @@
                 {% csrf_token %}
                 <input class="btn btn-outline-danger confirm" style="margin-top:10px;" type="submit" value="Delete"/>
                 </form>
+                {% endif %}
             {% endif %}
+            
         </article>
         <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
             <img src={{ event.image.url }} style="
@@ -59,16 +65,13 @@
                     border: 8px solid black;
                 ">
         </article>
-        <!--<button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="display('update')">Modify</button>-->
-       
-    <article id='update' style ="margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+    <article id='update' style="display: none; margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
         <h2>Update :</h2><br/>
         <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
             {% csrf_token %}
             {{form.as_p}}
             <input type="submit" value="Done">
         </form>
-        {% endif %}
     </article>
     </div>
 </div>

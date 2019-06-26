@@ -101,7 +101,10 @@ def show_product(request, product_id):
     if internal_left == 0:
         inter = ""
     if staff_left == 0:
-        ext = ""
+        staff = ""
+
+    if staff_left == 0 and internal_left == 0 and external_left == 0:
+        inter = "No Tickets available for this event"
 
     if request.method == 'POST':
         form = CartForm(request, request.POST, product_id)

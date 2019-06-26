@@ -64,7 +64,7 @@ class CreateEventForm(forms.ModelForm):
     intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
     extern_number = forms.IntegerField(label=_("Number of tickets for externs"), min_value=0, initial=0)
     extern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
-    staff_number = forms.IntegerField(label=_("Number of tickets for staff"), min_value=0, initial=0)
+    staff_number = forms.IntegerField(label=_("Number of staff"), min_value=0, initial=0)
 
     class Meta:
         model = Event
@@ -120,6 +120,15 @@ class UpdateEventForm(forms.ModelForm):
         self.fields['see_remaining'].widget.attrs.update({"value" : self.event.see_remaining})
         self.fields['premium_flag'].widget.attrs.update({"value" : self.event.premium_flag})
         """
+        self.intern = self.event.tickets.filter(ticket_type=Ticket.INTERN)
+        self.extern = self.event.tickets.filter(ticket_type=Ticket.EXTERN)
+        self.staff = self.event.tickets.filter(ticket_type=Ticket.STAFF)
+        self.nb_intern = self.intern.count()
+        self.nb_extern = self.extern.count()
+        self.nb_staff = self.staff.count()
+        self.intern_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.INTERN).count()
+        self.extern_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.EXTERN).count()
+        self.staff_purchase = self.event.participants.filter(ticket_id__ticket_type=Ticket.STAFF).count()
         self.fields['title'].required = False
         self.fields['start'].required = False
         self.fields['end'].required = False
@@ -127,17 +136,38 @@ class UpdateEventForm(forms.ModelForm):
         self.fields['ticket_deadline'].required = False
         self.fields['see_remaining'].required = False
         self.fields['premium_flag'].required = False
-        
+        intern_field = self.fields['intern_number']
+        intern_field.min_value=self.intern_purchase
+        intern_field.initial=self.nb_intern
+        intern_field.help_text=_('%d tickets already bought') % self.intern_purchase
+        extern_field = self.fields['extern_number']
+        extern_field.min_value=self.extern_purchase
+        extern_field.initial=self.nb_extern
+        extern_field.help_text=_('%d tickets already bought') % self.extern_purchase
+        staff_field = self.fields['staff_number']
+        staff_field.min_value=self.staff_purchase
+        staff_field.initial=self.nb_staff
+        staff_field.help_text=_('%d staff members already') % self.staff_purchase
+
+        try:
+            self.fields['intern_price'].initial = self.event.prices.get(ticket_type=Ticket.INTERN)
+        except Price.DoesNotExist:
+            pass
+        try:
+            self.fields['extern_price'].initial = self.event.prices.get(ticket_type=Ticket.EXTERN)
+        except Price.DoesNotExist:
+            pass
+
         if not self.user.has_perm('event.choose_premium'):
             self.fields['premium_flag'].widget = HiddenInput()
 
-    """
-    intern_number = forms.IntegerField(label=_("Number of tickets for interns"), min_value=0, initial=0)
+
+    intern_number = forms.IntegerField(label=_("Number of tickets for interns"))
     intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
-    extern_number = forms.IntegerField(label=_("Number of tickets for externs"), min_value=0, initial=0)
+    extern_number = forms.IntegerField(label=_("Number of tickets for externs"))
     extern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
-    staff_number = forms.IntegerField(label=_("Number of tickets for staff"), min_value=0, initial=0)
-    """
+    staff_number = forms.IntegerField(label=_("Number staff"))
+
     class Meta:
         model = Event
         fields = ['title', 'start', 'end', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']

@@ -65,3 +65,5 @@ Check if redirect raises 404 before redirecting using example in resolve https:/
 Add image in tab
 
 pass update_fields to save()
+
+Mutliple forms: https://stackoverflow.com/questions/15497693/django-can-class-based-views-accept-two-forms-at-a-time

@@ -15,6 +15,9 @@ from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail.message import EmailMessage
 from django.core import mail
 from django.core.mail import get_connection
+from django.core.mail import send_mail
+from django.core.mail import EmailMessage
+
 # Create your views here.
     
 def index_shop(request):
@@ -54,7 +57,6 @@ def index_shop(request):
         except models.Event.DoesNotExist:
             remove_product(request, product.id)
 
-    #send_mail_ticket(request)
     
     all_products = Product.objects.all()
     return render(request, "index_shop.html", {
@@ -145,3 +147,39 @@ def checkout(request):
     price = cart.subtotal(request)
     #cart.qrcode(request)
     return render(request, 'checkout.html', {'price': price})
+
+def info(request):
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            o = Order(
+                name = cleaned_data.get('name'),
+                email = cleaned_data.get('email'),
+                postal_code = cleaned_data.get('postal_code'),
+                address = cleaned_data.get('address'),
+            )
+            o.save()
+
+            all_items = cart.get_all_cart_items(request)
+            for cart_item in all_items:
+                li = LineItem(
+                    product_id = cart_item.product_id,
+                    price = cart_item.price,
+                    quantity = cart_item.quantity,
+                    order_id = o.id
+                )
+
+                li.save()
+
+            cart.clear(request)
+
+            request.session['order_id'] = o.id
+
+            messages.add_message(request, messages.INFO, 'Order Placed!')
+            return redirect('checkout')
+
+
+    else:
+        form = CheckoutForm()
+        return render(request, 'info_checkout.html', {'form': form})

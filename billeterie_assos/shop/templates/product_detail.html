@@ -8,15 +8,7 @@
 
 {% block content %}
 
-    <div class="container" style="
-        background-color: 
-        lavenderblush;
-        margin-top:50px;
-        margin-bottom:50px;
-        padding: 10px;
-        opacity: 0.9;
-        border-radius: 5px;
-    ">
+    <div class="container basic-block">
             <p><a href="{% url 'index_shop' %}" style="color: black; text-decoration: underline;">All Products </a> &gt;
                 {{ product.name }}
             </p>
@@ -29,21 +21,24 @@
                     margin-left:10%;
                 ">
                     {% if prices %}
+                    <p>
                         {% for price in prices %} 
-                            <p> For {{ price.get_ticket_type_display }}: {{ price.price }}€</p>    
+                            {{ price.get_ticket_type_display }}: {{ price.price }}€<br/>
                         {% endfor %}
-
-                        <p> {{ext}} </p>
-                        <p> {{int}} </p>
-                        <p> {{staff}} </p>
+                    </p>
+                        <p style="
+                            font-style: italic;
+                        ">
+                            Avaiable tickets: {{int}} {{ext}} {{staff}}
+                        </p>
 
 
                         <form action="{% url 'product_detail' product.pk %}" 
                                                 method="post">
                                 {% csrf_token %}
-                                {{ form }}
+                                {{ form.as_p }}
                                 <input type="submit" value="Add to cart" class="btn btn-primary" >
-                            </form> 
+                        </form>
                     {% else %}
                         <p> No Tickets To Sell </p>
                     {% endif %}

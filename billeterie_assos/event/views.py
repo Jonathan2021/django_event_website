@@ -375,7 +375,6 @@ def Upcomming_Events(request):
     orders = shop_models.Order.objects.filter(user=user)
     events = []
     for order in orders:
-        print(order.ticket_id)
         try:
             event = Ticket.objects.get(id=order.ticket_id).event_id
         except Ticket.DoesNotExist:

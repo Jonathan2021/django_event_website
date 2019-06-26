@@ -11,8 +11,7 @@
                                 font-weight:bold;
                                 margin-bottom: 30px;
                     ">
-                        My Events</h2>
-                    <ul style="margin-left: 25%;">
+                        <p style="text-decoration: underline;">My Upcomming Events :</p></h2>
                     {% for event in events %}
                         <li style="list-style-type: none; ">
                             <tr>
@@ -21,11 +20,10 @@
                                         color: black;
                                 " href="{{ event.get_absolute_url}}"
                                 >
-                                    {{ event.title }}</a>
+                                    - {{ event.title }}</a>
                             </tr>
                         </li>
                     {% endfor %}
-                    </ul>
                 </article>
                 <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
                     <img src= "{% static "img/shop_img.jpg"%}"/ style="

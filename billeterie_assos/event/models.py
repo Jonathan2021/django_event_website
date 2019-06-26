@@ -319,6 +319,15 @@ class Event(models.Model):
     def is_ok_delete(self):
         return self.event_state in [Event.PENDING, Event.VALIDATED]
 
+    def is_pending(self):
+        return self.event_state == Event.PENDING
+
+    def is_approved(self):
+        return self.event_state == Event.APPROVED
+
+    def is_validated(self):
+        return self.event_state == Event.VALIDATED
+
     def clean(self):
         super(Event, self).clean()
         if self.start is not None:

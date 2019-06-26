@@ -10,6 +10,32 @@
     <h1 style="font-family:'Courier New', Courier, monospace; font-weight:bolder; color:#100b2c; text-transform: uppercase; margin:10px; margin-bottom: 30px;">{{event.title}}</h1>
     <div class="row">
         <article style="padding-left:40px;" class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+            {% if perms.event.approve_event %}
+                {% if not event.is_approved %}
+                <form action="{% url 'event:event_approve' event.pk %}" method="POST">
+                    {% csrf_token %}
+                <input class="btn btn-outline-success confirm" style="margin-top:10px;" type="submit" value="Approve"/>
+                </form>
+                {% endif %}
+                {% if event.is_validated or event.is_approved %}
+                <form action="{% url 'event:event_disapprove' event.pk %}" method="POST">
+                    {% csrf_token %}
+                <input class="btn btn-outline-danger confirm" style="margin-top:10px;" type="submit" value="Disapprove"/>
+                </form>
+                {% endif %}
+            {% elif "validate_event" in asso_perms %}
+                {% if event.is_pending %}
+                <form action="{% url 'event:event_validate' event.pk %}" method="POST">
+                    {% csrf_token %}
+                <input class="btn btn-outline-success confirm" style="margin-top:10px;" type="submit" value="Approve"/>
+                </form>
+                {% elif event.is_validated %}
+                <form action="{% url 'event:event_disapprove' event.pk %}" method="POST">
+                    {% csrf_token %}
+                <input class="btn btn-outline-danger confirm" style="margin-top:10px;" type="submit" value="Disapprove"/>
+                {% endif %}
+            {% endif %}
+            
             <p><b>State</b> : {{event.get_event_state_display}}</p>
             <p><b>Starting date</b> :
                 {{event.start}}

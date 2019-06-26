@@ -343,6 +343,46 @@ class EventCancelable(generic.View):
         event.save()
         return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_approve, name='dispatch')
+class EventApprove(generic.View):
+    def get(self, request, *args, **kwargs):
+        return self.post(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs.get('pk'))
+        event.event_state = Event.APPROVED
+        event.save()
+        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_validate, name='dispatch')
+class EventValidate(generic.View):
+    def get(self, request, *args, **kwargs):
+        return self.post(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs.get('pk'))
+        event.event_state = Event.VALIDATED
+        event.save()
+        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+@method_decorator(decorators.can_disapprove, name='dispatch')
+class EventDisapprove(generic.View):
+    def get(self, request, *args, **kwargs):
+        return self.post(self, request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        event = get_object_or_404(Event, pk=kwargs.get('pk'))
+        event.event_state = Event.PENDING
+        event.save()
+        return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
+
+
+
+
+
 
 # Should probably fuse into a Change state with new state in url
 # Or do I really need a view ? Cant I just create a cancel method in event and do event.cancel from template? -> Not very flexible

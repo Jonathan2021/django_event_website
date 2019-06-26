@@ -35,4 +35,7 @@ urlpatterns = [
     path('event/cancel/<int:pk>', views.EventCancel.as_view(), name='event_cancel'),
     path('assos/president/add/<int:pk>', permission_required('event.add_president', login_url='login')(views.PresidentCreate.as_view()), name='add_president'),
     path('event/<int:event_pk>/staff/delete/<int:pk>', views.StaffDelete.as_view(), name='staff_delete'),
+    path('event/approve/<int:pk>', views.EventApprove.as_view(), name='event_approve'),
+    path('event/validate/<int:pk>', views.EventValidate.as_view(), name='event_validate'),
+    path('event/pending/<int:pk>', views.EventDisapprove.as_view(), name='event_disapprove'),
 ]

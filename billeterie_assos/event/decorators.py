@@ -67,6 +67,35 @@ def can_cancel(function):
         raise PermissionDenied
     return wrap
 
+def can_validate(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        event = get_object_or_404(models.Event, pk=kwargs['pk'])
+        if event.is_pending() and request.user.has_perm('validate_event', event.assos_id):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied
+    return wrap
+
+
+
+def can_approve(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if request.user.has_perm('event.approve_event'):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied
+    return wrap
+
+def can_disapprove(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        event = get_object_or_404(models.Event, pk=kwargs['pk'])
+        if request.user.has_perm('event.approve_event') or (request.user.has_perm('validate_event', event.assos_id)  and event.is_validated):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied
+    return wrap
+
+
 
 def can_manage_member(function):
     @wraps(function)

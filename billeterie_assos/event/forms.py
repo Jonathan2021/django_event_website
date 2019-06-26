@@ -268,15 +268,11 @@ class UpdateEventForm(forms.ModelForm):
             if staff_number > self.nb_staff:
                 for i in range(staff_number - self.nb_staff):
                     Ticket.objects.create(ticket_type=Ticket.STAFF, event_id=self.event)
-                self.staff = self.event.tickets.filter(ticket_type=Ticket.STAFF) # no need queryset are lazy
 
             if staff_number < self.nb_staff:
                 purchase = self.staff_purchase.values_list('ticket_id', flat=True)
                 for staff in self.staff.exclude(id__in=purchase)[:(self.nb_staff - staff_number)]:
                     staff.delete()
-                self.staff = self.event.tickets.filter(ticket_type=Ticket.STAFF) # no need queryset are lazy
-            
-            self.nb_staff = staff_number # no need queryset are lazy
 
             if staffs:
                 purchase = self.staff_purchase.values_list('ticket_id', flat=True)

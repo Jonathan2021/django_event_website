@@ -146,9 +146,14 @@
     })
     </script>
     <script type="text/javascript">
+        function scrollToAnchor(id){
+        $('html,body').animate({scrollTop: $(id).offset().top},'slow');
+        }
+    </script>
+    <script type="text/javascript">
     $(function () {
         {% if anchor %}
-        $('html,body').animate({scrollTop: $("#" + "{{ anchor }}").offset().top},'slow');
+            scrollToAnchor($("#" + "{{ anchor }}"));
         {% endif %}
     });
     </script>

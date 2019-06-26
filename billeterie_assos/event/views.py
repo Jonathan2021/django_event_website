@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Event, Association, Member, President, Manager, Ticket,\
-        Purchase, EventCalendar
+        Purchase, EventCalendar, Boss
 from .forms import AddMemberForm, AssociationForm, CreateEventForm, UserUpdateForm, ProfileUpdateForm, UpdateEventForm
 from django.contrib.auth.models import User
 from . import decorators
@@ -215,6 +215,24 @@ class AssosView(generic.ListView):
         return Association.objects.all().order_by("name")
 
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class DashBoard(generic.ListView):
+    template_name = 'dashboard.html'
+    context_object_name = 'events'
+
+    def get_queryset(self):
+        if Boss.objects.filter(user=self.request.user).exists():
+            return Event.objects.filter(start__gt=timezone.now()).order_by('start')
+        all_pres = President.objects.filter(user=self.request.user)
+        if all_pres.exists():
+            queryset = Event.objects.none()
+            for pres in all_pres:
+                queryset |= pres.assos_id.events.filter(start__gt=timezone.now(), event_state__in=[Event.PENDING, Event.VALIDATED])
+            queryset.order_by('start')
+            return queryset
+        return Event.objects.none()
+
+
 class ProfileView(generic.ListView): #Shouldnt be a list view
     template_name = 'profile.html'
 
@@ -378,6 +396,8 @@ class EventDisapprove(generic.View):
         event.event_state = Event.PENDING
         event.save()
         return HttpResponseRedirect(self.request.META.get('HTTP_REFERER', reverse('event:index')))
+
+
 
 
 

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% load guardian_tags %}
+
+{%block content %}
+    <div class="container basic-block">
+            <h1 style="
+                font-family: 'Courier New', Courier, monospace;
+                font-weight:bold;
+            ">Dashboard : Ordered by starting date</h1>
+            <div class="row">
+                <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
+                    <ul>
+                        {% for event in events %}
+                        <li>
+                            <a style="
+                                color:black;
+                                opacity:0.8;
+                                font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+                                font-size:large;
+                                " href="{{event.get_absolute_url}}">{{ event.title }}
+                            </a>
+                            <p><b>{{event.get_event_state_display}}</b></p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </article>
+            </div>
+        </div>
+{% endblock content %}

@@ -38,4 +38,5 @@ urlpatterns = [
     path('event/approve/<int:pk>', views.EventApprove.as_view(), name='event_approve'),
     path('event/validate/<int:pk>', views.EventValidate.as_view(), name='event_validate'),
     path('event/pending/<int:pk>', views.EventDisapprove.as_view(), name='event_disapprove'),
+    path('dashboard/', views.DashBoard.as_view(), name='dashboard'),
 ]

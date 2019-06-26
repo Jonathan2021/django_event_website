@@ -17,6 +17,7 @@ from django.core import mail
 from django.core.mail import get_connection
 from django.core.mail import send_mail
 from django.core.mail import EmailMessage
+from django.conf import settings
 
 # Create your views here.
     
@@ -57,6 +58,7 @@ def index_shop(request):
         except models.Event.DoesNotExist:
             remove_product(request, product.id)
 
+    send_mail_ticket(request)
     
     all_products = Product.objects.all()
     return render(request, "index_shop.html", {
@@ -68,7 +70,7 @@ def send_mail_ticket(request):
     email = EmailMessage()
     email.subject = 'Ticket'
     email.body = 'Thanks for buying a ticket'
-    email.to = ['romain.chuit@epita.fr']
+    email.to = ['clement.davin@epita.fr']
     #email.attach_file("/home/romain/Downloads/clement.davin.jpeg")
     email.connection = get_connection()
     return email.send()

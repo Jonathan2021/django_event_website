@@ -71,7 +71,7 @@
                     border: 8px solid black;
                 ">
         </article>
-    <article id='update' style="display: none; margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+        <article id='update' style="{% if not form.errors %} display: none;{% endif %} margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
         <h2>Update :</h2><br/>
         <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
             {% csrf_token %}

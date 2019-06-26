@@ -142,15 +142,18 @@ class UpdateEventForm(forms.ModelForm):
         intern_field = self.fields['intern_number']
         intern_field.widget.attrs['min'] = self.intern_purchase_nb
         intern_field.initial = self.nb_intern
-        intern_field.help_text = _('%d tickets already bought') % self.intern_purchase_nb
+        intern_field.help_text = _('total : %d | bought : %d') % \
+                (self.nb_intern, self.intern_purchase_nb)
         extern_field = self.fields['extern_number']
         extern_field.widget.attrs['min'] = self.extern_purchase_nb
         extern_field.initial = self.nb_extern
-        extern_field.help_text = _('%d tickets already bought') % self.extern_purchase_nb
+        extern_field.help_text = _('total : %d | bought : %d') % \
+                (self.nb_extern, self.extern_purchase_nb)
         staff_field = self.fields['staff_number']
         staff_field.widget.attrs['min'] = self.staff_purchase_nb
         staff_field.initial = self.nb_staff
-        staff_field.help_text = _('%d staff members already') % self.staff_purchase_nb
+        staff_field.help_text = _('total : %d | selected staff: %d') % \
+                (self.nb_staff, self.staff_purchase_nb)
         staffs_field = self.fields['staffs']
         # should maybe make a staff model with an event and a member
         # would select members from asso where not already staff
@@ -193,7 +196,6 @@ class UpdateEventForm(forms.ModelForm):
         model = Event
         fields = ['title', 'start', 'end', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
 
-    """
     def clean_staffs(self):
         value = self.cleaned_data['staffs']
         maximum = self.cleaned_data['staff_number']
@@ -201,7 +203,6 @@ class UpdateEventForm(forms.ModelForm):
             raise forms.ValidationError(_("You can't have more than %d staffs on this event") %
                                         (maximum))
         return value
-    """
 
     def save(self, commit=True):
         title = self.cleaned_data['title']

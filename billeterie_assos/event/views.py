@@ -57,6 +57,7 @@ class EventListView(generic.ListView):
         return Event.objects.filter(end__gt=timezone.now(), event_state=Event.APPROVED).order_by('start')
 
 
+@method_decorator(decorators.can_modify_event, name='post')
 class EventDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Event
     form_class = UpdateEventForm
@@ -146,6 +147,7 @@ class EventCreateGeneralView(generic.CreateView):
         return kwargs
 
 
+@method_decorator(decorators.can_manage_member, name='post')
 class AssosDetailView(generic.DetailView, generic.edit.FormMixin):
     model = Association
     template_name = 'assos_detail.html'

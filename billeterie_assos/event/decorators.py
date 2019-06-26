@@ -71,7 +71,10 @@ def can_cancel(function):
 def can_manage_member(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
-        asso = get_object_or_404(models.Association, pk=kwargs['asso_pk'])
+        if kwargs.get('asso_pk', None) is not None:
+            asso = get_object_or_404(models.Association, pk=kwargs['asso_pk'])
+        else:
+            asso = get_object_or_404(models.Association, pk=kwargs['pk'])
         if request.user.has_perm('manage_member', asso) or \
                 request.user.has_perm('event.manage_member'):
             return function(request, *args, **kwargs)
@@ -90,3 +93,14 @@ def can_manage_manager(function):
         else:
             raise PermissionDenied
     return wrap
+
+def can_modify_event(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        event = get_object_or_404(models.Event, pk=kwargs['pk'])
+        if request.user.has_perm('modify_event', event) or \
+                request.user.has_perm('event.modify_event'):
+            return function(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+        return wrap

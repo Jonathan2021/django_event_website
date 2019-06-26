@@ -26,10 +26,10 @@
                 <tr>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.price }}</td>
+                    <td>{{ item.quantity }}</td>
                     <td>
                         <form action="" method="post">
                             {% csrf_token %}
-                            <input type="text" name="quantity" value="{{ item.quantity }}">
                             <input type="hidden" name="item_id" value="{{ item.id }}">
                     </td>
                     <td>

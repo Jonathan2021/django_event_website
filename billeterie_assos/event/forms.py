@@ -1,4 +1,5 @@
 from django import forms
+from address.models import Address
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Member, Manager, President, Profile, Association, Event, Ticket, Price, Purchase
@@ -45,6 +46,7 @@ class CreateEventForm(forms.ModelForm):
         self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
         asso_field = self.fields['assos_id']
         self.fields['address_id'].label = _("Address")
+        self.fields['address_id'].initial = Address.objects.get_or_create(raw="")[0]
         asso_field.label = _("Association")
         if (self.asso is not None):
             """
@@ -139,6 +141,11 @@ class UpdateEventForm(forms.ModelForm):
         self.fields['ticket_deadline'].required = False
         self.fields['see_remaining'].required = False
         self.fields['premium_flag'].required = False
+        self.fields['start'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
+        self.fields['end'].widget = DateTimeInput(attrs={"placeholder" : "2017-12-25 14:30:59"})
+        self.fields['address_id'].label = _("Address")
+        self.fields['address_id'].initial = Address.objects.get_or_create(raw="")[0]
+        self.fields['address_id'].required = False 
         intern_field = self.fields['intern_number']
         intern_field.widget.attrs['min'] = self.intern_purchase_nb
         intern_field.initial = self.nb_intern
@@ -179,7 +186,6 @@ class UpdateEventForm(forms.ModelForm):
         if not self.user.has_perm('event.choose_premium'):
             self.fields['premium_flag'].widget = HiddenInput()
 
-
     intern_number = forms.IntegerField(label=_("Number of tickets for interns"))
     intern_price = forms.IntegerField(label=_("Price"), min_value=0, initial=0)
     extern_number = forms.IntegerField(label=_("Number of tickets for externs"))
@@ -194,7 +200,7 @@ class UpdateEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['title', 'start', 'end', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
+        fields = ['title', 'start', 'end', 'address_id', 'premium_flag', 'image', 'ticket_deadline', 'see_remaining']
 
     def clean_staffs(self):
         value = self.cleaned_data['staffs']
@@ -210,6 +216,7 @@ class UpdateEventForm(forms.ModelForm):
         end = self.cleaned_data['end']
         premium_flag = self.cleaned_data['premium_flag']
         image = self.cleaned_data['image']
+        address = self.cleaned_data['address_id']
         ticket_deadline = self.cleaned_data['ticket_deadline']
         see_remaining = self.cleaned_data['see_remaining']
         intern_number = self.cleaned_data['intern_number']
@@ -233,6 +240,10 @@ class UpdateEventForm(forms.ModelForm):
             self.event.see_remaining = see_remaining
         if image:
             self.event.image = image
+
+        if address:
+            obj, created = Address.objects.get_or_create(raw=address)
+            self.event.address_id = obj
 
         if (commit):
             if intern_number < self.nb_intern:

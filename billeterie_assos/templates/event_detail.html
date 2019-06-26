@@ -38,8 +38,8 @@
             <h3 style="padding-top:10px;"><b>Assosciation</b> :
                 <a style="margin-left:20px; color:#6351ce;" href="{{event.assos_id.get_absolute_url}}">{{event.assos_id.name}}</a>
             </h3>
-            <a href="{% url 'index_shop' %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
-            {% if "modify_event" in event_perms or perms.event.modify_event %}
+            <a href="{% url 'product_detail' event.id %}"><button class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;">Buy Now!</button></a>
+            {% if "modify_event" in asso_perms or perms.event.modify_event %}
                 <br/>  
                 <button id="modify" class="btn btn-outline-info" style="margin-top:10px; margin-bottom: 10px;" onclick="show()">Modify</button>
             {% endif %}

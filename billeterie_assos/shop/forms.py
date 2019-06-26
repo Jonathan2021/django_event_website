@@ -1,8 +1,7 @@
 from django import forms
 from .models import Order
-
 class CartForm(forms.Form):
-    quantity = forms.IntegerField(initial='1')
+    quantity = forms.IntegerField(initial='1', min_value=1, max_value=5)
     product_id = forms.IntegerField(widget=forms.HiddenInput)
     CHOICES = ((0, 'Internal'),(1, 'External'), (2, 'Staff'))
     price = forms.ChoiceField(choices=CHOICES)
@@ -15,7 +14,7 @@ class CartForm(forms.Form):
 class CheckoutForm(forms.ModelForm):
     class Meta:
         model = Order
-        exclude = ('paid',)
+        exclude = ('paid', 'ticket_id', 'user',)
 
         widgets = {
             'address': forms.Textarea(attrs={'row': 5, 'col': 8}),

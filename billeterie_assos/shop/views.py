@@ -92,16 +92,16 @@ def show_product(request, product_id):
             if ticket.ticket_type == models.Ticket.STAFF:
                 staff_left += 1
 
-    ext = "Some Extern Places Left"
-    inter = "Some Intern Places Left"
-    staff = "Some Staff Places Left"
+    ext = "Extern"
+    inter = "Intern"
+    staff = "Staff"
 
     if external_left == 0:
-        ext = "No Extern Places Left"
+        ext = ""
     if internal_left == 0:
-        inter = "No intern Places Left"
+        inter = ""
     if staff_left == 0:
-        ext = "No staff Places Left"
+        ext = ""
 
     if request.method == 'POST':
         form = CartForm(request, request.POST, product_id)

@@ -177,7 +177,7 @@ def info(request):
             request.session['order_id'] = o.id
 
             messages.add_message(request, messages.INFO, 'Order Placed!')
-            return redirect('checkout')
+            return redirect('info')
 
 
     else:

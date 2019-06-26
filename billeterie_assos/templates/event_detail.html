@@ -47,9 +47,7 @@
                 <input style="margin-top:10px;" type="submit" class="confirm" value="Delete" />
                 {% endif %}
             {% endif %}
-            {% if "modify_event" in event_perms or perms.event.modify_event %}
-            <button class="btn btn-outline-info" onclick="display('update')">Modify</button>
-            {% endif %}
+        
         </article>
         <article class="col-xs-4 col-sm-4 col-md-4 col-lg-6">
             <img src={{ event.image.url }} style="
@@ -60,13 +58,16 @@
                     border: 8px solid black;
                 ">
         </article>
-    <article id="update" style ="display: none; margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+        {% if "modify_event" in event_perms or perms.event.modify_event %}
+    <!---<button class="btn btn-outline-info" onclick="showUpdate()">Modify</button> -->
+    <article style ="margin-top:20px;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
         <h2>Update :</h2><br/>
-        <form  enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
+        <form enctype="multipart/form-data" action="{{event.get_absolute_url}}" method="POST">
             {% csrf_token %}
             {{form.as_p}}
             <input type="submit" value="Done">
         </form>
+        {% endif %}
     </article>
     </div>
 </div>

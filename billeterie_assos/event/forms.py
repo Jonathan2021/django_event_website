@@ -150,11 +150,17 @@ class UpdateEventForm(forms.ModelForm):
         staff_field.help_text=_('%d staff members already') % self.staff_purchase
 
         try:
-            self.fields['intern_price'].initial = self.event.prices.get(ticket_type=Ticket.INTERN)
+            price = self.event.prices.get(ticket_type=Ticket.INTERN).price
+            intern_price = self.fields['intern_price']
+            intern_price.initial = price
+            intern_price.help_text = _('current price in shop is %d') % price
         except Price.DoesNotExist:
             pass
         try:
-            self.fields['extern_price'].initial = self.event.prices.get(ticket_type=Ticket.EXTERN)
+            price = self.event.prices.get(ticket_type=Ticket.EXTERN).price
+            extern_price = self.fields['extern_price']
+            extern_price.initial = price
+            extern_price.help_text = _('current price in shop is %d') % price
         except Price.DoesNotExist:
             pass
 
